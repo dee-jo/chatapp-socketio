@@ -1,0 +1,5 @@
+- each receives a list of rooms from the server, which are displayed as options in the select tag
+- on change of the select tag, changeRoom(this.value) is executed and the current selected option value is passed to it as argument
+
+TODO: 
+  - change changeRoom() implementation, should connect to socket.io namespace of same name as current option value

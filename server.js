@@ -1,8 +1,8 @@
 require('dotenv').config({path: __dirname + '/.env'});
 
-var app = require('express')();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http, {
+const app = require('express')();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http, {
   perMessageDeflate: false
 });
 
@@ -11,6 +11,7 @@ var io = require('socket.io')(http, {
 // });
 
 const messages = [];
+const rooms = ['sport', 'music', 'work'];
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -19,6 +20,10 @@ app.get('/', (req, res) => {
 app.get('/client', (req, res) => {
   res.sendFile(__dirname + '/client.js');
 });
+
+app.get('/rooms', (req, res) => {
+  res.send(rooms);
+})
 
 io.on('connection', (socket) => {
   console.log('user connected, id:' + socket.id);

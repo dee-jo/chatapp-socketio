@@ -14,13 +14,20 @@
     </style>
   </head>
   <body>
-    <ul id="past_messages"></ul>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="user" autocomplete="off" />
-      <input id="m" autocomplete="off" />
-      <button>Send</button>
-    </form>
+    <div id="login">
+      <select name="rooms" id="rooms-dropdown">
+      </select>
+    </div>
+    <div id="messages">
+      <ul id="past_messages"></ul>
+      <ul id="messages"></ul>
+      <form action="">
+        <input id="user" autocomplete="off" />
+        <input id="m" autocomplete="off" />
+        <button>Send</button>
+      </form>
+    </div>
+    
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src ="/client"></script>
