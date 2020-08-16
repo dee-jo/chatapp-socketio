@@ -6,18 +6,29 @@ var io = require('socket.io')(http);
 //   res.send('<h1>Hello world</h1>');
 // });
 
+const messages = [];
+
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 }); 
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  console.log('user connected, id:' + socket.id);
+  // console.dir(socket);
+  socket.broadcast.emit('connected', `User ${socket.id} connected!`);
+  console.dir(messages);
+  io.to(socket.id).emit('past messages', {messages: [...messages]});
+
   socket.on('chat message', (msg) => {
-    console.log('message: ' + msg);
+    // console.log('message: ' + msg);
+    messages.push(msg);
+    io.emit('chat message', msg);
   });
   socket.on('disconnect', () => {
-    console.log('user disconnected');
+    console.log('user disconnected, id:', socket.id);
+    socket.broadcast.emit('disconnected', `User ${socket.client.id} disconnected!`);
   });
+
 })
 
 http.listen(3000, () => {
