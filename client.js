@@ -1,6 +1,8 @@
 // ---------------------- DROPDOWN ROOM MENU ----------------------------------
 const roomsUrl = '/rooms';
 const dropdown = $('#rooms-dropdown');
+let selected = '';
+let socket = io();
 
 dropdown.on('change', function() {
   $.fn.onChangeRoom(this.value);
@@ -8,16 +10,16 @@ dropdown.on('change', function() {
 
 $.fn.onChangeRoom = function(value) {
   console.log('onChangeRoom() executed, option value: ', value);
-  // const socket = io(`/'${value}`);
+  socket = io(`/${value}`);
 
   // TODO: this fn should connect to the socket.io namespace=value on the server
 }
 
 $.fn.getRoomsFromServer = function() {
-  let selected = '';
   dropdown.empty();
   $.get(roomsUrl, (rooms) => {
     selected = rooms[0];
+    $.fn.onChangeRoom(selected);
     $.each(rooms, (index, room) => {
       if (index === 0) {
         dropdown.append($('<option></option>').attr('value', room).attr('selected', true).text(room));  
@@ -32,7 +34,6 @@ $.fn.getRoomsFromServer = function() {
 
 
 // ---------------------- SOCKET -------------------------
-const socket = io();
 
 socket.on('connected', (msg) => {
   $('#messages').append($('<li>').text(msg));
@@ -71,6 +72,9 @@ chatForm.submit((e) => {
   $('#user').val('');
   return false;
 });
+
+
+// ------------ MAIN ------------------
 
 $.fn.getRoomsFromServer();
 

@@ -11,6 +11,7 @@
     "nodemon": "^2.0.4"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "start-debug": "DEBUG=* nodemon server.js"
   }
 }
