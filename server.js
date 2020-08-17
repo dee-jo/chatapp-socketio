@@ -25,6 +25,7 @@ app.get('/rooms', (req, res) => {
   res.send(rooms);
 })
 
+
 io.on('connection', (socket) => {
   console.log('user connected, id:' + socket.id);
   // console.dir(socket);
