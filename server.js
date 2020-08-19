@@ -39,15 +39,18 @@ namespaces.on('connection', socket => {
   // console.log('socket: ', socket);
   // console.log('namespace: ', namespace);
 
-  io.of(namespace).to(socket.id).emit('past messages', {messages: [...messages]});
+  io.of(namespace).to(socket.id).emit('past messages', {messages: messages.filter((msg) => {
+    return msg.namespace === socket.namespace;
+  })});
 
   socket.broadcast.emit('connected', `User ${socket.id} connected!`);
   console.dir(messages);
 
   socket.on('chat message', (msg) => {
-    // console.log('message: ' + msg);
+    console.log('message: ');
+    console.dir(msg);
     messages.push(msg);
-    io.emit('chat message', msg);
+    io.of(namespace).emit('chat message', msg);
   });
   socket.on('disconnect', () => {
     console.log('user disconnected, id:', socket.id);

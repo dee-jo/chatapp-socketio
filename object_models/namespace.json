@@ -1,4 +1,4 @@
-Namespace {
+"Namespace": {
   name: '/sport',
   server: Server {
     nsps: { '/': [Namespace], '/sport': [Circular] },

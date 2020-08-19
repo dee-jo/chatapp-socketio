@@ -1,5 +1,17 @@
 - each receives a list of rooms from the server, which are displayed as options in the select tag
 - on change of the select tag, changeRoom(this.value) is executed and the current selected option value is passed to it as argument
 
-TODO: 
-  - change changeRoom() implementation, should connect to socket.io namespace of same name as current option value
+DONE:
+  - changed changeRoom() implementation, connects to socket.io namespace of same name as current option value
+  - the room menu is initialised to sport, so each client connects to namespace: sport on openning new browser tab
+  - all clients that connected earlier receive a notification of the new client connecting
+  - the messaging of clients connected to room "sport" works
+
+TODO:
+  - the rooms are not retrieved from the server for now, just hardcoded on the client
+  - each new client should receive past messages from the conversation of the namespace it has just joined, currently this doesn't work
+  - when client changes room  (say to music):
+    - all other clients in sport are informed of a new client connecting to music namespace. This should not happen, they should only be informed of new clients connecting to the same namespace.
+    - the client that changed room does not see its own messages, even though they reach the server (are printed to the console: server.js line 51), they also reach the client that sent it (visible in Network tab); Possibly it's because when the room is changed on the client, the socket variable gets reassigned to a new object with a new namespace, but the socket events are not updated to the new socket reference (they reference the previous socket with the previous namespace).
+    - the clients that changed to music receive the event notifying of a newly connected client to music, but don't receive any communication from it (not even visible in the Network tab)
+

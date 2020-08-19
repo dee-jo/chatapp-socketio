@@ -1,36 +1,45 @@
+$.fn.initDropdown = function(rooms) {
+  dropdown.empty();
+  const selected = rooms[0];
+  $.each(rooms, (index, room) => {
+    if (room === selected) {
+      dropdown.append($('<option></option>').attr('value', room).attr('selected', true).text(room));  
+    } else {
+      dropdown.append($('<option></option>').attr('value', room).text(room));
+    }
+    // console.log(room);
+  });
+  return selected;
+}
+
+$.fn.getRoomsFromServer = (roomsUrl) => {
+  const rooms = $.get(roomsUrl, (rooms) => {
+    return rooms;
+  });
+  return rooms;
+}
+
 // ---------------------- DROPDOWN ROOM MENU ----------------------------------
 const roomsUrl = '/rooms';
 const dropdown = $('#rooms-dropdown');
-let selected = '';
-let socket = io();
+const rooms = ['sport', 'music', 'work'];
+// const rooms = $.fn.getRoomsFromServer(roomsUrl); TODO
+console.log(rooms);
+let selected = $.fn.initDropdown(rooms);
+let socket = io(`/${selected}`);
 
 dropdown.on('change', function() {
-  $.fn.onChangeRoom(this.value);
+  socket = $.fn.onChangeRoom(this.value);
 });
 
 $.fn.onChangeRoom = function(value) {
   console.log('onChangeRoom() executed, option value: ', value);
-  socket = io(`/${value}`);
-
-  // TODO: this fn should connect to the socket.io namespace=value on the server
+  return io(`/${value}`);
 }
 
-$.fn.getRoomsFromServer = function() {
-  dropdown.empty();
-  $.get(roomsUrl, (rooms) => {
-    selected = rooms[0];
-    $.fn.onChangeRoom(selected);
-    $.each(rooms, (index, room) => {
-      if (index === 0) {
-        dropdown.append($('<option></option>').attr('value', room).attr('selected', true).text(room));  
-      } else {
-        dropdown.append($('<option></option>').attr('value', room).text(room));
-      }
-      // console.log(room);
-    });
-  })
-}
 
+
+ 
 
 
 // ---------------------- SOCKET -------------------------
@@ -63,8 +72,10 @@ socket.on('chat message', (msg) => {
 const chatForm = $('form');
 chatForm.submit((e) => {
   e.preventDefault(); // prevents page reloading
+  console.log(socket);
   socket.emit('chat message', {
-    uId: socket.uId,
+    uId: socket.id,
+    namespace: socket.nsp,
     user: $('#user').val(),
     text: $('#m').val()
   });
