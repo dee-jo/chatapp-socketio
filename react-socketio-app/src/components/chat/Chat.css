@@ -9,6 +9,10 @@
   padding: 1em;
 }
 
+a {
+  align-self: start;
+}
+
 div[role=listitem] {
   text-align: right;
   padding-right: 1em;

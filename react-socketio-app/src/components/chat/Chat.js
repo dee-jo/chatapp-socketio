@@ -10,7 +10,7 @@ class Chat extends Component {
     return (
       <div className='container'>
         <Link to='/'> 
-          <Icon name='arrow left' />
+          <Icon name='arrow left' size='large'/>
         </Link>
         
             <List divided relaxed>
