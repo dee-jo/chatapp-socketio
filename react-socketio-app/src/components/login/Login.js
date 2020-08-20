@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Form, Grid } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import { Link, withRouter } from 'react-router-dom';
+import { Link, withRouter, Redirect } from 'react-router-dom';
 
 const options = [
   { key: 's', text: 'Sport', value: 'sport' },
@@ -11,10 +11,25 @@ const options = [
 
 class Login extends Component {
 
-  state = {userName: ''};
+  state = {
+    userName: '',
+    verified: false
+  };
 
-  redirectToChat = () => {
-    this.props.history.push(__dirname +`chat`);
+  // redirectToChat = () => {
+  //   this.props.history.push(__dirname +`chat`);
+  // }
+
+  verifyAndRedirect = (userName) => {
+    // TODO: verify user
+    this.setState({verified: true});
+  }
+
+  renderRedirect = () => {
+    const verified = this.state.verified;
+    return verified && (
+      <Redirect to='/chat'/>
+    );
   }
 
 
@@ -25,6 +40,7 @@ class Login extends Component {
     const value = this.state.userName;
     return (
       <Grid centered >
+         {this.renderRedirect()}
         <Form >
           <Form.Group widths='equal'>
             <Form.Field>
@@ -42,7 +58,7 @@ class Login extends Component {
               style={{'textAlign': 'left'}}
             />
           </Form.Group>
-          <Form.Button type='submit' onClick={this.redirectToChat}>Submit</Form.Button>
+          <Form.Button type='submit' onClick={this.verifyAndRedirect}>Submit</Form.Button>
         </Form>
        
   
