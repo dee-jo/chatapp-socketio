@@ -1,0 +1,13 @@
+DONE:
+    - the arrow on Chat component does animate 
+
+
+TODO:
+
+  Styling:
+    - the Login component's layout if off when viewing on full desktop page (better wrap it in div of class .content like the Chat component, rather than the centered grid from semanticui like it is now)
+
+
+  SocketIO:
+    - import SocketIO
+    - connect app to server

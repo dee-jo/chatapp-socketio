@@ -1,16 +1,30 @@
 import React, { Component }from 'react';
-import { List, Input, Icon } from 'semantic-ui-react';
+import { List, Input, Icon, Transition } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import * as classes from './Chat.css';
 
 class Chat extends Component {
 
+  state = {
+    visible: true
+  }
+
+  toggleArrow = () => {
+    this.setState((prevState) => {
+      return {
+        visible: !prevState.visible
+      }
+    })
+  }  
+  
   render() {
 
     return (
       <div className='container'>
         <Link to='/'> 
-          <Icon name='arrow left' size='large'/>
+          <Transition animation='pulse' duration={500} visible={this.state.visible}>
+            <Icon name='arrow left' size='large' onMouseOver={this.toggleArrow} onMouseOut={this.toggleArrow} />
+          </Transition> 
         </Link>
         
             <List divided relaxed>
