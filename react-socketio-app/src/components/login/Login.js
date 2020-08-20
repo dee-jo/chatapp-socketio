@@ -1,27 +1,35 @@
 import React, { Component } from 'react';
 import { Form, Grid } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
+import { Link, withRouter } from 'react-router-dom';
 
 const options = [
-  { key: 's', text: 'Male', value: 'sport' },
-  { key: 'm', text: 'Female', value: 'music' },
-  { key: 'w', text: 'Other', value: 'work' },
+  { key: 's', text: 'Sport', value: 'sport' },
+  { key: 'm', text: 'Music', value: 'music' },
+  { key: 'w', text: 'Work', value: 'work' },
 ];
 
 class Login extends Component {
 
-  state = {};
+  state = {userName: ''};
 
-  handleChange = (e, { value }) => this.setState({ value })
+  redirectToChat = () => {
+    this.props.history.push(__dirname +`chat`);
+  }
+
+
+  handleChange = (e) => this.setState({ userName: e.target.value });
+  // handleSubmit = () => re
 
   render = () => {
-    const value = this.state;
+    const value = this.state.userName;
     return (
       <Grid centered >
         <Form >
           <Form.Group widths='equal'>
             <Form.Field>
               <label style={{'textAlign': 'left'}}>User Name</label>
-              <input placeholder='User Name' />
+              <input placeholder='User Name' value={value} onChange={this.handleChange}/>
             </Form.Field>
             {/* <Form.Input fluid label='User name' placeholder='User name' /> */}
             {/* <Form.Input fluid label='Password' placeholder='Password' /> */}
@@ -34,7 +42,7 @@ class Login extends Component {
               style={{'textAlign': 'left'}}
             />
           </Form.Group>
-          <Form.Button type='submit'>Submit</Form.Button>
+          <Form.Button type='submit' onClick={this.redirectToChat}>Submit</Form.Button>
         </Form>
        
   
@@ -44,5 +52,5 @@ class Login extends Component {
   }
 }
 
-export default Login;
+export default withRouter(Login);
 

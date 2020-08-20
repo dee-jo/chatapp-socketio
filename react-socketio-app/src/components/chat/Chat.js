@@ -1,5 +1,6 @@
 import React, { Component }from 'react';
-import { List, Grid, Input, Icon } from 'semantic-ui-react';
+import { List, Input, Icon } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 import * as classes from './Chat.css';
 
 class Chat extends Component {
@@ -8,6 +9,9 @@ class Chat extends Component {
 
     return (
       <div className='container'>
+        <Link to='/'> 
+          <Icon name='arrow left' />
+        </Link>
         
             <List divided relaxed>
               <List.Item>
