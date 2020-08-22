@@ -1,13 +1,11 @@
 DONE:
     - the arrow on Chat component does animate 
+    - import SocketIO
+    - connect app to server
 
 
 TODO:
 
   Styling:
     - the Login component's layout if off when viewing on full desktop page (better wrap it in div of class .content like the Chat component, rather than the centered grid from semanticui like it is now)
-
-
-  SocketIO:
-    - import SocketIO
-    - connect app to server
+    - the animation of arrow leading back to home from Chat component stopped working since replacing setState with useState hook. (was working just before started the socketio branch on git)

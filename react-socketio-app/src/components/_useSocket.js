@@ -2,13 +2,13 @@ import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 
 
-const socketUtil = () => {
+const useSocket = () => {
   const [ messages, setMessages ] = useState([]);
   const socketRef = useRef();
 
  
   useEffect(() => {
-    socketRef.current = io("http://localhost:3000");
+    socketRef.current = io("http://localhost:3001");
 
     socketRef.current.on(
       "chat message",
@@ -23,6 +23,7 @@ const socketUtil = () => {
   }, []);
 
   const sendMessage = ({ message }) => {
+    console.log("Message value passed to sendMessage(): ", message);
     socketRef.current.emit("chat message", { message });
   };
 
@@ -30,4 +31,4 @@ const socketUtil = () => {
 
 }
 
-export default socketUtil;
+export default useSocket;
