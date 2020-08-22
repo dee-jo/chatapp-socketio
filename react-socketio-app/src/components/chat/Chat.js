@@ -30,7 +30,6 @@ const Chat = () => {
   }
 
   const onSend = () => {
-    console.log("onSend(), messageText: ", messageText);
     sendMessage({message: messageText});
   } 
 
@@ -63,10 +62,9 @@ const Chat = () => {
           
             <Input 
               className='messageInput' 
-              action='Send' 
+              action={{content: 'Send', onClick: onSend}} 
               placeholder='Type message...' 
               onChange={(e, {value}) => updateCurrentMessage(value)}
-              onClick={onSend}
             />
           
       </div>
