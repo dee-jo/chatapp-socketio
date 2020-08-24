@@ -4,6 +4,7 @@ import { List, Input, Icon, Transition } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import ChatRoom from '../chatroom/ChatRoom';
 import * as classes from './ChatLayout.css'
+import RoomList from './room-list/RoomList';
 
 const ChatLayout = (props) => {
 
@@ -12,7 +13,7 @@ const ChatLayout = (props) => {
   const [ activeItem, setActiveItem ] = useState(rooms[0]);
   const [ visible, setVisible ] = useState(true);
 
-  const handleItemClick = (e, { name }) => setActiveItem(name);
+  
   
   const toggleArrow = () => {
     setVisible((prevState) => {
@@ -27,38 +28,20 @@ const ChatLayout = (props) => {
 
   return (
     <div className='container'>
+
       <Link to='/'> 
           <Transition animation='pulse' duration={500} visible={visible}>
             <Icon name='arrow left' size='large' onMouseOver={toggleArrow} onMouseOut={toggleArrow} />
           </Transition> 
       </Link>
-    <Grid>
-        <Grid.Column width={4}>
-          <Menu fluid vertical tabular>
-            {
-              rooms.map(room => {
-                return (
-                  <Menu.Item
-                    name={room}
-                    key={room}
-                    active={activeItem === room}
-                    onClick={handleItemClick}
-                  />
-                )
-              })
-            }
-            
-            <Menu.Item
-              name='Create Room'
-              active={activeItem === 'Create Room'}
-              onClick={handleItemClick}
-            />
-          </Menu>
-        </Grid.Column>
 
+      <Grid>
+        <Grid.Column width={4}>
+          <RoomList rooms={rooms} activeItem={activeItem} setActiveItem={setActiveItem} />
+        </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            <ChatRoom />
+            <ChatRoom activeRoom={activeItem} />
           </Segment>
         </Grid.Column>
       </Grid>

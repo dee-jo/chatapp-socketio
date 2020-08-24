@@ -8,7 +8,7 @@ import MessageList from '../chatroom/message-list/MessageList';
 
 
 
-const ChatRoom = () => {
+const ChatRoom = ({activeRoom}) => {
 
   const { messages, sendMessage } = useSocket();
 
@@ -16,9 +16,6 @@ const ChatRoom = () => {
       <div className='chat-room_container'>
         <MessageList messages={messages} />
         <MessageInput onSendMessage={sendMessage}/>
-            
-          
-            
       </div>
     )
 }
