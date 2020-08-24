@@ -2,27 +2,20 @@ import React, { Component, useState, useEffect }from 'react';
 import { List, Input, Icon, Transition } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import useSocket from '../_useSocket';
-import * as classes from './Chat.css';
+import * as classes from './ChatRoom.css';
 
 
 
-const Chat = () => {
+const ChatRoom = () => {
 
   const { messages, sendMessage } = useSocket();
 
   const [ messageText, setMessage ] = useState('');
-  const [ visible, setVisible ] = useState(true);
+
  
   useEffect(() => {
     console.log("messageText: ", messageText);
-    console.log("visible: ", visible);
-  }, [messageText, visible]);
-
-  const toggleArrow = () => {
-    setVisible((prevState) => {
-      return !prevState.visible
-    })
-  }  
+  }, [messageText]);
 
   const updateCurrentMessage = (inputValue) => {
     setMessage(() => inputValue);
@@ -34,13 +27,7 @@ const Chat = () => {
   } 
 
     return (
-      <div className='container'>
-        <Link to='/'> 
-          <Transition animation='pulse' duration={500} visible={visible}>
-            <Icon name='arrow left' size='large' onMouseOver={toggleArrow} onMouseOut={toggleArrow} />
-          </Transition> 
-        </Link>
-        
+      <div className='chat-room_container'>
             <List divided relaxed>
                 <List.Item>
                   {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
@@ -72,11 +59,11 @@ const Chat = () => {
 }
 
 
- export default Chat;
+ export default ChatRoom;
 
 
 
-//  class Chat extends Component {
+//  class ChatRoom extends Component {
 
 //   state = {
 //     message: '',
@@ -137,4 +124,4 @@ const Chat = () => {
 //   }
 //  }
 
-//  export default Chat;
+//  export default ChatRoom;
