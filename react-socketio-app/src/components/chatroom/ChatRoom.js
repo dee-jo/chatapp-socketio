@@ -3,6 +3,8 @@ import { List, Input, Icon, Transition } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import useSocket from '../_useSocket';
 import * as classes from './ChatRoom.css';
+import MessageInput from '../chatroom/message-input/MessageInput';
+import MessageList from '../chatroom/message-list/MessageList';
 
 
 
@@ -10,50 +12,13 @@ const ChatRoom = () => {
 
   const { messages, sendMessage } = useSocket();
 
-  const [ messageText, setMessage ] = useState('');
-
- 
-  useEffect(() => {
-    console.log("messageText: ", messageText);
-  }, [messageText]);
-
-  const updateCurrentMessage = (inputValue) => {
-    setMessage(() => inputValue);
-    console.log(messageText);
-  }
-
-  const onSend = () => {
-    sendMessage({message: messageText});
-  } 
-
     return (
       <div className='chat-room_container'>
-            <List divided relaxed>
-                <List.Item>
-                  {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
-                  <List.Content>
-                    <List.Header>Dummy user name</List.Header>
-                    <List.Description>Dummy message</List.Description>
-                  </List.Content>
-                </List.Item>  
-              {messages.map(message => {
-                return (<List.Item>
-                  {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
-                  <List.Content>
-                    <List.Header>User name</List.Header>
-                    <List.Description>{message}</List.Description>
-                  </List.Content>
-                </List.Item>)
-              })}
-            </List>
+        <MessageList messages={messages} />
+        <MessageInput onSendMessage={sendMessage}/>
+            
           
-            <Input 
-              className='messageInput' 
-              action={{content: 'Send', onClick: onSend}} 
-              placeholder='Type message...' 
-              onChange={(e, {value}) => updateCurrentMessage(value)}
-            />
-          
+            
       </div>
     )
 }

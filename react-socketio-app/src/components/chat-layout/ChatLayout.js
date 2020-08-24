@@ -40,6 +40,7 @@ const ChatLayout = (props) => {
                 return (
                   <Menu.Item
                     name={room}
+                    key={room}
                     active={activeItem === room}
                     onClick={handleItemClick}
                   />
