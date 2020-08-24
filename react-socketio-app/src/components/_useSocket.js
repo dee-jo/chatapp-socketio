@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 const useSocket = () => {
   const [ messages, setMessages ] = useState([]);
+  const [ rooms, setRooms ] = useState([]);
   const socketRef = useRef();
 
  
@@ -11,8 +12,13 @@ const useSocket = () => {
     socketRef.current = io("http://localhost:3001");
 
     socketRef.current.on(
-      "chat message",
-      ({ message }) => {
+      "joined rooms", (rooms) => {
+        setRooms(removeFirstIndex(rooms));
+      }
+    );
+
+    socketRef.current.on(
+      "chat message", ({ message }) => {
         setMessages(messages => [...messages, message]);
       }
     );
@@ -27,7 +33,13 @@ const useSocket = () => {
     socketRef.current.emit("chat message", { message });
   };
 
-  return { messages, sendMessage };
+  const removeFirstIndex = (array) => {
+    return array.filter((item, index) => {
+      return index != 0;
+    })
+  }
+
+  return { rooms, messages, sendMessage };
 
 }
 
