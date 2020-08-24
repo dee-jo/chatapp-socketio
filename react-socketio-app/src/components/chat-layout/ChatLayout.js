@@ -9,10 +9,10 @@ import useSocket from '../_useSocket';
 
 const ChatLayout = (props) => {
 
-  const { rooms, messages, sendMessage } = useSocket();
-  console.log('rooms[0]: ', rooms[0]);
+  const { rooms, messages, messagesByRooms, sendMessage } = useSocket();
+  // console.log('rooms[0]: ', rooms[0]);
   const [ activeItem, setActiveItem ] = useState(rooms[0]);
-  console.log(activeItem);
+  // console.log(activeItem);
   const [ visible, setVisible ] = useState(true);
   
   const toggleArrow = () => {
@@ -41,7 +41,7 @@ const ChatLayout = (props) => {
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            <ChatRoom activeRoom={activeItem} messages={messages} onSendMessage={sendMessage} />
+            <ChatRoom activeRoom={activeItem} messages={messages} onSendMessage={(activeItem) => sendMessage(activeItem)} />
           </Segment>
         </Grid.Column>
       </Grid>

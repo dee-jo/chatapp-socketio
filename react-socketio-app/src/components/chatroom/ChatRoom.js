@@ -10,10 +10,12 @@ import MessageList from '../chatroom/message-list/MessageList';
 
 const ChatRoom = ({activeRoom, messages, onSendMessage}) => {
 
+  console.log(activeRoom);
+
     return (
       <div className='chat-room_container'>
         <MessageList messages={messages} />
-        <MessageInput onSendMessage={onSendMessage}/>
+        <MessageInput onSendMessage={onSendMessage} />
       </div>
     )
 }
