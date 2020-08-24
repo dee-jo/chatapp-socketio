@@ -4,6 +4,7 @@ import { Menu } from 'semantic-ui-react';
 const RoomList = ({ rooms, activeItem, setActiveItem }) => {
 
   const handleItemClick = (e, { name }) => setActiveItem(name);
+  console.log('active item: ', activeItem);
 
   return (
 

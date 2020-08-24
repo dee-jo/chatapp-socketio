@@ -10,13 +10,10 @@ import useSocket from '../_useSocket';
 const ChatLayout = (props) => {
 
   const { rooms, messages, sendMessage } = useSocket();
-  // const rooms = ['welcome', 'sport', 'music', 'dance'];
-
-
+  console.log('rooms[0]: ', rooms[0]);
   const [ activeItem, setActiveItem ] = useState(rooms[0]);
+  console.log(activeItem);
   const [ visible, setVisible ] = useState(true);
-
-  
   
   const toggleArrow = () => {
     setVisible((prevState) => {
