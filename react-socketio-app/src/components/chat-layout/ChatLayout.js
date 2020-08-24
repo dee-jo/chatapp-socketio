@@ -5,10 +5,13 @@ import { Link } from 'react-router-dom';
 import ChatRoom from '../chatroom/ChatRoom';
 import * as classes from './ChatLayout.css'
 import RoomList from './room-list/RoomList';
+import useSocket from '../_useSocket';
 
 const ChatLayout = (props) => {
 
   const rooms = ['welcome', 'sport', 'music', 'dance'];
+
+  const { messages, sendMessage } = useSocket();
 
   const [ activeItem, setActiveItem ] = useState(rooms[0]);
   const [ visible, setVisible ] = useState(true);
@@ -41,7 +44,7 @@ const ChatLayout = (props) => {
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            <ChatRoom activeRoom={activeItem} />
+            <ChatRoom activeRoom={activeItem} messages={messages} onSendMessage={sendMessage} />
           </Segment>
         </Grid.Column>
       </Grid>
