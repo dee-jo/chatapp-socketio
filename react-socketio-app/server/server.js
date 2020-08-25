@@ -3,7 +3,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   perMessageDeflate: false
 });
-const getMessagesByRooms = require('./socketioManager').getMessagesByRooms;
+const message_store_arr = require('./socketioManager').message_store_arr;
 const rooms = ['music', 'sport', 'gardening', 'dance', 'yoga'];
 
 io.on("connection", socket => {
@@ -11,12 +11,13 @@ io.on("connection", socket => {
 
   // TODO: get rooms joined by a user from the db
 
+  console.log(message_store_arr[0].users, message_store_arr[0].messages);
   socket.join(rooms, () => {
     const rooms = Object.keys(socket.rooms);
     console.log(rooms); // [ <socket.id>, 'room 237', 'room 238' ]
 
-    const messagesByRooms = getMessagesByRooms(rooms);
-    io.to(socket.id).emit('joined rooms', rooms, messagesByRooms);
+    console
+    io.to(socket.id).emit('joined rooms', rooms);
 
     rooms.forEach((room, i) => {
       if (i > 0) {
