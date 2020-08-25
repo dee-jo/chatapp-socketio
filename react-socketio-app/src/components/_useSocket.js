@@ -30,12 +30,8 @@ const useSocket = () => {
   }, []);
 
   const sendMessage = (room) => {
-    // console.log('sendMessage initialised with current room: ', room)
     currentRoom = room;
-    // console.log('current room set in _useSocket: ', currentRoom);
     return ({ message }) => {
-      // console.log("Message value passed to sendMessage(): ", message);
-      // console.log("connectedSocket", connectedSocket);
       socketRef.current.emit(`message for ${room}`, { message });
     };
   }

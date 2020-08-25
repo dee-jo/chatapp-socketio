@@ -1,13 +1,21 @@
 const _ = require('lodash');
 
+const message_store = [{
+  room: '',
+  users: [],
+  messages: []
+}];
 
 const getMessagesByRooms = (rooms) => {
-  return rooms.map(room => {
-    return {
+  rooms.forEach((room) => { 
+    message_store.push(
+    {
       room,
+      users: [ 'user1', 'user2', 'user3'],
       messages: dummyMessages()
     }
-  })
+  )})
+
 }
 
 const dummyMessages = () => {

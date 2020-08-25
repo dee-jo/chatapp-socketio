@@ -22,8 +22,8 @@ const ChatLayout = (props) => {
   }  
 
   useEffect(() => {
-    console.log("visible: ", visible);
-  }, [visible]);
+    setActiveItem(rooms[0]);
+  }, [rooms]);
 
 
   return (
