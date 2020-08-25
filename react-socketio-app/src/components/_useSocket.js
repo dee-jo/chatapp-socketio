@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 
 
 const useSocket = () => {
-  const [ currentRoom, setCurrentRoom ] = useState('')
+  // const [ currentRoom, setCurrentRoom ] = useState('')
+  let currentRoom = '';
   const [ messages, setMessages ] = useState([]);
   const [ rooms, setRooms ] = useState([]);
   const [ messagesByRooms, setMessagesByRooms ] = useState([]);
@@ -32,10 +33,16 @@ const useSocket = () => {
   }, []);
 
   const sendMessage = (room) => {
-    setCurrentRoom(room);
+    console.log('sendMessage initialised with current room: ', room)
+    // setCurrentRoom(room);
+    currentRoom = room;
+    console.log('current room set in _useSocket: ', currentRoom);
     return ({ message }) => {
+      console.log('socketRef.current.io', socketRef.current.to);
       console.log("Message value passed to sendMessage(): ", message);
+      // socketRef.current.to(room).emit("chat message", { message }); 
       // socketRef.current.emit("chat message", { message });
+      
       if (currentRoom) {
         socketRef.current.to(currentRoom).emit("chat message", { message });
       }

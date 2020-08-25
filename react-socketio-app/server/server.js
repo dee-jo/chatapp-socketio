@@ -27,7 +27,7 @@ io.on("connection", socket => {
 
 
   socket.on("chat message", data => {
-    console.log("Received a message from ", socket.id, ", message: ", data.message);
+    console.log("Received a message from room: ",data.room, ", socket.id: ", socket.id , ", message: ", data.message);
     console.log("Emiting message back to all clients!");
     io.to(data.room).emit("chat message", data.message);
   });

@@ -7,12 +7,12 @@ const MessageInput = ({onSendMessage}) => {
   const [ messageText, setMessage ] = useState('');
   
   const onSend = () => {
+    console.log('sending message from MessageInput: ', messageText);
     onSendMessage({message: messageText});
   } 
 
   const updateCurrentMessage = (inputValue) => {
     setMessage(() => inputValue);
-    console.log(messageText);
   }
  
   useEffect(() => {

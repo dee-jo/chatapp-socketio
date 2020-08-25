@@ -41,7 +41,7 @@ const ChatLayout = (props) => {
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            <ChatRoom activeRoom={activeItem} messages={messages} onSendMessage={(activeItem) => sendMessage(activeItem)} />
+            <ChatRoom activeRoom={activeItem} messages={messages} onSendMessage={sendMessage(activeItem)} />
           </Segment>
         </Grid.Column>
       </Grid>
