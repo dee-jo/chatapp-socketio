@@ -3,29 +3,26 @@ import { useState, useEffect, useRef } from 'react';
 
 
 const useSocket = () => {
-  // const [ currentRoom, setCurrentRoom ] = useState('')
+  const socketRef = useRef();
+  const [ connectedSocket, setConnectedSocket] = useState({});
   let currentRoom = '';
-  const [ messages, setMessages ] = useState([]);
+  const [ messages, setMessages ] = useState([{room: '', message: ''}]);
   const [ rooms, setRooms ] = useState([]);
   const [ messagesByRooms, setMessagesByRooms ] = useState([]);
-  const socketRef = useRef();
 
  
   useEffect(() => {
     socketRef.current = io("http://localhost:3001");
+  
+    socketRef.current.on("joined rooms", (rooms, messagesByRooms) => {
+      setRooms(removeFirstIndex(rooms));
+      setConnectedSocket(rooms[0]);
+      // TODO:  get messages from server for the rooms joined
 
-    socketRef.current.on(
-      "joined rooms", (rooms, messagesByRooms) => {
-        setRooms(removeFirstIndex(rooms));
-        // TODO: get messages from server for the rooms joined
-      }
-    );
-
-    socketRef.current.on(
-      "chat message", ({ message }) => {
-        setMessages(messages => [...messages, message]);
-      }
-    );
+      // set room events
+      setRoomEvents(rooms);
+      
+    });
 
     return () => {
       socketRef.current.disconnect();
@@ -33,26 +30,28 @@ const useSocket = () => {
   }, []);
 
   const sendMessage = (room) => {
-    console.log('sendMessage initialised with current room: ', room)
-    // setCurrentRoom(room);
+    // console.log('sendMessage initialised with current room: ', room)
     currentRoom = room;
-    console.log('current room set in _useSocket: ', currentRoom);
+    // console.log('current room set in _useSocket: ', currentRoom);
     return ({ message }) => {
-      console.log('socketRef.current.io', socketRef.current.to);
-      console.log("Message value passed to sendMessage(): ", message);
-      // socketRef.current.to(room).emit("chat message", { message }); 
-      // socketRef.current.emit("chat message", { message });
-      
-      if (currentRoom) {
-        socketRef.current.to(currentRoom).emit("chat message", { message });
-      }
+      // console.log("Message value passed to sendMessage(): ", message);
+      // console.log("connectedSocket", connectedSocket);
+      socketRef.current.emit(`message for ${room}`, { message });
     };
   }
-  
 
   const removeFirstIndex = (array) => {
     return array.filter((item, index) => {
       return index != 0;
+    })
+  }
+
+  const setRoomEvents = (rooms) => {
+    rooms.forEach((room) => {
+      socketRef.current.on(`message for ${room}`, ({ message }) => {
+        console.log(`event received: 'message for ' ${room}`);
+        setMessages(messages => [...messages, {room, message}]);
+      });
     })
   }
 

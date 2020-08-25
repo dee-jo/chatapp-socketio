@@ -20,17 +20,20 @@ io.on("connection", socket => {
 
     rooms.forEach((room, i) => {
       if (i > 0) {
-        io.to(room).emit('a new user has joined the room', room);
+        // io.to(room).emit('a new user has joined the room', room);
       }
     });
   });
 
-
-  socket.on("chat message", data => {
-    console.log("Received a message from room: ",data.room, ", socket.id: ", socket.id , ", message: ", data.message);
-    console.log("Emiting message back to all clients!");
-    io.to(data.room).emit("chat message", data.message);
-  });
+  // set up dynamic message listeners for each room
+  rooms.forEach((room) => {
+    socket.on(`message for ${room}`, data => {
+      console.log("Received a message from room: ", room, ", socket.id: ", socket.id , ", message: ", data.message);
+      console.log("Emiting message back to all clients!");
+      io.to(room).emit(`message for ${room}`, data.message);
+    });
+  })
+  
 
   socket.on("disconnect", function() {
     console.log("Socket id: ", socket.id, " disconnected!");

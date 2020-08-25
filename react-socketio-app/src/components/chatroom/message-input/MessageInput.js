@@ -14,12 +14,6 @@ const MessageInput = ({onSendMessage}) => {
   const updateCurrentMessage = (inputValue) => {
     setMessage(() => inputValue);
   }
- 
-  useEffect(() => {
-    console.log("messageText: ", messageText);
-  }, [messageText]);
-
-
 
   return (
     <Input 
