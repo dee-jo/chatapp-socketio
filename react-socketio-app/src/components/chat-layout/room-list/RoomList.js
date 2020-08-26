@@ -24,7 +24,7 @@ const RoomList = ({ roomNames, activeItem, setActiveItem }) => {
         <Menu.Item
           name='Create Room'
           active={activeItem === 'Create Room'}
-          onClick={handleItemClick}
+          onClick={()=> {}}
         />
     </Menu>
 

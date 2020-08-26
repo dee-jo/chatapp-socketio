@@ -9,7 +9,7 @@ import useSocket from '../_useSocket';
 
 const ChatLayout = (props) => {
 
-  const { roomNames, messages, sendMessage } = useSocket();
+  const { roomNames, getMessagesForRoom, sendMessage } = useSocket();
   const [ activeItem, setActiveItem ] = useState(roomNames[0]);
   const [ visible, setVisible ] = useState(true);
   
@@ -39,7 +39,11 @@ const ChatLayout = (props) => {
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            <ChatRoom activeRoom={activeItem} messages={messages} onSendMessage={sendMessage(activeItem)} />
+            {activeItem &&
+             <ChatRoom 
+              activeRoom={activeItem} 
+              messages={getMessagesForRoom(activeItem)} 
+              onSendMessage={sendMessage(activeItem)} />}
           </Segment>
         </Grid.Column>
       </Grid>

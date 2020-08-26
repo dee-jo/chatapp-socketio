@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 const useSocket = () => {
   const socketRef = useRef();
   // const [ connectedSocket, setConnectedSocket] = useState({});
-  const [ messages, setMessages ] = useState([{room: '', message: ''}]);
+  // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
   const [ rooms, setRooms ] = useState([]);
   const [ roomNames, setRoomNames ] = useState([]);
  
@@ -40,15 +40,34 @@ const useSocket = () => {
     rooms.forEach((room) => {
       socketRef.current.on(`message for ${room}`, ({ message }) => {
         console.log(`event received: 'message for ' ${room}`);
-        setMessages(messages => [...messages, {room, message}]);
+        addMessageToRoom(room, message);
       });
     })
   }
 
+  const addMessageToRoom = (room, message) => {
+    let room_index = 0;
+    const currentRoom = rooms.find(room,i => {
+      room_index = i;
+      return room.roomName === room
+    });
+    const updatedMessages = [...currentRoom.messages, message];
+    const updatedRoom = {...currentRoom, messages: updatedMessages};
+    const updatedAllRooms = [...rooms];
+    updatedAllRooms[room_index] = updatedRoom; 
+
+    setRooms(updatedAllRooms);
+  }
+
+  const getMessagesForRoom = (roomName) => {
+    console.log('getMessagesForRoom(): roomName: ', roomName);
+    const currentRoom = rooms.find(room => room.roomName === roomName);
+    return currentRoom.messages;
+  }
+
   return { 
     roomNames,
-    rooms, 
-    messages, 
+    getMessagesForRoom,
     sendMessage
   };
 
