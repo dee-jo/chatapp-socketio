@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 
-const RoomList = ({ rooms, activeItem, setActiveItem }) => {
+const RoomList = ({ roomNames, activeItem, setActiveItem }) => {
 
   const handleItemClick = (e, { name }) => setActiveItem(name);
   console.log('active item: ', activeItem);
@@ -10,7 +10,7 @@ const RoomList = ({ rooms, activeItem, setActiveItem }) => {
 
     <Menu fluid vertical tabular>
         {
-          rooms.map(room => {
+          roomNames.map(room => {
             return (
               <Menu.Item
                 name={room}

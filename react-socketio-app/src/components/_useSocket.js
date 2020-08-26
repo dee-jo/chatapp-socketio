@@ -8,19 +8,25 @@ const useSocket = () => {
   let currentRoom = '';
   const [ messages, setMessages ] = useState([{room: '', message: ''}]);
   const [ rooms, setRooms ] = useState([]);
+  const [ roomNames, setRoomNames ] = useState([]);
   const [ messagesByRooms, setMessagesByRooms ] = useState([]);
 
  
   useEffect(() => {
-    socketRef.current = io("http://localhost:3001");
+    socketRef.current = io("http://localhost:3001", { query: "user=user1" });
   
-    socketRef.current.on("joined rooms", (rooms, messagesByRooms) => {
-      setRooms(removeFirstIndex(rooms));
-      setConnectedSocket(rooms[0]);
+    socketRef.current.on("joined rooms", (rooms) => {
+      // setRooms(removeFirstIndex(rooms));
+
+      const roomNames = rooms.map(room => {
+        return room.roomName;
+      });
+      setRoomNames(roomNames);
+      setConnectedSocket(socketRef.current.id);
       // TODO:  get messages from server for the rooms joined
 
       // set room events
-      setRoomEvents(rooms);
+      setRoomEvents(roomNames);
       
     });
 
@@ -52,7 +58,7 @@ const useSocket = () => {
   }
 
   return { 
-    rooms, 
+    roomNames, 
     messages, 
     messagesByRooms, 
     sendMessage ,

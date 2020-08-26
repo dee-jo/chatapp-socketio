@@ -3,20 +3,32 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
   perMessageDeflate: false
 });
-const message_store_arr = require('./socketioManager').message_store_arr;
-const rooms = ['music', 'sport', 'gardening', 'dance', 'yoga'];
+
+const USER = 'user1';
+
+io.use((socket, next) => {
+  var handshakeData = socket.request;
+  console.log("middleware:", handshakeData._query['user']);
+  next();
+});
+
+// const rooms = ['music', 'sport', 'gardening', 'dance', 'yoga'];
+const db = require('./useDB');
 
 io.on("connection", socket => {
   console.log("Socket id: ", socket.id, " connected!");
+  db.getRoomsForUser()
+  
+  // get rooms joined by a user from the db
+  const rooms = db.getRoomsForUser(USER);  
+  console.log('server, io.on(\'connection\'), rooms: ', rooms );
+  const roomsNames = rooms.map((room => {
+    return room.roomName;
+  }));
 
-  // TODO: get rooms joined by a user from the db
+  socket.join(roomsNames, () => {
+    console.log('server, on socket.join, rooms: ', roomsNames); // [ <socket.id>, 'room 237', 'room 238' ]
 
-  console.log(message_store_arr[0].users, message_store_arr[0].messages);
-  socket.join(rooms, () => {
-    const rooms = Object.keys(socket.rooms);
-    console.log(rooms); // [ <socket.id>, 'room 237', 'room 238' ]
-
-    console
     io.to(socket.id).emit('joined rooms', rooms);
 
     rooms.forEach((room, i) => {
