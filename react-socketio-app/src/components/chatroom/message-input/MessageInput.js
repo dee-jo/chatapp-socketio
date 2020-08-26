@@ -7,6 +7,7 @@ const MessageInput = ({onSendMessage}) => {
   const [ messageText, setMessage ] = useState('');
   
   const onSend = () => {
+    setMessage('');
     console.log('sending message from MessageInput: ', messageText);
     onSendMessage({message: messageText});
   } 
@@ -19,6 +20,7 @@ const MessageInput = ({onSendMessage}) => {
     <Input 
       className='messageInput' 
       action={{content: 'Send', onClick: onSend}} 
+      value={messageText}
       placeholder='Type message...' 
       onChange={(e, {value}) => updateCurrentMessage(value)}
     />

@@ -9,7 +9,8 @@ import useSocket from '../_useSocket';
 
 const ChatLayout = (props) => {
 
-  const { roomNames, getMessagesForRoom, sendMessage } = useSocket();
+  const USER = 'user1';
+  const { roomNames, getMessagesForRoom, sendMessage } = useSocket(USER);
   const [ activeItem, setActiveItem ] = useState(roomNames[0]);
   const [ visible, setVisible ] = useState(true);
   

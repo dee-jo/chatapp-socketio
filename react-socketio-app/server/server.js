@@ -39,11 +39,11 @@ io.on("connection", socket => {
   });
 
   // set up dynamic message listeners for each room
-  rooms.forEach((room) => {
+  roomsNames.forEach((room) => {
     socket.on(`message for ${room}`, data => {
       console.log("Received a message from room: ", room, ", socket.id: ", socket.id , ", message: ", data.message);
       console.log("Emiting message back to all clients!");
-      io.to(room).emit(`message for ${room}`, data.message);
+      io.to(room).emit(`message for ${room}`, data);
     });
   })
   

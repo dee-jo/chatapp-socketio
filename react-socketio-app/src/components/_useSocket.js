@@ -2,15 +2,16 @@ import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 
 
-const useSocket = () => {
+const useSocket = (user) => {
   const socketRef = useRef();
   // const [ connectedSocket, setConnectedSocket] = useState({});
   // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
+
   const [ rooms, setRooms ] = useState([]);
   const [ roomNames, setRoomNames ] = useState([]);
  
   useEffect(() => {
-    socketRef.current = io("http://localhost:3001", { query: "user=user1" });
+    socketRef.current = io("http://localhost:3001", { query: user });
   
     socketRef.current.on("joined rooms", (rooms) => {
 
@@ -21,7 +22,8 @@ const useSocket = () => {
       // setConnectedSocket(socketRef.current.id);
 
       // set room events
-      setRoomEvents(roomNames);
+      console.log('rooms in useEffect: ', rooms);
+      setRoomEvents(rooms, roomNames);
       setRooms(rooms);
     });
 
@@ -36,27 +38,37 @@ const useSocket = () => {
     };
   }
 
-  const setRoomEvents = (rooms) => {
-    rooms.forEach((room) => {
-      socketRef.current.on(`message for ${room}`, ({ message }) => {
-        console.log(`event received: 'message for ' ${room}`);
-        addMessageToRoom(room, message);
+  const setRoomEvents = (rooms, rmNames) => {
+    rmNames.forEach((rmName) => {
+      socketRef.current.on(`message for ${rmName}`, ({ message }) => {
+        console.log(`event received: 'message for ' ${rmName}, message: ${message}`);
+        addMessageToRoom(rooms, rmName, message);
       });
     })
   }
 
-  const addMessageToRoom = (room, message) => {
+  const addMessageToRoom = (rooms, roomName, message) => {
+    const newMessage = {
+      user, message
+    }
+
     let room_index = 0;
-    const currentRoom = rooms.find(room,i => {
+    const currentRoom = rooms.find((r,i) => {
       room_index = i;
-      return room.roomName === room
+      return r.roomName === roomName
     });
-    const updatedMessages = [...currentRoom.messages, message];
-    const updatedRoom = {...currentRoom, messages: updatedMessages};
+    console.log('message passed to addMessageToRoom: ', newMessage);
+    console.log('currentRoom.messages: ', currentRoom.messages);
+    const updatedMessages = [...currentRoom.messages];
+    updatedMessages.push(newMessage);
+    console.log('updatedMessages', updatedMessages);
+
+    const updatedRoom = {...currentRoom};
+    updatedRoom.messages = updatedMessages;
     const updatedAllRooms = [...rooms];
     updatedAllRooms[room_index] = updatedRoom; 
-
     setRooms(updatedAllRooms);
+    // console.log(updatedAllRooms);
   }
 
   const getMessagesForRoom = (roomName) => {

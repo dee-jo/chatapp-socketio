@@ -4,6 +4,8 @@ import * as classes from './MessageList.css';
 
 const MessageList = ({messages}) => {
 
+  console.log(messages);
+
   return (
     <div>
 
@@ -17,15 +19,20 @@ const MessageList = ({messages}) => {
             </List.Content>
           </List.Item>   
 
-          {messages.map((message,i) => {
-            return (<List.Item>
-              {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
-              <List.Content key={i}>
-                <List.Header>Room {message.user}, User name</List.Header>
-                <List.Description>{message.message}</List.Description>
-              </List.Content>
-            </List.Item>)
-          })}
+          {
+            messages.map(m => {
+              if (m && m.user) // TODO: there is some undefined message appended to the end of the messages array
+               return (
+                <List.Item>
+                  {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
+                  <List.Content key={m.user}>
+                    <List.Header>Room {m.user}, User name</List.Header>
+                    <List.Description>{m.message}</List.Description>
+                  </List.Content>
+                </List.Item>
+              )
+            })
+          }
         </List>
 
     </div>
