@@ -1,8 +1,8 @@
-const dbManager = require('./seed_DB');
+const seedDB = require('./seedDB');
+const fs = require('fs');
+const FILE_NAME = './db_1.json';
 
-// const TEMP_STORE = dbManager.createTempDB();
-const TEMP_STORE = dbManager.useDBfromFile('./db_1.json');
-
+let TEMP_STORE = seedDB.useDBfromFile(FILE_NAME); 
 
 // USE THE STORE METHODS
 
@@ -19,6 +19,16 @@ const getRoomsForUser = (user) => {
 return ROOMS;
 }
 
+const addMessageToRoom = (user, roomName, message) => {
+  const room = TEMP_STORE.find(room => room.roomName === roomName);
+  // console.log(`${roomName} messages before message was added: `);
+  // console.dir(room.messages)
+  room.messages.push({user, message});
+  // console.log(`${roomName} messages after message was added: `);
+  // console.dir(room.messages)
+}
+
 module.exports = {
-  getRoomsForUser
+  getRoomsForUser,
+  addMessageToRoom,
 }

@@ -76,7 +76,9 @@ const messagesArr_to_messagesMap = () => {
  }
 
  const saveToFile = (fname) => {
-    const json = JSON.stringify(MESSAGE_STORE_ARR);
+  console.log('MESSAGE_STORE_ARR in seedDB saveToFile: ');
+  console.dir(MESSAGE_STORE_ARR);
+  const json = JSON.stringify(MESSAGE_STORE_ARR);
     fs.writeFile(fname, json, (err) => {
       if (err) {
           console.log(err);
