@@ -23,6 +23,11 @@ const MessageInput = ({onSendMessage}) => {
       value={messageText}
       placeholder='Type message...' 
       onChange={(e, {value}) => updateCurrentMessage(value)}
+      onKeyUp={(e) => {
+        if (e.keyCode === 13) {
+          onSend()
+        }
+      }}
     />
   )
 }

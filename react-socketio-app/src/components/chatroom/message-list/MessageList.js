@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { List } from 'semantic-ui-react';
 import * as classes from './MessageList.css';
 
 const MessageList = ({activeRoom, messages}) => {
 
   console.log(messages);
+
+  const messagesRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesRef.current.scrollIntoView({behavior: 'smooth'});
+  }
+
+  useEffect(scrollToBottom, [messages]);
 
   return (
     <div>
@@ -33,6 +41,7 @@ const MessageList = ({activeRoom, messages}) => {
               )
             })
           }
+          <div ref={messagesRef} />
         </List>
 
     </div>
