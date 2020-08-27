@@ -2,11 +2,12 @@ DONE:
     - the arrow on Chat component does animate 
     - import SocketIO
     - connect app to server
-
+    - server will store a list of rooms a user has previously joined, and send them to the user on connection, so that the user could automatically join all these rooms on connection. 
+    - implement component which will allow user to change room during single connection
 
 TODO:
   Necessary Functionality:
-    - server will store a list of rooms a user has previously joined, and send them to the user on connection, so that the user could automatically join all these rooms on connection. 
+ 
     - eventually the user that has created a room will become the administrator and will be able to approve new users wanting to join a particular room
 
   Styling:
@@ -24,7 +25,6 @@ TODO:
     - implement possibility for users to join rooms
 
   UI:
-    - implement component which will allow user to change room during single connection
     - implement a modal that will allow user to create a room (later to request joining to a new room)
 
   Persistance:

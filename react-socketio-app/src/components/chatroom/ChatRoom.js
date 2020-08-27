@@ -14,7 +14,7 @@ const ChatRoom = ({activeRoom, messages, onSendMessage}) => {
 
     return (
       <div className='chat-room_container'>
-        <MessageList messages={messages} />
+        <MessageList activeRoom={activeRoom} messages={messages} />
         <MessageInput onSendMessage={onSendMessage} />
       </div>
     )

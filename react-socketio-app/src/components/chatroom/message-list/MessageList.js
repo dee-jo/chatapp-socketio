@@ -2,7 +2,7 @@ import React from 'react';
 import { List } from 'semantic-ui-react';
 import * as classes from './MessageList.css';
 
-const MessageList = ({messages}) => {
+const MessageList = ({activeRoom, messages}) => {
 
   console.log(messages);
 
@@ -20,14 +20,14 @@ const MessageList = ({messages}) => {
           </List.Item>   
 
           {
-            messages.map(m => {
-              if (m && m.user) // TODO: there is some undefined message appended to the end of the messages array
+            messages.map(({user: messageUser, message}, i) => {
+             
                return (
                 <List.Item>
                   {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
-                  <List.Content key={m.user}>
-                    <List.Header>Room {m.user}, User name</List.Header>
-                    <List.Description>{m.message}</List.Description>
+                  <List.Content key={i}>
+                    <List.Header>Room {activeRoom}, User name: {messageUser}</List.Header>
+                    <List.Description>{message}</List.Description>
                   </List.Content>
                 </List.Item>
               )
