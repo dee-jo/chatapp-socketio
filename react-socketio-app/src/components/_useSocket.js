@@ -18,9 +18,9 @@ const useSocket = (user) => {
       const roomNames = rooms.map(room => {
         return room.roomName;
       });
+      setRooms(rooms);
       setRoomNames(roomNames);
       // setConnectedSocket(socketRef.current.id);
-      setRooms(rooms);
 
       // set room events
       console.log('rooms in useEffect: ', rooms);
@@ -33,11 +33,11 @@ const useSocket = (user) => {
   }, []);
 
   useEffect(() => {
-    if(rooms) {
+    if (roomNames) {
       setRoomEvents(roomNames);
       return;
     }
-  }, [rooms]);
+  }, [roomNames, rooms]);
 
 
 
@@ -57,7 +57,7 @@ const useSocket = (user) => {
         console.dir(rooms);
         addMessageToRoom(rmName, message);
       });
-    })
+    });
   }
 
   const addMessageToRoom = (roomName, message) => {
