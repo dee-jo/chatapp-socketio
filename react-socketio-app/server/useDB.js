@@ -1,6 +1,7 @@
 const dbManager = require('./seed_DB');
 
-const TEMP_STORE = dbManager.createTempDB();
+// const TEMP_STORE = dbManager.createTempDB();
+const TEMP_STORE = dbManager.useDBfromFile('./db_1.json');
 
 
 // USE THE STORE METHODS
