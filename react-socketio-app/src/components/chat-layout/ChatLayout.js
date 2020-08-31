@@ -39,13 +39,13 @@ const ChatLayout = (props) => {
           <RoomList roomNames={roomNames} activeItem={activeItem} setActiveItem={setActiveItem} />
         </Grid.Column>
         <Grid.Column stretched width={12}>
-          <Segment>
-            {activeItem &&
-             <ChatRoom 
+          {/*<Segment>
+            {activeItem &&  
+              <ChatRoom 
               activeRoom={activeItem} 
               messages={getMessagesForRoom(activeItem)} 
               onSendMessage={sendMessage(activeItem)} />}
-          </Segment>
+            </Segment>*/}
         </Grid.Column>
       </Grid>
   

@@ -18,8 +18,8 @@ const useSocket = (user) => {
       const roomNames = rooms.map(room => {
         return room.roomName;
       });
-      setRooms(rooms);
-      setRoomNames(roomNames);
+      // setRooms(rooms);
+      setRoomNames(rooms);
       // setConnectedSocket(socketRef.current.id);
 
       // set room events

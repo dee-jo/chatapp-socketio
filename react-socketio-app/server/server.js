@@ -30,53 +30,82 @@ io.use((socket, next) => {
 io.on("connection", socket => {
   const USER = 'user4';
   console.log("Socket id: ", socket.id, " connected!");
-  
-  const { connected, userid } = db.checkIfConnected(USER);
-  let rooms = [];
-  let roomNames = [];
+  let connected;
+  let userid;
 
-  if (!connected) {
-    const res = db.getJoinedRooms(userid);
-    rooms = res.rows;
-    roomNames = rooms.map(room => {
-      return room.name
-    })
-  }
-  
+  db.checkIfConnected(USER).then((res) => {
+    console.log(res);
+    connected = res.rows[0].connected;
+    userid = res.rows[0].userid;
 
-
-  // CHANGED 'joined rooms' to 'joined room'
-  socket.join(roomsNames, (roomName) => {
-    // console.log('server, on socket.join, rooms: ', roomsNames);
-    io.to(socket.id).emit('joined room', roomName);
+    console.log('server.js line 41, connected: ', connected, 'userid: ', userid);
+    if (!connected) {
+      initialiseSocket(userid, socket);
+    }
   });
-
-  // set up dynamic message listeners for each room
-  roomsNames.forEach((roomName) => {
-    socket.on(`message for ${roomName}`, data => {
-
-      // useDB.addMessageToRoom(USER, roomName, data.message);
-      io.to(roomName).emit(`message for ${roomName}`, data);
-      db.addMessage(data.message, userid, roomName);
-      // console.log("Received a message from roomName: ", roomName, ", socket.id: ", socket.id , ", message: ", data.message);
-      // console.log("Emiting message back to all clients!");
-    });
-  })
-
-  socket.on("disconnecting", () => {
-    const rooms = Object.keys(socket.rooms);
-    rooms.forEach(room => {
-      socket.leave(room);
-    })
-  })
-  
-  socket.on("disconnect", function() {
-    console.log("Socket id: ", socket.id, " disconnected!");
-    // TODO: make socket leave rooms
-    // useDB.saveToFile();
-    //useDB.reloadDB();
-  });
+ 
 });
 
+ 
+const initialiseSocket = (userid, socket) => {
+  let joinedRooms = [];
 
+  db.getJoinedRooms(userid)
+  .then(res => {
+    console.log('server.js line 56, getJoinedRooms result rows: ', res.rows);
+    joinedRooms = res.rows;
+    return joinedRooms;
+  })
+  .then(joinedRooms => {
+    const roomNames = joinedRooms.map(room => room.name);
+    return roomNames;
+  })
+  .then(roomNames => {
 
+    socket.join(roomNames, () => {
+      console.log('at socket.join, roomNames: ', roomNames);
+      // CHANGED 'joined rooms' to 'joined room'
+        // console.log('server, on socket.join, rooms: ', roomsNames);
+        io.to(socket.id).emit('joined rooms', roomNames);
+    });
+
+    db.getUsersAndMessagesPerRoom(userid, joinedRooms.map(room => room.roomid))
+    .then(({messages, users}) => {
+      console.log('messages: ', messages);
+      console.log('users', users);
+    })
+    
+     
+    
+    
+    // set up dynamic message listeners for each room
+    roomNames.forEach((roomName) => {
+      socket.on(`message for ${roomName}`, data => {
+
+        // useDB.addMessageToRoom(USER, roomName, data.message);
+        io.to(roomName).emit(`message for ${roomName}`, data);
+        db.addMessage(data.message, userid, roomName);
+        // console.log("Received a message from roomName: ", roomName, ", socket.id: ", socket.id , ", message: ", data.message);
+        // console.log("Emiting message back to all clients!");
+      });
+    })
+
+    socket.on("disconnecting", () => {
+      const rooms = Object.keys(socket.rooms);
+      rooms.forEach(room => {
+        socket.leave(room);
+      })
+    })
+    
+    socket.on("disconnect", function() {
+      console.log("Socket id: ", socket.id, " disconnected!");
+      // TODO: make socket leave rooms
+      // useDB.saveToFile();
+      //useDB.reloadDB();
+    })
+  })
+  .catch((err) => {
+    console.log('server.js@line:104:err: ', err);
+  }); 
+    
+}
