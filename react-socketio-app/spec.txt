@@ -7,7 +7,11 @@ DONE:
 
 TODO:
   Necessary Functionality:
- 
+    - add persistance
+    - enforce user to only log in once (with redis  )
+    - change http server to http-Security
+    - implement load-balancer and compose with Docker
+    - change socket.io to websockets
     - eventually the user that has created a room will become the administrator and will be able to approve new users wanting to join a particular room
 
   Styling:
@@ -18,6 +22,7 @@ TODO:
     - implement user authentication (in Login, the method should verify user prior to setting verified to true and redirecting to chat);
 
   Functionality:
+    - implement nginx load balancer that will redirect traffic to multiple socketio servers, implement Kafka pubsub streaming so that each io server could subscribe to all existing Kafka topics and push messegas from clients to Kafka according to topic (room). Then create a db service to also subscribe to all kafka's topicks and store the data on each notification.
     - implement sending photos, videos and other files
     - implement phone calls and vide calls
 
