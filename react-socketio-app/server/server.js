@@ -64,20 +64,16 @@ const initialiseSocket = (userid, socket) => {
 
     socket.join(roomNames, () => {
       console.log('at socket.join, roomNames: ', roomNames);
-      // CHANGED 'joined rooms' to 'joined room'
         // console.log('server, on socket.join, rooms: ', roomsNames);
         io.to(socket.id).emit('joined rooms', roomNames);
     });
 
     db.getUsersAndMessagesPerRoom(userid, joinedRooms.map(room => room.roomid))
-    .then(({messages, users}) => {
-      console.log('messages: ', messages);
-      console.log('users', users);
+    .then(roomsMap => {
+      // console.log('roomsMap in server: ', roomsMap);
+      io.to(socket.id).emit('past messages', roomsMap);
     })
-    
-     
-    
-    
+
     // set up dynamic message listeners for each room
     roomNames.forEach((roomName) => {
       socket.on(`message for ${roomName}`, data => {

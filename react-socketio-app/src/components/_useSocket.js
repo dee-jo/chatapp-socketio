@@ -13,47 +13,51 @@ const useSocket = (user) => {
   useEffect(() => {
     socketRef.current = io("http://localhost:3001", { query: user });
   
-    socketRef.current.on("joined rooms", (rooms) => {
+    socketRef.current.on("joined rooms", (roomNames) => {
 
-      const roomNames = rooms.map(room => {
-        return room.roomName;
-      });
-      // setRooms(rooms);
-      setRoomNames(rooms);
+      
+      setRoomNames(roomNames);
       // setConnectedSocket(socketRef.current.id);
 
-      // set room events
       console.log('rooms in useEffect: ', rooms);
-     
+      
     });
+    
+    socketRef.current.on("past messages", (pastMessages) => {
+      console.log('recieved past messages: ', pastMessages);
+      setRooms(pastMessages);
+    })
 
+    
     return () => {
       socketRef.current.disconnect();
     };
   }, []);
+  
 
+  // set room events
   useEffect(() => {
-    if (roomNames) {
-      setRoomEvents(roomNames);
-      return;
+    if (roomNames.length > 0) {
+      console.dir(rooms);
+      setRoomEvents(roomNames, rooms);
     }
   }, [roomNames, rooms]);
-
-
-
+  
+  
+  
   const sendMessage = (room) => {
     return ({ message }) => {
       socketRef.current.emit(`message for ${room}`, { message });
     };
   }
-
-  const setRoomEvents = (rmNames) => {
+  
+  const setRoomEvents = (rmNames, rooms) => {
     console.log('setRoomEvents outer fn, rooms: ', rooms);
     rmNames.forEach((rmName) => {
       console.log(`setting event for room: ${rmName}`);
       socketRef.current.on(`message for ${rmName}`, ({ message }) => {
         console.log(`event received: 'message for ' ${rmName}, message: ${message}`);
-        console.log(`setRoomEvents() on event: rooms: `);
+        console.log(`rooms: `);
         console.dir(rooms);
         addMessageToRoom(rmName, message);
       });
@@ -88,8 +92,8 @@ const useSocket = (user) => {
   const getMessagesForRoom = (roomName) => {
     console.log('getMessagesForRoom(): roomName: ', roomName);
     console.log('getMessagesForRoom(): rooms: ', rooms);
-    const currentRoom = rooms.find(room => room.roomName === roomName);
-    return currentRoom.messages;
+    console.log('[getMessagesForRoom()] rooms[roomName].messages: ',rooms[roomName].messages);
+    return rooms[roomName].messages;
   }
 
   return { 

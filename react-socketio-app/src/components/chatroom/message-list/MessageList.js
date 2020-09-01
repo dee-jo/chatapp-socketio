@@ -28,14 +28,14 @@ const MessageList = ({activeRoom, messages}) => {
           </List.Item>   
 
           {
-            messages.map(({user: messageUser, message}, i) => {
+            messages.map(({date, messageid, messagetext, roomname, username }, i) => {
              
                return (
                 <List.Item>
                   {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
                   <List.Content key={i}>
-                    <List.Header>Room {activeRoom}, User name: {messageUser}</List.Header>
-                    <List.Description>{message}</List.Description>
+                    <List.Header>Room {activeRoom}, User name: {username}</List.Header>
+                    <List.Description>{messagetext}</List.Description>
                   </List.Content>
                 </List.Item>
               )

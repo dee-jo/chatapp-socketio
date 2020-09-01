@@ -31,7 +31,7 @@ const getJoinedRooms = (userid) => {
 }
 
 const addMessage = (messageText, userid, roomName) => {
-  const roomid = '';
+  let roomid = '';
   const roomIdquery = `SELECT roomid FROM rooms WHERE name = '${roomName}';`
   client.query(roomIdquery).then(res => {
     console.log('roomid found: ', res.rows[0].roomid);
@@ -58,49 +58,70 @@ const getMessagesPerRoom = (userid, roomidsTxt) => {
   })
 }
 
-const getUsersInRooms = (roomids) => {
-  let query = ''
-  let roomsMap = {}
-  roomids.forEach(roomid => {
-    roomsMap = getUserInRoom(roomid);
-  })
-  
-  return roomsMap;
-}
 
-const getUserInRoom = (roomid) => {
-  const  roomsMap = {};
+
+const roomsUsers = [];
+const getUserInRoom = async (roomid) => {
+ 
   query = `SELECT u.name AS username, r.name AS roomname FROM users u INNER JOIN messages m ON m.userid = u.userid INNER JOIN rooms r ON m.roomid = r.roomid WHERE m.roomid = '${roomid}';`;
 
   return client.query(query)
   .then(res => {
+    const  roomUsers = {};
     res.rows.forEach(row => {
       // console.log('row: ', row);
       const roomName = row.roomname;
-      if (!roomsMap[roomName]) {
-        roomsMap[roomName] = []
+      if (!roomUsers[roomName]) {
+        roomUsers[roomName] = []
       } else {
-        const found = roomsMap[roomName].find(name => row.username === name)
-        if (!found) roomsMap[roomName].push(row.username);
+        const found = roomUsers[roomName].find(name => row.username === name)
+        if (!found) roomUsers[roomName].push(row.username);
       }
     })
-    return roomsMap;
-    // console.log('roomsMap: ', roomsMap);
+    return roomsUsers.push(roomUsers);
   })
   .catch(err => {
-    console.log('error in getUsersPerRoom: ', err);
+    // console.log('error in getUsersPerRoom: ', err);
   })
+}
+
+const getUsersInRooms = (roomids) => {
+  let roomUsers = {}
+  roomids.forEach(roomid => {
+    roomUsers = getUserInRoom(roomid);
+  })
+  return roomUsers;
 }
 
 const getUsersAndMessagesPerRoom = async (userid, roomids) => {
   const roomidsTxt = quoteStringArray(roomids);
   const messages = await getMessagesPerRoom(userid, roomidsTxt);
-  console.log('getUsersAndMessagesPerRoom, messages: ', messages);
+  // console.log('getUsersAndMessagesPerRoom, messages: ', messages);
 
-  const roomsMap = await getUsersInRooms(roomids);
-  console.log('getUsersAndMessagesPerRoom, roomsMap: ', roomsMap);
-  
-  return {messges: messages, roomsMap: roomsMap};
+  return getUsersInRooms(roomids).then(() => {
+    const roomsArrayMap = mergeRoomsUsersAndMessages(roomsUsers, messages);
+    console.log('roomsMap ', roomsArrayMap);
+    const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
+    console.log('getUsersAndMessagesPerRoom, roomsMap: ', roomsMap);
+    return roomsMap;
+  })
+}
+
+
+// ---------------------- HELPER METHODS ------------------------
+
+const roomsArrayToRoomsMap = (roomsArrayMap) => {
+  let roomsMap = {};
+  roomsArrayMap.forEach(item => {
+    const key = Object.keys(item)[0];
+    roomsMap[key] = { ...item[key]}
+  });
+  return roomsMap;
+}
+
+const addMessagesToRoom = (roomname, messages) => {
+  const messagesArr = [messages.filter(m => m.roomname === roomname)];
+  return messagesArr;
 }
 
 const quoteStringArray = (arr) => {
@@ -109,6 +130,25 @@ const quoteStringArray = (arr) => {
   })
   const arrTxt = arrMap.join(',');
   return arrTxt;
+}
+
+const mergeRoomsUsersAndMessages = (roomsArray, messages) => {
+ 
+  const roomsMap = roomsArray.map((item, i) => {
+    const keys = Object.keys(item);
+    const key = keys[0];
+    console.log('key: ', key);
+    const roomItem = {};
+    const roomMessages = addMessagesToRoom(key, messages);
+    roomItem[key] = {
+      users: item[key],
+      messages: roomMessages ? roomMessages : []
+    };
+    console.log('roomItem: ', roomItem);
+    return roomItem;
+  });
+
+  return roomsMap;
 }
 
 
