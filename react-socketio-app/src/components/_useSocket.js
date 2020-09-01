@@ -7,8 +7,9 @@ const useSocket = (user) => {
   // const [ connectedSocket, setConnectedSocket] = useState({});
   // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
 
-  const [ rooms, setRooms ] = useState([]);
+  const [ rooms, setRooms ] = useState();
   const [ roomNames, setRoomNames ] = useState([]);
+  const [ eventsWereSet, setEventsWereSet ] = useState(false);
  
   useEffect(() => {
     socketRef.current = io("http://localhost:3001", { query: user });
@@ -37,7 +38,7 @@ const useSocket = (user) => {
 
   // set room events
   useEffect(() => {
-    if (roomNames.length > 0) {
+    if (rooms && !eventsWereSet) {
       console.dir(rooms);
       console.log('setRoomEvents outer fn, rooms: ', rooms);
       roomNames.forEach((rmName) => {
@@ -48,9 +49,11 @@ const useSocket = (user) => {
           console.dir(rooms);
           addMessageToRoom(rmName, message);
         });
-    }); 
+      }); 
+      setEventsWereSet(true);
+      return;
     }
-  }, [roomNames, rooms]);
+  }, [rooms]);
   
   
   
