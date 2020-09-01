@@ -76,11 +76,11 @@ const initialiseSocket = (userid, socket) => {
 
     // set up dynamic message listeners for each room
     roomNames.forEach((roomName) => {
-      socket.on(`message for ${roomName}`, data => {
+      socket.on(`message for ${roomName}`, ({message}) => {
 
         // useDB.addMessageToRoom(USER, roomName, data.message);
-        io.to(roomName).emit(`message for ${roomName}`, data);
-        db.addMessage(data.message, userid, roomName);
+        io.to(roomName).emit(`message for ${roomName}`, {message: message});
+        db.addMessage(message, userid, roomName);
         // console.log("Received a message from roomName: ", roomName, ", socket.id: ", socket.id , ", message: ", data.message);
         // console.log("Emiting message back to all clients!");
       });

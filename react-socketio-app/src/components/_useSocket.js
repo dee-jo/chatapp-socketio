@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
-
+import { v4 } from 'uuid';
 
 const useSocket = (user) => {
   const socketRef = useRef();
@@ -39,23 +39,40 @@ const useSocket = (user) => {
   useEffect(() => {
     if (roomNames.length > 0) {
       console.dir(rooms);
-      setRoomEvents(roomNames, rooms);
+      console.log('setRoomEvents outer fn, rooms: ', rooms);
+      roomNames.forEach((rmName) => {
+        console.log(`setting event for room: ${rmName}`);
+        socketRef.current.on(`message for ${rmName}`, ({ message }) => {
+          console.log(`event received: 'message for ' ${rmName}, message: ${message}`);
+          console.log(`rooms: `);
+          console.dir(rooms);
+          addMessageToRoom(rmName, message);
+        });
+    }); 
     }
   }, [roomNames, rooms]);
   
   
   
   const sendMessage = (room) => {
-    return ({ message }) => {
-      socketRef.current.emit(`message for ${room}`, { message });
+    return (messageText) => {
+      const message = {
+        messageid: v4(),
+        date: Date.now(),
+        messagetext: messageText,
+        roomname: room,
+        username: user
+      }
+      socketRef.current.emit(`message for ${room}`, {message: message});
     };
   }
   
-  const setRoomEvents = (rmNames, rooms) => {
+{/* 
+   const setRoomEvents = (rmNames, rooms) => {
     console.log('setRoomEvents outer fn, rooms: ', rooms);
     rmNames.forEach((rmName) => {
       console.log(`setting event for room: ${rmName}`);
-      socketRef.current.on(`message for ${rmName}`, ({ message }) => {
+      socketRef.current.on(`message for ${rmName}`, ({message}) => {
         console.log(`event received: 'message for ' ${rmName}, message: ${message}`);
         console.log(`rooms: `);
         console.dir(rooms);
@@ -63,37 +80,38 @@ const useSocket = (user) => {
       });
     });
   }
+*/}
 
   const addMessageToRoom = (roomName, message) => {
+    console.log(`[addMessageToRoom] roomName: ${roomName}, message: `);
+    console.dir(message);
     console.log(`addMessageToRoom: rooms: ${rooms}`);
-    const newMessage = {
-      user, message
-    }
-    let room_index = 0;
-    const currentRoom = rooms.find((r,i) => {
-      room_index = i;
-      return r.roomName === roomName
-    });
+  
+    setRooms((prevstate) => {
+      const oldMessages = prevstate[roomName].messages[0];
+      const updateMessages = [...oldMessages];
+      console.log('[addMessageToRoom] oldMessages', oldMessages)
+      console.log('[addMessageToRoom] updateMessages', updateMessages)
+      updateMessages.push(message);
+      const arr = [];
+      arr[0] = updateMessages;
 
-    console.log('message passed to addMessageToRoom: ', newMessage);
-    console.log('currentRoom.messages: ', currentRoom.messages);
-    const updatedMessages = [...currentRoom.messages];
-    updatedMessages.push(newMessage);
-    console.log('updatedMessages', updatedMessages);
-
-    const updatedRoom = {...currentRoom};
-    updatedRoom.messages = updatedMessages;
-    const updatedAllRooms = [...rooms];
-    updatedAllRooms[room_index] = updatedRoom; 
-    setRooms(updatedAllRooms);
-    // console.log(updatedAllRooms);
+      const updatedRoom = {
+        ...prevstate[roomName],
+        messages: arr
+      }
+      return {
+        ... prevstate,
+        [roomName]: updatedRoom
+      }
+    })
   }
 
   const getMessagesForRoom = (roomName) => {
     console.log('getMessagesForRoom(): roomName: ', roomName);
     console.log('getMessagesForRoom(): rooms: ', rooms);
     console.log('[getMessagesForRoom()] rooms[roomName].messages: ',rooms[roomName].messages);
-    return rooms[roomName].messages;
+    return rooms[roomName].messages[0];
   }
 
   return { 

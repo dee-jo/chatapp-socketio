@@ -9,7 +9,7 @@ const MessageInput = ({onSendMessage}) => {
   const onSend = () => {
     setMessage('');
     console.log('sending message from MessageInput: ', messageText);
-    onSendMessage({message: messageText});
+    onSendMessage(messageText);
   } 
 
   const updateCurrentMessage = (inputValue) => {
