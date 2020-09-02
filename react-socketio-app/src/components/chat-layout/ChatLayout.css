@@ -7,10 +7,23 @@
   align-items: stretch;
   justify-content: center;
   padding: 1em;
+  display: flex;
+}
+
+form.ui.form {
+  justify-content: center;
+  align-items: center;
+  margin: 30% auto;
 }
 
 a {
   padding: 0.5em;
   padding-left: 0;
   color: black !important;
+}
+
+@media (min-width: 767px) {
+  div.field {
+    min-width: 300px;
+  }
 }

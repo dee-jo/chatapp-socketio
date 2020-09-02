@@ -57,16 +57,18 @@ const useSocket = (user) => {
   
   
   
-  const sendMessage = (room) => {
+  const sendMessage = (roomName) => {
+    const longDate = new Date();
     return (messageText) => {
+      console.log('[sendMessage@_useSocket.js], roomName: ', roomName);
       const message = {
         messageid: v4(),
-        date: Date.now(),
+        date: Date.parse(longDate) /1000,
         messagetext: messageText,
-        roomname: room,
+        roomname: roomName,
         username: user
       }
-      socketRef.current.emit(`message for ${room}`, {message: message});
+      socketRef.current.emit(`message for ${roomName}`, {message: message});
     };
   }
   

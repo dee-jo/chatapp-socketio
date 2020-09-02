@@ -3,16 +3,22 @@ const { Client } = require('pg');
 const client = new Client({
   user: 'postgres',
   host: 'localhost',
-  database: 'chat_app_2',
+  database: 'chat_app_new1',
   password: 'postgres',
   port: 5432,
 })
+
+const createExtUUIDossp = () => {
+  client.query(`CREATE OR REPLACE FUNCTION public.uuid_generate_v4() RETURNS uuid LANGUAGE c PARALLEL SAFE STRICT
+ AS '$libdir/uuid-ossp', $function$uuid_generate_v4$function$;`)
+  .then(res => 'CREATED UUID-OSSP SUCCESS').catch(err => console.log('uuid-ossp error: ', err));
+}
 
 client.connect(err => {
   if (err) {
     console.error('connection error', err.stack)
   } else {
-    console.log('connected')
+    console.log('connected');
   }
 });
 
@@ -30,18 +36,24 @@ const getJoinedRooms = (userid) => {
   return client.query(`SELECT j.roomid, j.joineddate, r.name FROM join_room_events j INNER JOIN rooms r ON j.roomid = r.roomid WHERE j.userid = '${userid}' ;`);
 }
 
-const addMessage = (messageText, userid, roomName) => {
+const addMessage = (message, userid, roomname) => {
   let roomid = '';
-  const roomIdquery = `SELECT roomid FROM rooms WHERE name = '${roomName}';`
-  client.query(roomIdquery).then(res => {
-    console.log('roomid found: ', res.rows[0].roomid);
-    roomid = res.rows[0].roomid;
-  });
-  const date = Date.now();
-  const addMessageQuery = `INSERT INTO messages(messageid, roomid, userid, date, messagetext) VALUES (uuid_generate_v4(), '${roomid}', '${userid}', '${date}', '${messageText}');`;
-  client.query(addMessageQuery).then(res => {
-    console.log('addMessageQuery, res:', res);
+  const roomIdquery = `SELECT roomid FROM rooms WHERE name = '${roomname}';`
+  client.query(roomIdquery)
+  .then(res => {
+    // console.log('roomid found: ', res.rows[0].roomid);
+    const roomid = res.rows[0].roomid;
+    return roomid;
   })
+  .then(roomid => {
+    const addMessageQuery = `INSERT INTO messages (messageid, roomid, userid, date, messagetext) VALUES ('${message.messageid}', '${roomid}', '${userid}', '${message.date}', '${message.messagetext}');`;
+    client.query(addMessageQuery)
+    .then(res => {
+      console.log('addMessageQuery, res:', res);
+    })
+  });
+  
+  
 }
 
 const getRoomNames = (rooms) => {
@@ -58,7 +70,7 @@ const getMessagesPerRoom = (userid, roomidsTxt) => {
   return client.query(query).then(res => {
     console.log('getMessages: ', res.rows);
     return res.rows;
-  })
+  }).catch(err => console.log('db error [getMessagesPerRoom()@DBqueries.js] ', err));
 }
 
 

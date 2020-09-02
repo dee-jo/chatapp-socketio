@@ -12,8 +12,8 @@ const db = require('./postgres/DBqueries');
 
 
 // IO
-const USER = 'user1';
-const useDB = require('./dummyDB/useDB');
+// const USER = 'user1';
+// const useDB = require('./dummyDB/useDB');
 
 const io = require('socket.io')(http, {
   perMessageDeflate: false
@@ -28,7 +28,7 @@ io.use((socket, next) => {
 });
 
 io.on("connection", socket => {
-  const USER = 'user4';
+  const USER = 'user5';
   console.log("Socket id: ", socket.id, " connected!");
   let connected;
   let userid;
@@ -80,11 +80,13 @@ const initialiseSocket = (userid, socket) => {
 
         // useDB.addMessageToRoom(USER, roomName, data.message);
         io.to(roomName).emit(`message for ${roomName}`, {message: message});
+        //console.log('message received: ', message);
         db.addMessage(message, userid, roomName);
         // console.log("Received a message from roomName: ", roomName, ", socket.id: ", socket.id , ", message: ", data.message);
         // console.log("Emiting message back to all clients!");
       });
     })
+
 
     socket.on("disconnecting", () => {
       const rooms = Object.keys(socket.rooms);

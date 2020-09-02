@@ -7,6 +7,7 @@
 const { Client } = require('pg');
 const _ = require('lodash');
 const {randomDate} = require('../utils/utils');
+const {v4} = require('uuid');
 
 
 // ________________________________________________________________
@@ -74,7 +75,7 @@ const createUUIDextention = () => {
 
 const createTableUsers = () => {
   const query = `CREATE TABLE users (
-    userId UUID DEFAULT uuid_generate_v4 (),
+    userId varchar,
     name TEXT,
     connected BOOLEAN
   );`;
@@ -90,7 +91,7 @@ const createTableUsers = () => {
 
 const createTableRooms = () => {
   const query = `CREATE TABLE rooms (
-    roomId UUID DEFAULT uuid_generate_v4 (),
+    roomId varchar,
     name TEXT
   );`;
   client.query(query).then((res) => {
@@ -105,8 +106,8 @@ const createTableRooms = () => {
 
 const createTableJoinRoomEvents = () => {
   const query = `CREATE TABLE join_room_events (
-    userId UUID,
-    roomId UUID,
+    userId varchar,
+    roomId varchar,
     joinedDate INT
   );`
   client.query(query).then((res) => {
@@ -121,9 +122,9 @@ const createTableJoinRoomEvents = () => {
 
 const createTableMessages = () => {
   const query = `CREATE TABLE messages (
-    messageId UUID DEFAULT uuid_generate_v4 (),
-    roomId UUID,
-    userId UUID,
+    messageId VARCHAR,
+    roomId varchar,
+    userId varchar,
     date INT,
     messageText TEXT
   )`;
@@ -147,7 +148,8 @@ const insertUser = (amount) => {
 
   _.times(amount, (i) => {
     const name = 'user' + (i+1);
-    const query = `INSERT INTO users (userid, name, connected) VALUES (uuid_generate_v4(), '${name}', false);`; 
+    const userid = v4();
+    const query = `INSERT INTO users (userid, name, connected) VALUES ('${userid}', '${name}', false);`; 
     client.query(query).then((res) => {
       console.log(res);
     })
@@ -168,7 +170,8 @@ const insertRoom = (roomsArr) => {
 
   _.times(rooms.length, (i) => {
     const name = rooms[i];
-    const query = `INSERT INTO rooms (roomId, name) VALUES (uuid_generate_v4(), '${name}');`;
+    const roomid = v4();
+    const query = `INSERT INTO rooms (roomId, name) VALUES ('${roomid}', '${name}');`;
     
     client.query(query).then((res) => {
       console.log(res);
@@ -234,10 +237,11 @@ const insertMessage = (users, rooms) => {
   console.log('user_index', user_index);
   const room_index = Math.floor(Math.random()*(rooms.length));
   console.log('room_index', room_index);
+  const messageid = v4();
   const date = randomDate(new Date(2012, 0, 1), new Date());
   const someMessage = 'some message';
 
-  const query = `INSERT INTO messages (messageid, roomid, userid, date, messagetext) VALUES (uuid_generate_v4(), '${rooms[room_index].roomid}', '${users[user_index].userid}', '${date}' , '${someMessage}')`;
+  const query = `INSERT INTO messages (messageid, roomid, userid, date, messagetext) VALUES ('${messageid}', '${rooms[room_index].roomid}', '${users[user_index].userid}', '${date}' , '${someMessage}')`;
 
   // console.log(query);
   // console.log(date);
@@ -282,7 +286,7 @@ const fetchAndPopulateMessages = () => {
 const client = new Client({
   user: 'postgres',
   host: 'localhost',
-  // database: 'chat_app_2',
+  database: 'chat_app_new1',
   password: 'postgres',
   port: 5432,
 })
@@ -300,19 +304,20 @@ client.connect(err => {
 // _____________________________________________________________________
 
 
-// const dbName = '?'
+const dbName = 'chat_app_new1';
+
 // createDB(dbName);
-// createUUIDextention();
+createUUIDextention();
 
-// createTableUsers();
-// createTableRooms();
-// createTableJoinRoomEvents();
-// createTableMessages();
+createTableUsers();
+createTableRooms();
+createTableJoinRoomEvents();
+createTableMessages();
 
-// insertUser(10);
-// insertRoom(null);
-// populateJoinRoomEvents();
-// fetchAndPopulateMessages();
+insertUser(10);
+insertRoom(null);
+populateJoinRoomEvents();
+fetchAndPopulateMessages();
 
 
 
