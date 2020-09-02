@@ -1,13 +1,48 @@
 DONE:
     - the arrow on Chat component does animate 
-
+    - import SocketIO
+    - connect app to server
+    - server will store a list of rooms a user has previously joined, and send them to the user on connection, so that the user could automatically join all these rooms on connection. 
+    - implement component which will allow user to change room during single connection
 
 TODO:
+  Necessary Functionality:
+    - add persistance
+    - enforce user to only log in once (with redis  )
+    - change http server to http-Security
+    - implement load-balancer and compose with Docker
+    - change socket.io to websockets
+    - eventually the user that has created a room will become the administrator and will be able to approve new users wanting to join a particular room
 
   Styling:
     - the Login component's layout if off when viewing on full desktop page (better wrap it in div of class .content like the Chat component, rather than the centered grid from semanticui like it is now)
+    - the animation of arrow leading back to home from Chat component stopped working since replacing setState with useState hook. (was working just before started the socketio branch on git)
 
+  Authentication:
+    - implement user authentication (in Login, the method should verify user prior to setting verified to true and redirecting to chat);
+
+  Functionality:
+    - implement nginx load balancer that will redirect traffic to multiple socketio servers, implement Kafka pubsub streaming so that each io server could subscribe to all existing Kafka topics and push messegas from clients to Kafka according to topic (room). Then create a db service to also subscribe to all kafka's topicks and store the data on each notification.
+    - implement sending photos, videos and other files
+    - implement phone calls and vide calls
 
   SocketIO:
-    - import SocketIO
-    - connect app to server
+    - implement possibility for users to join rooms
+
+  UI:
+    - implement a modal that will allow user to create a room (later to request joining to a new room)
+
+  Persistance:
+    - store user details, and chat data in a db;
+
+  Security:
+    - allow single user to be logged in from only one browser window, check here: https://hackernoon.com/enforcing-a-single-web-socket-connection-per-user-with-node-js-socket-io-and-redis-65f9eb57f66a
+    
+
+  SocketIO options to consider:
+    - socket.open() - can be used to manually reconnect disconnected socket
+    socket.on('disconnect', () => {
+      socket.open();
+    });
+    
+    

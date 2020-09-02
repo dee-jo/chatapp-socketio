@@ -1,0 +1,43 @@
+POSTGRES:
+
+users {
+  userId: UUID,
+  name: TEXT,
+  connected: BOOLEAN,
+}
+
+rooms-joined: {
+  userId: UUID,
+  roomId: UUID,
+  joinedDate: INT
+}
+
+message: {
+ id: UUID,
+ roomID: UUID,
+ userId: UUID,
+ date: INT,
+ message_text: TEXT
+}
+
+
+
+
+usecases:
+  - on start the server will verify the user's name and password and then call db to check if the user is connected, then:
+    -  if the user is marked as connected, the server will refuse the new connection (future: disconnect the previous socket with that user name, have to store an array of connections on the server);
+    - if user exists and is not connected:
+      - server will mark the user as connected in db
+      - server will then query db to pull all rooms for that user, and then call io.join([rooms]) on that socket
+        (which means that the socket will start receiving new messages instantly)
+      - then server will retrieve all messages where message.date is newer than the roomJoined date of that room and send this to client in a 'past messages' io event. To resolve message ordering inconsisency the messages array will get sorted at client on each new message received. The client can also buffer the new incomming messages until the 'passed messages' event is received.
+      
+
+  - on new message received the server will:
+    - forward the message to appropriate room via io event
+    - save the message to db
+
+
+
+  - on message received, the server will push each message to db
+  - 

@@ -21,7 +21,7 @@ class Login extends Component {
   // }
 
   verifyAndRedirect = (userName) => {
-    // TODO: verify user
+    // TODO: verify user on server
     this.setState({verified: true});
   }
 
