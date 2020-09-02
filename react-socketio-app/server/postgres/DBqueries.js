@@ -38,7 +38,10 @@ const addMessage = (messageText, userid, roomName) => {
     roomid = res.rows[0].roomid;
   });
   const date = Date.now();
-  const addMessageQuery = `INSERT INTO messages(messageid, roomid, userid, date, messagetext) VALUES (uuid_generate_v4(), '${roomid}', '${userid}', '${date}', '${messageText}');`
+  const addMessageQuery = `INSERT INTO messages(messageid, roomid, userid, date, messagetext) VALUES (uuid_generate_v4(), '${roomid}', '${userid}', '${date}', '${messageText}');`;
+  client.query(addMessageQuery).then(res => {
+    console.log('addMessageQuery, res:', res);
+  })
 }
 
 const getRoomNames = (rooms) => {
