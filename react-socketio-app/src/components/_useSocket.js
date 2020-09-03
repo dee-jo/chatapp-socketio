@@ -7,7 +7,7 @@ const useSocket = (user) => {
   // const [ connectedSocket, setConnectedSocket] = useState({});
   // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
 
-  const [ rooms, setRooms ] = useState();
+  const [ rooms, setRooms ] = useState(null);
   const [ roomNames, setRoomNames ] = useState([]);
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
  
@@ -16,11 +16,10 @@ const useSocket = (user) => {
   
     socketRef.current.on("joined rooms", (roomNames) => {
 
-      
       setRoomNames(roomNames);
       // setConnectedSocket(socketRef.current.id);
 
-      console.log('rooms in useEffect: ', rooms);
+      console.log('roomsNames in useEffect: ', roomNames);
       
     });
     
@@ -71,21 +70,6 @@ const useSocket = (user) => {
       socketRef.current.emit(`message for ${roomName}`, {message: message});
     };
   }
-  
-{/* 
-   const setRoomEvents = (rmNames, rooms) => {
-    console.log('setRoomEvents outer fn, rooms: ', rooms);
-    rmNames.forEach((rmName) => {
-      console.log(`setting event for room: ${rmName}`);
-      socketRef.current.on(`message for ${rmName}`, ({message}) => {
-        console.log(`event received: 'message for ' ${rmName}, message: ${message}`);
-        console.log(`rooms: `);
-        console.dir(rooms);
-        addMessageToRoom(rmName, message);
-      });
-    });
-  }
-*/}
 
   const addMessageToRoom = (roomName, message) => {
     console.log(`[addMessageToRoom] roomName: ${roomName}, message: `);
@@ -113,16 +97,23 @@ const useSocket = (user) => {
   }
 
   const getMessagesForRoom = (roomName) => {
-    console.log('getMessagesForRoom(): roomName: ', roomName);
-    console.log('getMessagesForRoom(): rooms: ', rooms);
-    console.log('[getMessagesForRoom()] rooms[roomName].messages: ',rooms[roomName].messages);
-    return rooms[roomName].messages[0];
+    if (rooms) {
+      console.log('getMessagesForRoom(): roomName: ', roomName);
+      console.log('getMessagesForRoom(): rooms: ', rooms);
+      console.log('[getMessagesForRoom()] rooms[roomName].messages: ',rooms[roomName].messages);
+      return rooms[roomName].messages[0];
+    }
+  }
+
+  const pastMessagesReceived = () => {
+    return rooms != null;
   }
 
   return { 
     roomNames,
     getMessagesForRoom,
-    sendMessage
+    sendMessage,
+    pastMessagesReceived
   };
 
 }

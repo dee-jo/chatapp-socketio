@@ -10,7 +10,7 @@ import useSocket from '../_useSocket';
 const ChatLayout = (props) => {
 
   const USER = 'user1';
-  const { roomNames, getMessagesForRoom, sendMessage } = useSocket(USER);
+  const { roomNames, getMessagesForRoom, sendMessage, pastMessagesReceived } = useSocket(USER);
   const [ activeItem, setActiveItem ] = useState(roomNames[0]);
   const [ visible, setVisible ] = useState(true);
   
@@ -27,7 +27,6 @@ const ChatLayout = (props) => {
 
   return (
     <div className='container'>
-
       <Link to='/'> 
           <Transition animation='pulse' duration={500} visible={visible}>
             <Icon name='arrow left' size='large' onMouseOver={toggleArrow} onMouseOut={toggleArrow} />
@@ -36,15 +35,20 @@ const ChatLayout = (props) => {
 
       <Grid>
         <Grid.Column width={4}>
-          <RoomList roomNames={roomNames} activeItem={activeItem} setActiveItem={setActiveItem} />
+          {activeItem && 
+            <RoomList roomNames={roomNames} activeItem={activeItem} setActiveItem={setActiveItem} />
+          }
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            {activeItem &&  
-              <ChatRoom 
-              activeRoom={activeItem} 
-              messages={getMessagesForRoom(activeItem)} 
-              onSendMessage={sendMessage(activeItem)} />}
+            {pastMessagesReceived() &&
+                ( <ChatRoom 
+                activeRoom={activeItem} 
+                messages={getMessagesForRoom(activeItem)} 
+                onSendMessage={sendMessage(activeItem)} />)
+            }
+            
+            
             </Segment>
         </Grid.Column>
       </Grid>
