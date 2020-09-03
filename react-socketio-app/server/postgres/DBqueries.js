@@ -33,8 +33,7 @@ const getJoinedRooms = (userid) => {
 }
 
 const addMessage = (message, userid, roomname) => {
-  const escapedMsg = sqlString.escape(message.messagetext);
-  console.log('[addMessage escapedMsg: ', escapedMsg);
+  
   const roomIdquery = `SELECT roomid FROM rooms WHERE name = '${roomname}';`
   client.query(roomIdquery)
   .then(res => {

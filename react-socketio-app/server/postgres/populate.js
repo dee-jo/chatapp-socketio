@@ -286,7 +286,7 @@ const fetchAndPopulateMessages = () => {
 const client = new Client({
   user: 'postgres',
   host: 'localhost',
-  database: 'chat_app_new1',
+  // database: 'chat_app_new1',
   password: 'postgres',
   port: 5432,
 })
@@ -306,9 +306,9 @@ client.connect(err => {
 
 const dbName = 'chat_app_new1';
 
-// createDB(dbName);
-createUUIDextention();
+createDB(dbName);
 
+{/*createUUIDextention();
 createTableUsers();
 createTableRooms();
 createTableJoinRoomEvents();
@@ -317,7 +317,7 @@ createTableMessages();
 insertUser(10);
 insertRoom(null);
 populateJoinRoomEvents();
-fetchAndPopulateMessages();
+fetchAndPopulateMessages();*/}
 
 
 
