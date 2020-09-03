@@ -12,6 +12,21 @@ const MessageList = ({activeRoom, messages}) => {
     messagesRef.current.scrollIntoView({behavior: 'smooth'});
   }
 
+  const renderMessages = () => {
+    const sortedMessages = messages.sort((a,b) => a.date - b.date);
+    return messages.map(({date, messageid, messagetext, roomname, username }, i) => { 
+      return (
+       <List.Item>
+         {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
+         <List.Content key={i}>
+           <List.Header>Room {activeRoom}, User name: {username}</List.Header>
+           <List.Description>{messagetext}</List.Description>
+         </List.Content>
+       </List.Item>
+     )
+   })
+  }
+
   useEffect(scrollToBottom, [messages]);
 
   return (
@@ -27,19 +42,8 @@ const MessageList = ({activeRoom, messages}) => {
             </List.Content>
           </List.Item>   
 
-          {
-            messages.map(({date, messageid, messagetext, roomname, username }, i) => {
-             
-               return (
-                <List.Item>
-                  {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
-                  <List.Content key={i}>
-                    <List.Header>Room {activeRoom}, User name: {username}</List.Header>
-                    <List.Description>{messagetext}</List.Description>
-                  </List.Content>
-                </List.Item>
-              )
-            })
+          { 
+            renderMessages()
           }
           <div ref={messagesRef} />
         </List>

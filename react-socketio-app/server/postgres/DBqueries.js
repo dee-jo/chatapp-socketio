@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const sqlString = require('sqlstring');
 
 const client = new Client({
   user: 'postgres',
@@ -8,11 +9,6 @@ const client = new Client({
   port: 5432,
 })
 
-const createExtUUIDossp = () => {
-  client.query(`CREATE OR REPLACE FUNCTION public.uuid_generate_v4() RETURNS uuid LANGUAGE c PARALLEL SAFE STRICT
- AS '$libdir/uuid-ossp', $function$uuid_generate_v4$function$;`)
-  .then(res => 'CREATED UUID-OSSP SUCCESS').catch(err => console.log('uuid-ossp error: ', err));
-}
 
 client.connect(err => {
   if (err) {
@@ -37,7 +33,8 @@ const getJoinedRooms = (userid) => {
 }
 
 const addMessage = (message, userid, roomname) => {
-  let roomid = '';
+  const escapedMsg = sqlString.escape(message.messagetext);
+  console.log('[addMessage escapedMsg: ', escapedMsg);
   const roomIdquery = `SELECT roomid FROM rooms WHERE name = '${roomname}';`
   client.query(roomIdquery)
   .then(res => {
@@ -46,7 +43,7 @@ const addMessage = (message, userid, roomname) => {
     return roomid;
   })
   .then(roomid => {
-    const addMessageQuery = `INSERT INTO messages (messageid, roomid, userid, date, messagetext) VALUES ('${message.messageid}', '${roomid}', '${userid}', '${message.date}', '${message.messagetext}');`;
+    const addMessageQuery = `INSERT INTO messages (messageid, roomid, userid, date, messagetext) VALUES ('${message.messageid}', '${roomid}', '${userid}', '${message.date}', $$${message.messagetext}$$);`;
     client.query(addMessageQuery)
     .then(res => {
       console.log('addMessageQuery, res:', res);
