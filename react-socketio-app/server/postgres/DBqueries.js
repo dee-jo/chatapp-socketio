@@ -46,12 +46,9 @@ const verifyUser = (user, callback) => {
     return compare(user.password, dbHash);
   })
   .then(result => {
-    
     console.log('chained result: ', result);
     return callback(result);
   })
-  
-
 }
 
 const compare =(enteredPassword, dbHash) => {
@@ -65,10 +62,29 @@ const compare =(enteredPassword, dbHash) => {
 // $2b$10$TmNFgorFZNOU08J2ThCP9uGHjmai7d483sssUNMzuYttwASpJzW7u
 // $2b$10$fySXec.9UCwOFkmyt7hti.le4wivG99ShHKBKuRpi30ybsXcUZ6CK
 
+const findUserId = (username) => {
+  const query = `SELECT userid FROM users WHERE name = '${username}';`;
+  return client.query(query).then(res => {
+    console.log('res in findUserId: ', res)
+    const userid = res.rows[0].userid;
+    return userid;
+  })
+}
 
-const getJoinedRooms = (userid) => {
-  // console.log('[getJoinedRooms] userid: ', userid);
-  return client.query(`SELECT j.roomid, j.joineddate, r.name FROM join_room_events j INNER JOIN rooms r ON j.roomid = r.roomid WHERE j.userid = '${userid}' ;`);
+const getJoinedRooms = (username) => {
+  return findUserId(username)
+  .then(userid => {
+    console.log('userid in getJoinedRooms: ', userid)
+    return client.query(`SELECT j.roomid, j.joineddate, r.name 
+                         FROM join_room_events j 
+                         INNER JOIN rooms r ON j.roomid = r.roomid 
+                         WHERE j.userid = '${userid}' ;`);
+  })
+  .then(res => {
+    console.log('res.rows in getJoinedRooms: ', res)
+    return res.rows;
+  })
+  // console.log('userid in getJoinedRooms: ', userid);
 }
 
 const addMessage = (message, userid, roomname) => {
@@ -143,20 +159,28 @@ const getUsersInRooms = (roomids) => {
   return roomUsers;
 }
 
-const getUsersAndMessagesPerRoom = async (userid, roomids) => {
-  const roomidsTxt = quoteStringArray(roomids);
-  const messages = await getMessagesPerRoom(userid, roomidsTxt);
-  // console.log('getUsersAndMessagesPerRoom, messages: ', messages);
-
-  return getUsersInRooms(roomids).then(() => {
-    const roomsArrayMap = mergeRoomsUsersAndMessages(roomsUsers, messages);
-    // console.log('roomsMap ', roomsArrayMap);
-    const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
-    // console.log('getUsersAndMessagesPerRoom, roomsMap: ', roomsMap);
-    return roomsMap;
+const getUsersAndMessagesPerRoom = async (username, roomids) => {
+  findUserId(username)
+  .then(res => {
+    const userid = res.rows[0].userid;
+    const roomidsTxt = quoteStringArray(roomids);
+    return getMessagesPerRoom(userid, roomidsTxt);
   })
-}
+  .then(messages => {
+    return getUsersInRooms(roomids)
+    .then(roomUsers => {
+      return mergeRoomsUsersAndMessages(roomUsers, messages);
+    })
+    .then(roomsArrayMap => {
+      const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
+      console.log('etUsersAndMessagesPerRoom, roomsArrayMap ', roomsArrayMap);
+      console.log('getUsersAndMessagesPerRoom, roomsMap: ', roomsMap);
+      return roomsMap;
+    })
+  });
 
+    // console.log('getUsersAndMessagesPerRoom, messages: ', messages);
+}
 
 // ---------------------- HELPER METHODS ------------------------
 

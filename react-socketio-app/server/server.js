@@ -10,65 +10,50 @@ http.listen(3001, () => {
 // DB
 const db = require('./postgres/DBqueries');
 
-
-// IO
-// const USER = 'user1';
-// const useDB = require('./dummyDB/useDB');
+// SOCKETIO
 
 const io = require('socket.io')(http, {
   perMessageDeflate: false
 });
 
+// SOCKETIO AUTHENTICATION;
 
-io.use((socket, next) => {
-  const handshakeData = socket.request;
-  const name = handshakeData._query['user'];
-  const password = handshakeData._query['password'];
-  // console.log('@server.js name: ', name, 'password: ', password);
-  db.verifyUser({name: name, password: password}, (result) => {
-    console.log('res in callback: ', result);  
-    if (!result) {
-      socket.request._verified = `name=${name}&verified=false`;
+const authenticate = async (socket, data, callback) => {
+  console.log('[server.js@authenticate, client: ]', socket.id);
+  const { username, password } = data;
+  return db.verifyUser({name: username, password: password}, (passwordValid) => {
+    console.log('validPassword in callback: ', passwordValid);  
+    if (passwordValid) {
+      db.checkIfConnected(username)
+      .then((res,err) => {
+        const connected = res.rows[0].connected;
+        return connected 
+            ? callback(new Error("User is already connected!"))
+            : callback(null, username && passwordValid && !connected);
+      });
     } else {
-      socket.request._verified = `name=${name}&verified=true`;  
+      return callback(new Error("User not verified"));
     }
-  next();
   });
-});
+        
+}
 
-io.on("connection", socket => {
-  // const USER = socket.request._query.user.name;
-  if (socket.request._verified['verified'] === 'false') {
-    io.to(socket.id).emit(`User unverified`, socket.request._verified['user']);
-    socket.disconnect();
-  }
-  else {
-    const USER = 'user5';
-    console.log("Socket id: ", socket.id, " connected!");
-    let connected;
-    let userid;
-  
-    db.checkIfConnected(USER).then((res) => {
-      // console.log(res.rows[0].connected);
-      connected = res.rows[0].connected;
-      userid = res.rows[0].userid;
-  
-      // console.log('server.js line 41, connected: ', connected, 'userid: ', userid);
-      if (!connected) {
-        initialiseSocket(userid, socket);
-      }
-    });
-  }
-});
+const postAuthenticate = (socket, data) => {
+    console.log('In postAuthenticate!');
+    initialiseSocket(data.username, socket);
+};
+
+const socketioAuth = require("socketio-auth");
+socketioAuth(io, { authenticate, postAuthenticate });
 
  
-const initialiseSocket = (userid, socket) => {
+const initialiseSocket = (username, socket) => {
   let joinedRooms = [];
 
-  db.getJoinedRooms(userid)
-  .then(res => {
-    // console.log('server.js line 56, getJoinedRooms result rows: ', res.rows);
-    joinedRooms = res.rows;
+  db.getJoinedRooms(username)
+  .then(rows => {
+    console.log('server.js line 56, getJoinedRooms res: ', rows);
+    joinedRooms = rows;
     return joinedRooms;
   })
   .then(joinedRooms => {
@@ -76,20 +61,20 @@ const initialiseSocket = (userid, socket) => {
     return roomNames;
   })
   .then(roomNames => {
-
     socket.join(roomNames, () => {
       console.log('at socket.join, roomNames: ', roomNames);
         // console.log('server, on socket.join, rooms: ', roomsNames);
         io.to(socket.id).emit('joined rooms', roomNames);
     });
-    console.log('[server.js], userid: ', userid);
+    // console.log('[server.js], userid: ', userid);
     console.log('[server.js], joinedRooms: ');
     console.dir(joinedRooms);
-    db.getUsersAndMessagesPerRoom(userid, joinedRooms.map(room => room.roomid))
+
+    db.getUsersAndMessagesPerRoom(username, joinedRooms.map(room => room.roomid))
     .then(roomsMap => {
-      // console.log('roomsMap in server: ', roomsMap);
+      console.log('roomsMap in server: ', roomsMap);
       io.to(socket.id).emit('past messages', roomsMap);
-    })
+    });
 
     // set up dynamic message listeners for each room
     roomNames.forEach((roomName) => {

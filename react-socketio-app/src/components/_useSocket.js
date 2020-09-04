@@ -12,25 +12,27 @@ const useSocket = (user) => {
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
  
   useEffect(() => {
-    socketRef.current = io("http://localhost:3001", { query: `user=user5&password=user5` });
+    socketRef.current = io("http://localhost:3001");
 
+    socketRef.current.on('connect', () => {
+      console.log('Socket connected: ', socketRef.current.socket);
+      socketRef.current.emit('authentication', {username: "user5", password: "user5"});
+    });
     socketRef.current.on("user not verified", () => {
       // redirect to login
     })
-  
-    socketRef.current.on("joined rooms", (roomNames) => {
+    socketRef.current.on('authenticated', function() {
+      socketRef.current.on("joined rooms", (roomNames) => {
+        setRoomNames(roomNames);
+        // setConnectedSocket(socketRef.current.id);
+        console.log('roomsNames in useEffect: ', roomNames);
+      });
+      socketRef.current.on("past messages", (pastMessages) => {
+        console.log('recieved past messages: ', pastMessages);
+        setRooms(pastMessages);
+      })
 
-      setRoomNames(roomNames);
-      // setConnectedSocket(socketRef.current.id);
-
-      console.log('roomsNames in useEffect: ', roomNames);
-      
     });
-    
-    socketRef.current.on("past messages", (pastMessages) => {
-      console.log('recieved past messages: ', pastMessages);
-      setRooms(pastMessages);
-    })
 
     
     return () => {
