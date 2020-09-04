@@ -21,29 +21,44 @@ const io = require('socket.io')(http, {
 
 
 io.use((socket, next) => {
-  var handshakeData = socket.request;
-  console.log("middleware:", handshakeData._query['user']);
-
+  const handshakeData = socket.request;
+  const name = handshakeData._query['user'];
+  const password = handshakeData._query['password'];
+  // console.log('@server.js name: ', name, 'password: ', password);
+  db.verifyUser({name: name, password: password}, (result) => {
+    console.log('res in callback: ', result);  
+    if (!result) {
+      socket.request._verified = `name=${name}&verified=false`;
+    } else {
+      socket.request._verified = `name=${name}&verified=true`;  
+    }
   next();
+  });
 });
 
 io.on("connection", socket => {
-  const USER = 'user5';
-  console.log("Socket id: ", socket.id, " connected!");
-  let connected;
-  let userid;
-
-  db.checkIfConnected(USER).then((res) => {
-    console.log(res);
-    connected = res.rows[0].connected;
-    userid = res.rows[0].userid;
-
-    console.log('server.js line 41, connected: ', connected, 'userid: ', userid);
-    if (!connected) {
-      initialiseSocket(userid, socket);
-    }
-  });
- 
+  // const USER = socket.request._query.user.name;
+  if (socket.request._verified['verified'] === 'false') {
+    io.to(socket.id).emit(`User unverified`, socket.request._verified['user']);
+    socket.disconnect();
+  }
+  else {
+    const USER = 'user5';
+    console.log("Socket id: ", socket.id, " connected!");
+    let connected;
+    let userid;
+  
+    db.checkIfConnected(USER).then((res) => {
+      // console.log(res.rows[0].connected);
+      connected = res.rows[0].connected;
+      userid = res.rows[0].userid;
+  
+      // console.log('server.js line 41, connected: ', connected, 'userid: ', userid);
+      if (!connected) {
+        initialiseSocket(userid, socket);
+      }
+    });
+  }
 });
 
  
@@ -52,7 +67,7 @@ const initialiseSocket = (userid, socket) => {
 
   db.getJoinedRooms(userid)
   .then(res => {
-    console.log('server.js line 56, getJoinedRooms result rows: ', res.rows);
+    // console.log('server.js line 56, getJoinedRooms result rows: ', res.rows);
     joinedRooms = res.rows;
     return joinedRooms;
   })
@@ -67,7 +82,9 @@ const initialiseSocket = (userid, socket) => {
         // console.log('server, on socket.join, rooms: ', roomsNames);
         io.to(socket.id).emit('joined rooms', roomNames);
     });
-
+    console.log('[server.js], userid: ', userid);
+    console.log('[server.js], joinedRooms: ');
+    console.dir(joinedRooms);
     db.getUsersAndMessagesPerRoom(userid, joinedRooms.map(room => room.roomid))
     .then(roomsMap => {
       // console.log('roomsMap in server: ', roomsMap);

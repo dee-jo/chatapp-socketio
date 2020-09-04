@@ -1,5 +1,6 @@
 const { Client } = require('pg');
 const sqlString = require('sqlstring');
+const bcrypt = require('bcrypt');
 
 const client = new Client({
   user: 'postgres',
@@ -14,7 +15,7 @@ client.connect(err => {
   if (err) {
     console.error('connection error', err.stack)
   } else {
-    console.log('connected');
+    console.log('db connected');
   }
 });
 
@@ -26,9 +27,47 @@ const checkIfConnected = (userName) => {
     
 }
 
+const verifyUser = (user, callback) => {
+    
+  const useridQuery = `SELECT userid FROM users WHERE name = '${user.name}'`;
+
+  const verified = client.query(useridQuery)
+  .then(res => {
+    const userid = res.rows[0].userid;
+    return userid;
+  })
+  .then(userid => { // 
+    const query = `SELECT userhash FROM auth WHERE userid = '${userid}'`;
+    return client.query(query)
+  }) 
+  .then(res => {
+    const dbHash = res.rows[0].userhash;
+    console.log('dbHash: ', dbHash);
+    return compare(user.password, dbHash);
+  })
+  .then(result => {
+    
+    console.log('chained result: ', result);
+    return callback(result);
+  })
+  
+
+}
+
+const compare =(enteredPassword, dbHash) => {
+  return bcrypt.compare(enteredPassword, dbHash).then(result => {
+    return result;
+    // console.log('password check result: ', result);
+  });
+}
+
+
+// $2b$10$TmNFgorFZNOU08J2ThCP9uGHjmai7d483sssUNMzuYttwASpJzW7u
+// $2b$10$fySXec.9UCwOFkmyt7hti.le4wivG99ShHKBKuRpi30ybsXcUZ6CK
+
+
 const getJoinedRooms = (userid) => {
-  console.log('not connected, in getJoinedRooms!');
-  console.log('userid: ', userid);
+  // console.log('[getJoinedRooms] userid: ', userid);
   return client.query(`SELECT j.roomid, j.joineddate, r.name FROM join_room_events j INNER JOIN rooms r ON j.roomid = r.roomid WHERE j.userid = '${userid}' ;`);
 }
 
@@ -45,7 +84,7 @@ const addMessage = (message, userid, roomname) => {
     const addMessageQuery = `INSERT INTO messages (messageid, roomid, userid, date, messagetext) VALUES ('${message.messageid}', '${roomid}', '${userid}', '${message.date}', $$${message.messagetext}$$);`;
     client.query(addMessageQuery)
     .then(res => {
-      console.log('addMessageQuery, res:', res);
+      // console.log('addMessageQuery, res:', res);
     })
   });
   
@@ -54,7 +93,7 @@ const addMessage = (message, userid, roomname) => {
 
 const getRoomNames = (rooms) => {
   const roomsTxt = quoteStringArray(rooms);
-  console.log('roomsTxt: ', roomsTxt);
+  // console.log('roomsTxt: ', roomsTxt);
   const query = `SELECT name FROM rooms WHERE roomid IN (${roomsTxt});`
   return client.query(query).then(res => {
     return res.rows;
@@ -64,7 +103,7 @@ const getRoomNames = (rooms) => {
 const getMessagesPerRoom = (userid, roomidsTxt) => {
   const query = `SELECT m.messageid, m.date, m.messagetext, r.name AS roomname, u.name AS username FROM messages m INNER JOIN rooms r ON m.roomid = r.roomid INNER JOIN users u ON m.userid = u.userid WHERE m.userid = '${userid}' AND m.roomid IN (${roomidsTxt}) ;`;
   return client.query(query).then(res => {
-    console.log('getMessages: ', res.rows);
+    // console.log('getMessages: ', res.rows);
     return res.rows;
   }).catch(err => console.log('db error [getMessagesPerRoom()@DBqueries.js] ', err));
 }
@@ -111,9 +150,9 @@ const getUsersAndMessagesPerRoom = async (userid, roomids) => {
 
   return getUsersInRooms(roomids).then(() => {
     const roomsArrayMap = mergeRoomsUsersAndMessages(roomsUsers, messages);
-    console.log('roomsMap ', roomsArrayMap);
+    // console.log('roomsMap ', roomsArrayMap);
     const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
-    console.log('getUsersAndMessagesPerRoom, roomsMap: ', roomsMap);
+    // console.log('getUsersAndMessagesPerRoom, roomsMap: ', roomsMap);
     return roomsMap;
   })
 }
@@ -148,14 +187,14 @@ const mergeRoomsUsersAndMessages = (roomsArray, messages) => {
   const roomsMap = roomsArray.map((item, i) => {
     const keys = Object.keys(item);
     const key = keys[0];
-    console.log('key: ', key);
+    // console.log('key: ', key);
     const roomItem = {};
     const roomMessages = addMessagesToRoom(key, messages);
     roomItem[key] = {
       users: item[key],
       messages: roomMessages ? roomMessages : []
     };
-    console.log('roomItem: ', roomItem);
+    // console.log('roomItem: ', roomItem);
     return roomItem;
   });
 
@@ -168,5 +207,6 @@ module.exports = {
   addMessage,
   getJoinedRooms,
   getRoomNames,
-  getUsersAndMessagesPerRoom
+  getUsersAndMessagesPerRoom,
+  verifyUser
 }

@@ -16,13 +16,14 @@ Multi-client, real-time chat application based on web-sockets connections that a
 ## The current functionality
 
 - the app loads on the Login page (user verification not yet functional, defaults to 'user5' at present). The io client connects to the server on clicking the submit button.
-- the server looks up for the client in the DB and fetches the list of rooms the client has previously interacted with. It sends them to client in the "joined rooms" io event. The server then fetches all the past messages of that user from DB and sends them back to the client in a "past messages" event. 
+- the server looks up for the user in the DB and checks if he/she is connected. If not connected it fetches the list of rooms the client has previously interacted with. It sends them to client in the "joined rooms" io event. The server then fetches all the past messages of that user from DB and sends them back to the client in a "past messages" event. 
 - the client initializes the RoomList and ChatRoom components with the received list. 
 - all communication that follows is stored in the DB.
 
 ## In progress:
 
 - user authentication
+- use knex for db interaction
 - users can create new rooms (and accept/reject other users wanting to join)
 - implement video calls with webRTC
 - users can send multi-type files like photos, videos etc.

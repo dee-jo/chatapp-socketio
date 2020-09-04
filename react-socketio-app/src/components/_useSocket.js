@@ -12,7 +12,11 @@ const useSocket = (user) => {
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
  
   useEffect(() => {
-    socketRef.current = io("http://localhost:3001", { query: user });
+    socketRef.current = io("http://localhost:3001", { query: `user=user5&password=user5` });
+
+    socketRef.current.on("user not verified", () => {
+      // redirect to login
+    })
   
     socketRef.current.on("joined rooms", (roomNames) => {
 
