@@ -11,10 +11,14 @@ const options = [
 
 class Login extends Component {
 
+  
+  // socketManager = useSocket(USER);
+
   state = {
     userName: '',
     verified: false
   };
+
 
   // redirectToChat = () => {
   //   this.props.history.push(__dirname +`chat`);

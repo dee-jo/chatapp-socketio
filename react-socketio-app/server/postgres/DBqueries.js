@@ -65,9 +65,19 @@ const compare =(enteredPassword, dbHash) => {
 const findUserId = (username) => {
   const query = `SELECT userid FROM users WHERE name = '${username}';`;
   return client.query(query).then(res => {
-    console.log('res in findUserId: ', res)
+    // console.log('res in findUserId: ', res)
     const userid = res.rows[0].userid;
     return userid;
+  })
+}
+
+const findRoomId = (roomname) => {
+  const roomIdquery = `SELECT roomid FROM rooms WHERE name = '${roomname}';`
+  return client.query(roomIdquery)
+  .then(res => {
+    // console.log('roomid found: ', res.rows[0].roomid);
+    const roomid = res.rows[0].roomid;
+    return roomid;
   })
 }
 
@@ -87,14 +97,17 @@ const getJoinedRooms = (username) => {
   // console.log('userid in getJoinedRooms: ', userid);
 }
 
-const addMessage = (message, userid, roomname) => {
-  
-  const roomIdquery = `SELECT roomid FROM rooms WHERE name = '${roomname}';`
-  client.query(roomIdquery)
-  .then(res => {
-    // console.log('roomid found: ', res.rows[0].roomid);
-    const roomid = res.rows[0].roomid;
-    return roomid;
+const addMessage = (message) => {
+  const roomname = message.roomname;
+  const username = message.username;
+  let userid = '';
+  findUserId(username)
+  .then(id => {
+    userid = id;
+    return;
+  })
+  .then(() => {
+    return findRoomId(roomname)
   })
   .then(roomid => {
     const addMessageQuery = `INSERT INTO messages (messageid, roomid, userid, date, messagetext) VALUES ('${message.messageid}', '${roomid}', '${userid}', '${message.date}', $$${message.messagetext}$$);`;
@@ -103,7 +116,6 @@ const addMessage = (message, userid, roomname) => {
       // console.log('addMessageQuery, res:', res);
     })
   });
-  
   
 }
 
@@ -116,7 +128,17 @@ const getRoomNames = (rooms) => {
   });
 }
 
-const getMessagesPerRoom = (userid, roomidsTxt) => {
+const getMessagesInRooms = (roomids) => {
+  const roomidsTxt = quoteStringArray(roomids);
+  const query = `SELECT m.messageid, m.date, m.messagetext, r.name AS roomname, u.name AS username FROM messages m INNER JOIN rooms r ON m.roomid = r.roomid INNER JOIN users u ON m.userid = u.userid WHERE m.roomid IN (${roomidsTxt}) ;`;
+  return client.query(query).then(res => {
+    console.log('[getMessagesPerRoom]: res.rows ', res.rows);
+    return res.rows;
+  }).catch(err => console.log('db error [getMessagesPerRoom()@DBqueries.js] ', err));
+}
+
+const getMessagesPerUser = (userid, roomids) => {
+  const roomidsTxt = quoteStringArray(roomids);
   const query = `SELECT m.messageid, m.date, m.messagetext, r.name AS roomname, u.name AS username FROM messages m INNER JOIN rooms r ON m.roomid = r.roomid INNER JOIN users u ON m.userid = u.userid WHERE m.userid = '${userid}' AND m.roomid IN (${roomidsTxt}) ;`;
   return client.query(query).then(res => {
     // console.log('getMessages: ', res.rows);
@@ -126,65 +148,74 @@ const getMessagesPerRoom = (userid, roomidsTxt) => {
 
 
 
-const roomsUsers = [];
-const getUserInRoom = async (roomid) => {
- 
+const getUserInRoom = (roomid) => {
   query = `SELECT u.name AS username, r.name AS roomname FROM users u INNER JOIN messages m ON m.userid = u.userid INNER JOIN rooms r ON m.roomid = r.roomid WHERE m.roomid = '${roomid}';`;
 
   return client.query(query)
   .then(res => {
-    const  roomUsers = {};
+    const roomUsers = {};
+    let roomName = '';
     res.rows.forEach(row => {
-      // console.log('row: ', row);
-      const roomName = row.roomname;
-      if (!roomUsers[roomName]) {
+      roomName = row.roomname;
+      if (!roomUsers[roomName]) { // check if a key=roomname already exists in roomUsers map
         roomUsers[roomName] = []
       } else {
-        const found = roomUsers[roomName].find(name => row.username === name)
+        const found = roomUsers[roomName].find(username => row.username === username) // check if name already added to room
         if (!found) roomUsers[roomName].push(row.username);
       }
     })
-    return roomsUsers.push(roomUsers);
+    // console.log('[getUserInRoom], roomUsers: ');
+    // console.dir(roomUsers);
+    // console.log('[before return] roomName: ', roomName, 'roomUsers: ', roomUsers);
+    return {roomName, roomUsers};
   })
   .catch(err => {
     // console.log('error in getUsersPerRoom: ', err);
   })
 }
 
-const getUsersInRooms = (roomids) => {
-  let roomUsers = {}
-  roomids.forEach(roomid => {
-    roomUsers = getUserInRoom(roomid);
-  })
-  return roomUsers;
+const getUsersInRooms = async (roomids) => {
+  const roomsAndUsers = {};
+
+  for (const roomid of roomids) {
+    const {roomName, roomUsers} = await getUserInRoom(roomid);
+    // console.log('[after await] roomName: ', roomName, 'roomUsers: ', roomUsers);
+    roomsAndUsers[roomName] = {
+      users: roomUsers[roomName]
+    }
+  }
+  console.log('roomsAndUsers: ', roomsAndUsers);
+  return roomsAndUsers;
 }
 
 const getUsersAndMessagesPerRoom = async (username, roomids) => {
-  findUserId(username)
-  .then(res => {
-    const userid = res.rows[0].userid;
-    const roomidsTxt = quoteStringArray(roomids);
-    return getMessagesPerRoom(userid, roomidsTxt);
-  })
+  let messagesArray = [];
+  return getMessagesInRooms(roomids)
   .then(messages => {
-    return getUsersInRooms(roomids)
-    .then(roomUsers => {
-      return mergeRoomsUsersAndMessages(roomUsers, messages);
-    })
-    .then(roomsArrayMap => {
-      const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
-      console.log('etUsersAndMessagesPerRoom, roomsArrayMap ', roomsArrayMap);
-      console.log('getUsersAndMessagesPerRoom, roomsMap: ', roomsMap);
-      return roomsMap;
-    })
-  });
+    // console.log('[getUsersAndMessagesPerRoom] return result from [getMessagesPerRoom], messages: ');
+    // console.dir(messages);
+    messagesArray = messages;
+    return getUsersInRooms(roomids);
+  })
+  .then(roomsAndUsers => {
+    // console.log('[getUsersAndMessagesPerRoom] return result from [getUsersInRooms], roomsAndUsers: ');
+    // console.dir(roomsAndUsers);
 
-    // console.log('getUsersAndMessagesPerRoom, messages: ', messages);
+    return mergeRoomsUsersAndMessages(messagesArray, roomsAndUsers);
+  })
+  .then(roomsArrayMap => {
+    // const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
+    console.log('getUsersAndMessagesPerRoom, roomsArrayMap ', roomsArrayMap);
+    return roomsArrayMap;
+  })
+  
+
+  // console.log('getUsersAndMessagesPerRoom, messages: ', messages);
 }
 
 // ---------------------- HELPER METHODS ------------------------
 
-const roomsArrayToRoomsMap = (roomsArrayMap) => {
+{/*const roomsArrayToRoomsMap = (roomsArrayMap) => {
   let roomsMap = {};
   roomsArrayMap.forEach(item => {
     const key = Object.keys(item)[0];
@@ -194,9 +225,10 @@ const roomsArrayToRoomsMap = (roomsArrayMap) => {
 }
 
 const addMessagesToRoom = (roomname, messages) => {
+  // console.log('[addMessages] messages: ', messages);
   const messagesArr = [messages.filter(m => m.roomname === roomname)];
   return messagesArr;
-}
+}*/}
 
 const quoteStringArray = (arr) => {
   const arrMap = arr.map(item => {
@@ -206,23 +238,21 @@ const quoteStringArray = (arr) => {
   return arrTxt;
 }
 
-const mergeRoomsUsersAndMessages = (roomsArray, messages) => {
- 
-  const roomsMap = roomsArray.map((item, i) => {
-    const keys = Object.keys(item);
-    const key = keys[0];
-    // console.log('key: ', key);
-    const roomItem = {};
-    const roomMessages = addMessagesToRoom(key, messages);
-    roomItem[key] = {
-      users: item[key],
-      messages: roomMessages ? roomMessages : []
-    };
-    // console.log('roomItem: ', roomItem);
-    return roomItem;
-  });
+const mergeRoomsUsersAndMessages = ( messagesArray , roomsAndUsers ) => {
+  console.log('[mergeRoomsUsersAndMessages] messagesArray: ', messagesArray);
+  console.log('[mergeRoomsUsersAndMessages] roomsAndUsers: ', roomsAndUsers);
 
-  return roomsMap;
+  const roomNames = Object.keys(roomsAndUsers);
+  for (const roomName of roomNames) {
+    roomsAndUsers[roomName].messages = messagesArray.filter(message => {
+      return message.roomname === roomName;
+    });
+    console.log('roomsAndUsers[roomName].messages: ');
+    console.dir(roomsAndUsers[roomName].messages);
+  }
+  console.log('[mergeRoomsUsersAndMessages - after messages added] roomsAndUsers: ');
+  console.dir(roomsAndUsers);
+  return roomsAndUsers;
 }
 
 

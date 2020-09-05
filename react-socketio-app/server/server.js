@@ -83,7 +83,7 @@ const initialiseSocket = (username, socket) => {
         // useDB.addMessageToRoom(USER, roomName, data.message);
         io.to(roomName).emit(`message for ${roomName}`, {message: message});
         //console.log('message received: ', message);
-        db.addMessage(message, userid, roomName);
+        db.addMessage(message);
         // console.log("Received a message from roomName: ", roomName, ", socket.id: ", socket.id , ", message: ", data.message);
         // console.log("Emiting message back to all clients!");
       });

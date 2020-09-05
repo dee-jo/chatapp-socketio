@@ -2,11 +2,12 @@ import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 import { v4 } from 'uuid';
 
-const useSocket = (user) => {
+const useSocket = (username) => {
   const socketRef = useRef();
   // const [ connectedSocket, setConnectedSocket] = useState({});
   // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
 
+  const [ userVerified, setUserVerified ] = useState(false);
   const [ rooms, setRooms ] = useState(null);
   const [ roomNames, setRoomNames ] = useState([]);
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
@@ -33,8 +34,6 @@ const useSocket = (user) => {
       })
 
     });
-
-    
     return () => {
       socketRef.current.disconnect();
     };
@@ -61,6 +60,9 @@ const useSocket = (user) => {
   }, [rooms]);
   
   
+  const checkUserVerified = () => {
+    return userVerified;
+  }
   
   const sendMessage = (roomName) => {
     const longDate = new Date();
@@ -71,7 +73,7 @@ const useSocket = (user) => {
         date: Date.parse(longDate) /1000,
         messagetext: messageText,
         roomname: roomName,
-        username: user
+        username: username
       }
       socketRef.current.emit(`message for ${roomName}`, {message: message});
     };
@@ -83,17 +85,15 @@ const useSocket = (user) => {
     console.log(`addMessageToRoom: rooms: ${rooms}`);
   
     setRooms((prevstate) => {
-      const oldMessages = prevstate[roomName].messages[0];
+      const oldMessages = prevstate[roomName].messages;
       const updateMessages = [...oldMessages];
       console.log('[addMessageToRoom] oldMessages', oldMessages)
       console.log('[addMessageToRoom] updateMessages', updateMessages)
       updateMessages.push(message);
-      const arr = [];
-      arr[0] = updateMessages;
 
       const updatedRoom = {
         ...prevstate[roomName],
-        messages: arr
+        messages: updateMessages
       }
       return {
         ... prevstate,
@@ -103,12 +103,14 @@ const useSocket = (user) => {
   }
 
   const getMessagesForRoom = (roomName) => {
-    if (rooms) {
-      console.log('getMessagesForRoom(): roomName: ', roomName);
-      console.log('getMessagesForRoom(): rooms: ', rooms);
-      console.log('[getMessagesForRoom()] rooms[roomName].messages: ',rooms[roomName].messages);
-      return rooms[roomName].messages[0];
-    }
+   
+      if (rooms) {
+        console.log('getMessagesForRoom(): roomName: ', roomName);
+        console.log('getMessagesForRoom(): rooms: ', rooms);
+        console.log('[getMessagesForRoom()] rooms[roomName].messages: ',rooms[roomName].messages);
+        return rooms[roomName].messages;
+      }
+    
   }
 
   const pastMessagesReceived = () => {
@@ -116,6 +118,7 @@ const useSocket = (user) => {
   }
 
   return { 
+    checkUserVerified,
     roomNames,
     getMessagesForRoom,
     sendMessage,
