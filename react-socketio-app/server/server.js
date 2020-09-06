@@ -21,7 +21,8 @@ const io = require('socket.io')(http, {
 const authenticate = async (socket, data, callback) => {
   console.log('[server.js@authenticate, client: ]', socket.id);
   const { username, password } = data;
-  return db.verifyUser({name: username, password: password}, (passwordValid) => {
+  console.log('username: ', username, 'password: ', password);
+  return db.verifyUser({name: username, password}, (passwordValid) => {
     console.log('validPassword in callback: ', passwordValid);  
     if (passwordValid) {
       db.checkIfConnected(username)
@@ -39,8 +40,9 @@ const authenticate = async (socket, data, callback) => {
 }
 
 const postAuthenticate = (socket, data) => {
-    console.log('In postAuthenticate!');
-    initialiseSocket(data.username, socket);
+    const username = data.username;
+    console.log('In postAuthenticate!, data.username: ', username);
+    initialiseSocket(username, socket);
 };
 
 const socketioAuth = require("socketio-auth");
@@ -80,9 +82,8 @@ const initialiseSocket = (username, socket) => {
     roomNames.forEach((roomName) => {
       socket.on(`message for ${roomName}`, ({message}) => {
 
-        // useDB.addMessageToRoom(USER, roomName, data.message);
         io.to(roomName).emit(`message for ${roomName}`, {message: message});
-        //console.log('message received: ', message);
+        console.log('message received: ', message);
         db.addMessage(message);
         // console.log("Received a message from roomName: ", roomName, ", socket.id: ", socket.id , ", message: ", data.message);
         // console.log("Emiting message back to all clients!");

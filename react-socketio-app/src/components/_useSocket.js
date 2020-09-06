@@ -2,31 +2,32 @@ import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 import { v4 } from 'uuid';
 
-const useSocket = () => {
+const useSocket = (isVerifiedCallback) => {
   const socketRef = useRef();
   // const [ connectedSocket, setConnectedSocket] = useState({});
   // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
 
-  const [ username, setUserName ] = useState(null);
+  const [ username, setUsername ] = useState(null);
   const [ password, setPassword ] = useState(null);
-  const [ userVerified, setUserVerified ] = useState(false);
+  const [ userAuthenticated, setUserAuthenticated ] = useState(false);
   const [ rooms, setRooms ] = useState(null);
   const [ roomNames, setRoomNames ] = useState([]);
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
  
-
   useEffect(() => {
     if (username && password) {
       socketRef.current = io("http://localhost:3001");
 
       socketRef.current.on('connect', () => {
         console.log('Socket connected: ', socketRef.current.socket);
-        socketRef.current.emit('authentication', {username, password});
+        console.log('username: ', username, 'password: ', password);
+        socketRef.current.emit('authentication', {username: username, password: password});
       });
       socketRef.current.on("user not verified", () => {
         // redirect to login
       })
       socketRef.current.on('authenticated', function() {
+        setUserAuthenticated(true);
         socketRef.current.on("joined rooms", (roomNames) => {
           setRoomNames(roomNames);
           // setConnectedSocket(socketRef.current.id);
@@ -36,13 +37,14 @@ const useSocket = () => {
           console.log('recieved past messages: ', pastMessages);
           setRooms(pastMessages);
         })
-
       });
       return () => {
         socketRef.current.disconnect();
       };
     }
+    
   }, [username, password]);
+
   
 
   // set room events
@@ -60,12 +62,14 @@ const useSocket = () => {
         });
       }); 
       setEventsWereSet(true);
-      return;
-    }
+      if (rooms) isVerifiedCallback(roomNames, rooms, sendMessage, getMessagesForRoom, pastMessagesReceived);
+      
+    };
   }, [rooms]);
-  
-  const checkUserVerified = () => {
-    return userVerified;
+
+  const authenticateUser = (username, password) => {
+    setUsername(username);
+    setPassword(password);
   }
   
   const sendMessage = (roomName) => {
@@ -92,8 +96,8 @@ const useSocket = () => {
       const oldMessages = prevstate[roomName].messages;
       const updateMessages = [...oldMessages];
       console.log('[addMessageToRoom] oldMessages', oldMessages)
-      console.log('[addMessageToRoom] updateMessages', updateMessages)
       updateMessages.push(message);
+      console.log('[addMessageToRoom] updateMessages', updateMessages)
 
       const updatedRoom = {
         ...prevstate[roomName],
@@ -104,6 +108,7 @@ const useSocket = () => {
         [roomName]: updatedRoom
       }
     })
+    console.log('rooms after update: ', rooms);
   }
 
   const getMessagesForRoom = (roomName) => {
@@ -122,10 +127,10 @@ const useSocket = () => {
   }
 
   return { 
-      setUserName,
-      setPassword,
-      checkUserVerified,
+      authenticateUser,
+      userAuthenticated,
       roomNames,
+      rooms,
       getMessagesForRoom,
       sendMessage,
       pastMessagesReceived,
