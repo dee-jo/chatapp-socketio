@@ -2,42 +2,47 @@ import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 import { v4 } from 'uuid';
 
-const useSocket = (username) => {
+const useSocket = () => {
   const socketRef = useRef();
   // const [ connectedSocket, setConnectedSocket] = useState({});
   // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
 
+  const [ username, setUserName ] = useState(null);
+  const [ password, setPassword ] = useState(null);
   const [ userVerified, setUserVerified ] = useState(false);
   const [ rooms, setRooms ] = useState(null);
   const [ roomNames, setRoomNames ] = useState([]);
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
  
+
   useEffect(() => {
-    socketRef.current = io("http://localhost:3001");
+    if (username && password) {
+      socketRef.current = io("http://localhost:3001");
 
-    socketRef.current.on('connect', () => {
-      console.log('Socket connected: ', socketRef.current.socket);
-      socketRef.current.emit('authentication', {username: "user5", password: "user5"});
-    });
-    socketRef.current.on("user not verified", () => {
-      // redirect to login
-    })
-    socketRef.current.on('authenticated', function() {
-      socketRef.current.on("joined rooms", (roomNames) => {
-        setRoomNames(roomNames);
-        // setConnectedSocket(socketRef.current.id);
-        console.log('roomsNames in useEffect: ', roomNames);
+      socketRef.current.on('connect', () => {
+        console.log('Socket connected: ', socketRef.current.socket);
+        socketRef.current.emit('authentication', {username, password});
       });
-      socketRef.current.on("past messages", (pastMessages) => {
-        console.log('recieved past messages: ', pastMessages);
-        setRooms(pastMessages);
+      socketRef.current.on("user not verified", () => {
+        // redirect to login
       })
+      socketRef.current.on('authenticated', function() {
+        socketRef.current.on("joined rooms", (roomNames) => {
+          setRoomNames(roomNames);
+          // setConnectedSocket(socketRef.current.id);
+          console.log('roomsNames in useEffect: ', roomNames);
+        });
+        socketRef.current.on("past messages", (pastMessages) => {
+          console.log('recieved past messages: ', pastMessages);
+          setRooms(pastMessages);
+        })
 
-    });
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
+      });
+      return () => {
+        socketRef.current.disconnect();
+      };
+    }
+  }, [username, password]);
   
 
   // set room events
@@ -58,7 +63,6 @@ const useSocket = (username) => {
       return;
     }
   }, [rooms]);
-  
   
   const checkUserVerified = () => {
     return userVerified;
@@ -118,11 +122,13 @@ const useSocket = (username) => {
   }
 
   return { 
-    checkUserVerified,
-    roomNames,
-    getMessagesForRoom,
-    sendMessage,
-    pastMessagesReceived
+      setUserName,
+      setPassword,
+      checkUserVerified,
+      roomNames,
+      getMessagesForRoom,
+      sendMessage,
+      pastMessagesReceived,
   };
 
 }

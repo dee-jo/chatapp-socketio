@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { Form, Grid } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { Link, withRouter, Redirect } from 'react-router-dom';
+import useSocket from '../_useSocket';
 
 const options = [
   { key: 's', text: 'Sport', value: 'sport' },
@@ -9,67 +10,74 @@ const options = [
   { key: 'w', text: 'Work', value: 'work' },
 ];
 
-class Login extends Component {
 
-  
-  // socketManager = useSocket(USER);
+const Login = (props) => {
 
-  state = {
-    userName: '',
-    verified: false
-  };
-
+  const [ userName, setUsername ] = useState('');
+  const [ password, setPassword ] = useState('');
+  const [ verified, setVerified ] = useState(false);
+  const [ socketManager, setSocketManager ] = useState(useSocket());
 
   // redirectToChat = () => {
   //   this.props.history.push(__dirname +`chat`);
   // }
 
-  verifyAndRedirect = (userName) => {
-    // TODO: verify user on server
-    this.setState({verified: true});
+  const verifyAndRedirect = () => {
+    socketManager.setUserName(userName);
+    socketManager.setPassword(password);
+    if (socketManager.roomNames) {
+      setVerified({
+        verified: true
+      });
+    }
   }
 
-  renderRedirect = () => {
-    const verified = this.state.verified;
+  const renderRedirect = () => {
     return verified && (
-      <Redirect to='/chat'/>
+      <Redirect to={{
+        pathname: 'chat',
+        state: { useSocket: 'socketManager' }
+      }}/>
+      
     );
   }
 
 
-  handleChange = (e) => this.setState({ userName: e.target.value });
+  const handleNameChange = (e) => setUsername(e.target.value);
+  const handlePasswordChange = (e) => setPassword(e.target.value);
   // handleSubmit = () => re
 
-  render = () => {
-    const value = this.state.userName;
     return (
       <Grid centered >
-         {this.renderRedirect()}
+         {renderRedirect()}
         <Form >
           <Form.Group widths='equal'>
             <Form.Field>
               <label style={{'textAlign': 'left'}}>User Name</label>
-              <input placeholder='User Name' value={value} onChange={this.handleChange}/>
+              <input placeholder='User Name' value={userName} onChange={handleNameChange}/>
+            </Form.Field>
+            <Form.Field>
+              <label style={{'textAlign': 'left'}}>Password</label>
+              <input placeholder='Password' value={password} onChange={handlePasswordChange}/>
             </Form.Field>
             {/* <Form.Input fluid label='User name' placeholder='User name' /> */}
             {/* <Form.Input fluid label='Password' placeholder='Password' /> */}
             
-            <Form.Select
+            {/* <Form.Select
               fluid
               label='Room'
               options={options}
               placeholder='Room'
               style={{'textAlign': 'left'}}
-            />
+            /> */}
           </Form.Group>
-          <Form.Button type='submit' onClick={this.verifyAndRedirect}>Submit</Form.Button>
+          <Form.Button type='submit' onClick={verifyAndRedirect}>Submit</Form.Button>
         </Form>
        
   
       </Grid>
 
     );
-  }
 }
 
 export default withRouter(Login);
