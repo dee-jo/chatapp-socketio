@@ -2,10 +2,8 @@ import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 import { v4 } from 'uuid';
 
-const useSocket = (isVerifiedCallback) => {
+const useSocket = () => {
   const socketRef = useRef();
-  // const [ connectedSocket, setConnectedSocket] = useState({});
-  // const [ messages, setMessages ] = useState([{room: '', message: ''}]);
 
   const [ username, setUsername ] = useState(null);
   const [ password, setPassword ] = useState(null);
@@ -27,7 +25,7 @@ const useSocket = (isVerifiedCallback) => {
         // redirect to login
       })
       socketRef.current.on('authenticated', function() {
-        setUserAuthenticated(true);
+        
         socketRef.current.on("joined rooms", (roomNames) => {
           setRoomNames(roomNames);
           // setConnectedSocket(socketRef.current.id);
@@ -63,7 +61,7 @@ const useSocket = (isVerifiedCallback) => {
         });
       }); 
       setEventsWereSet(true);
-      if (rooms) isVerifiedCallback(roomNames, rooms, sendMessage, getMessagesForRoom);
+      setUserAuthenticated(true);
       return;
     };
   }, [rooms]);

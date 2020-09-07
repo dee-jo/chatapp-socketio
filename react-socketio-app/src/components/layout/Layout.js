@@ -1,26 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ChatLayout from '../chat-layout/ChatLayout';
 import Login from '../login/Login';
 import useSocket from '../_useSocket';
 
 const Layout = (props) => {
   
-  const isVerifiedCallback = (roomNames, rooms, sendMessage, getMessagesForRoom, pastMessagesReceived) => {
-    setSocketManager({roomNames, rooms, sendMessage, getMessagesForRoom, pastMessagesReceived});
-    setVerified(true)
+ const { 
+  authenticateUser,
+  userAuthenticated,
+  roomNames,
+  rooms,
+  getMessagesForRoom,
+  sendMessage
+} = useSocket();
+
+
+  // MAPPED FROM USESOCKET: 
+  const onAuthenticate = (username, password) => {
+    authenticateUser(username, password);
+  }
+  const onSendMessage = (activeRoom) => {
+    return sendMessage(activeRoom);
+  }
+  const onMessageReceived = (roomName) => {
+    return getMessagesForRoom(roomName);
+  }
+  const getRooms = () => {
+    return rooms;
+  }
+  const getRoomNames = () => {
+    return roomNames;
   }
 
-  const [ isVerified, setVerified ] = useState(false);
-  const [ socketManager, setSocketManager ] = useState(useSocket(isVerifiedCallback));
+  const socketMethods = {
+    onSendMessage,
+    onMessageReceived,
+    getRooms,
+    getRoomNames
+  }
 
+    
   const renderChatLayout = () => {
-    return (<ChatLayout socketManager={socketManager} />);
+    return (<ChatLayout  {...socketMethods} />);
   }
 
   return (
     <div>
-      {!isVerified ? <Login authenticateUser={socketManager.authenticateUser} /> : null}
-      {isVerified && renderChatLayout()}
+      {!userAuthenticated ? <Login authenticateUser={onAuthenticate} /> : null}
+      {userAuthenticated && renderChatLayout()}
     </div>
     
   )
