@@ -42,13 +42,14 @@ const useSocket = (isVerifiedCallback) => {
         socketRef.current.disconnect();
       };
     }
-    
   }, [username, password]);
 
   
 
   // set room events
   useEffect(() => {
+    console.log('rooms have been updated! rooms: ');
+    console.dir(rooms);
     if (rooms && !eventsWereSet) {
       console.dir(rooms);
       console.log('setRoomEvents outer fn, rooms: ', rooms);
@@ -63,7 +64,7 @@ const useSocket = (isVerifiedCallback) => {
       }); 
       setEventsWereSet(true);
       if (rooms) isVerifiedCallback(roomNames, rooms, sendMessage, getMessagesForRoom);
-      
+      return;
     };
   }, [rooms]);
 
@@ -113,19 +114,16 @@ const useSocket = (isVerifiedCallback) => {
         ... prevstate,
         [roomName]: updatedRoom
       }
-    })
-    console.log('rooms after update: ', rooms);
+    });
   }
 
   const getMessagesForRoom = (roomName) => {
-   
       if (rooms) {
         console.log('getMessagesForRoom(): roomName: ', roomName);
         console.log('getMessagesForRoom(): rooms: ', rooms);
-        console.log('[getMessagesForRoom()] rooms[roomName].messages: ',rooms[roomName].messages);
+        console.log(`[getMessagesForRoom()] rooms[${roomName}].messages: `, rooms[roomName].messages);
         return rooms[roomName].messages;
       }
-    
   }
 
   return { 

@@ -11,16 +11,15 @@ const Layout = (props) => {
   }
 
   const [ isVerified, setVerified ] = useState(false);
-  const [ socketInit, setSocketInit ] = useState(useSocket(isVerifiedCallback));
-  const [ socketManager, setSocketManager ] = useState();
+  const [ socketManager, setSocketManager ] = useState(useSocket(isVerifiedCallback));
 
   const renderChatLayout = () => {
-    return (<ChatLayout {...socketManager}/>);
+    return (<ChatLayout socketManager={socketManager} />);
   }
 
   return (
     <div>
-      {!isVerified ? <Login setVerified={setVerified} authenticateUser={socketInit.authenticateUser} /> : null}
+      {!isVerified ? <Login authenticateUser={socketManager.authenticateUser} /> : null}
       {isVerified && renderChatLayout()}
     </div>
     

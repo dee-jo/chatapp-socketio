@@ -7,8 +7,9 @@ import * as classes from './ChatLayout.css'
 import RoomList from './room-list/RoomList';
 import useSocket from '../_useSocket';
 
-const ChatLayout = ({roomNames, rooms, sendMessage, getMessagesForRoom}) => {
+const ChatLayout = ({socketManager}) => {
 
+  const {roomNames, rooms, sendMessage, getMessagesForRoom} = socketManager;
   const [ activeItem, setActiveItem ] = useState(roomNames[0]);
   const [ visible, setVisible ] = useState(true);
  
