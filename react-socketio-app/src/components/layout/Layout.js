@@ -15,7 +15,6 @@ const Layout = (props) => {
   const [ socketManager, setSocketManager ] = useState();
 
   const renderChatLayout = () => {
-   
     return (<ChatLayout {...socketManager}/>);
   }
 

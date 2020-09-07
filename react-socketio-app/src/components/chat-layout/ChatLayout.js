@@ -7,10 +7,11 @@ import * as classes from './ChatLayout.css'
 import RoomList from './room-list/RoomList';
 import useSocket from '../_useSocket';
 
-const ChatLayout = ({roomNames, rooms, sendMessage, getMessagesForRoom, pastMessagesReceived}) => {
+const ChatLayout = ({roomNames, rooms, sendMessage, getMessagesForRoom}) => {
 
   const [ activeItem, setActiveItem ] = useState(roomNames[0]);
   const [ visible, setVisible ] = useState(true);
+ 
   
   const toggleArrow = () => {
     setVisible((prevState) => {
@@ -18,6 +19,7 @@ const ChatLayout = ({roomNames, rooms, sendMessage, getMessagesForRoom, pastMess
     })
   }  
 
+  // on first load make the first room of the list active
   useEffect(() => {
     setActiveItem(roomNames[0]);
   }, [roomNames]);
@@ -39,14 +41,12 @@ const ChatLayout = ({roomNames, rooms, sendMessage, getMessagesForRoom, pastMess
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            {pastMessagesReceived() &&
+            {rooms &&
                 ( <ChatRoom 
                 activeRoom={activeItem} 
                 messages={getMessagesForRoom(activeItem)} 
                 onSendMessage={sendMessage(activeItem)} />)
             }
-            
-            
             </Segment>
         </Grid.Column>
       </Grid>

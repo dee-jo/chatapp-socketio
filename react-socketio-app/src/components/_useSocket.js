@@ -62,7 +62,7 @@ const useSocket = (isVerifiedCallback) => {
         });
       }); 
       setEventsWereSet(true);
-      if (rooms) isVerifiedCallback(roomNames, rooms, sendMessage, getMessagesForRoom, pastMessagesReceived);
+      if (rooms) isVerifiedCallback(roomNames, rooms, sendMessage, getMessagesForRoom);
       
     };
   }, [rooms]);
@@ -103,6 +103,12 @@ const useSocket = (isVerifiedCallback) => {
         ...prevstate[roomName],
         messages: updateMessages
       }
+      console.log('updatedRoom: ', updatedRoom);
+      const updatedRooms = {
+        ...prevstate,
+        [roomName]: updatedRoom
+      }
+      console.log('updatedRooms: ', updatedRooms);
       return {
         ... prevstate,
         [roomName]: updatedRoom
@@ -122,18 +128,13 @@ const useSocket = (isVerifiedCallback) => {
     
   }
 
-  const pastMessagesReceived = () => {
-    return rooms != null;
-  }
-
   return { 
       authenticateUser,
       userAuthenticated,
       roomNames,
       rooms,
       getMessagesForRoom,
-      sendMessage,
-      pastMessagesReceived,
+      sendMessage
   };
 
 }
