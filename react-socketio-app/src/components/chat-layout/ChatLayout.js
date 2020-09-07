@@ -7,12 +7,19 @@ import * as classes from './ChatLayout.css'
 import RoomList from './room-list/RoomList';
 import useSocket from '../_useSocket';
 
-const ChatLayout = (props) => {
+const ChatLayout = ({
+  onSendMessage,
+  onMessageReceived,
+  checkPastMessagesReceived,
+  getRooms,
+  getRoomNames
+}) => {
 
-  const USER = 'user1';
-  const { roomNames, getMessagesForRoom, sendMessage, pastMessagesReceived } = useSocket(USER);
-  const [ activeItem, setActiveItem ] = useState(roomNames[0]);
+  const [ activeItem, setActiveItem ] = useState(getRoomNames()[0]);
   const [ visible, setVisible ] = useState(true);
+  
+
+  console.log(`ChatLayout mounted, messages in ${activeItem}: `, onMessageReceived(activeItem));
   
   const toggleArrow = () => {
     setVisible((prevState) => {
@@ -21,11 +28,11 @@ const ChatLayout = (props) => {
   }  
 
   useEffect(() => {
-    setActiveItem(roomNames[0]);
-  }, [roomNames]);
-
+    console.log(`ChatLayout rerendered, messages in ${activeItem}: `, onMessageReceived(activeItem));
+  })
 
   return (
+    
     <div className='container'>
       <Link to='/'> 
           <Transition animation='pulse' duration={500} visible={visible}>
@@ -36,19 +43,17 @@ const ChatLayout = (props) => {
       <Grid>
         <Grid.Column width={4}>
           {activeItem && 
-            <RoomList roomNames={roomNames} activeItem={activeItem} setActiveItem={setActiveItem} />
+            <RoomList roomNames={getRoomNames()} activeItem={activeItem} setActiveItem={setActiveItem} />
           }
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
-            {pastMessagesReceived() &&
+            {getRooms() &&
                 ( <ChatRoom 
                 activeRoom={activeItem} 
-                messages={getMessagesForRoom(activeItem)} 
-                onSendMessage={sendMessage(activeItem)} />)
+                messages={onMessageReceived(activeItem)} 
+                onSendMessage={onSendMessage(activeItem)} />)
             }
-            
-            
             </Segment>
         </Grid.Column>
       </Grid>

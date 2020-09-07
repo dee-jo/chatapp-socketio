@@ -8,6 +8,7 @@ const { Client } = require('pg');
 const _ = require('lodash');
 const {randomDate} = require('../utils/utils');
 const {v4} = require('uuid');
+const bcrypt = require('bcrypt');
 
 
 // ________________________________________________________________
@@ -89,6 +90,21 @@ const createTableUsers = () => {
 
 // createTableUsers();
 
+const createTableAuth = () => {
+  const query = `CREATE TABLE auth (
+    userid varchar,
+    password varchar
+  );`;
+  client.query(query).then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+}
+
+// createTableAuth();
+
 const createTableRooms = () => {
   const query = `CREATE TABLE rooms (
     roomId varchar,
@@ -161,6 +177,36 @@ const insertUser = (amount) => {
 }
 
 // insertUser(10);
+
+const populatePasswords = () => {
+  const query = `SELECT * FROM users`;
+  const saltRounds = 10;
+  return client.query(query)
+  .then(res => {
+    return res.rows.map(row => {
+      return {
+        userid: row.userid,
+        name: row.name
+      }
+    });
+  })
+  .then(users => {
+    console.log('users from the database: ');
+    console.dir(users);
+    users.forEach(user => {
+      bcrypt.hash(user.name, saltRounds, (err, hash) => {
+        if (err) console.log('hash error: ', err);
+        const query = `INSERT INTO auth (userid, userhash) VALUES ('${user.userid}', '${hash}');`;
+        client.query(query)
+        .then(res => {
+          console.log(res);
+        })
+      });
+    })
+  })
+}
+
+// populatePasswords();
 
 
 // INSERTS ROOMS
@@ -286,7 +332,7 @@ const fetchAndPopulateMessages = () => {
 const client = new Client({
   user: 'postgres',
   host: 'localhost',
-  // database: 'chat_app_new1',
+  database: 'chat_app_new1',
   password: 'postgres',
   port: 5432,
 })
@@ -306,10 +352,11 @@ client.connect(err => {
 
 const dbName = 'chat_app_new1';
 
-createDB(dbName);
+// createDB(dbName);
 
 {/*createUUIDextention();
 createTableUsers();
+createTableAuth();
 createTableRooms();
 createTableJoinRoomEvents();
 createTableMessages();
@@ -319,6 +366,7 @@ insertRoom(null);
 populateJoinRoomEvents();
 fetchAndPopulateMessages();*/}
 
+//populatePasswords();
 
 
 
