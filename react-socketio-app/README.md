@@ -1,28 +1,31 @@
 # Socketio Chat-App (in progress)
 
-This app is a future portfolio project, where I document every step from the initial idea through the entire implementation evolution.
+This app is my portfolio project in progress. It's my learning outlet where I document every step of the process, the problems I encounter, experiment with different apis, refactor, grind through the bugs and find a way to solve them. 
 
 ## The idea
 
-Multi-client, real-time chat application based on web-sockets connections that are managed on a server. Clients categorize their communications in rooms.
+Multi-client, real-time chat application based on web-sockets connections that are managed on a server. Clients categorize their communications in rooms. Users are authenticated in order to use the app and their conversations are stored in db.
 
 ## Technologies used
 
 - Front-end: React
 - Back-end: node/express
-- WebSocket library: socketio
 - DB: Postgres
+
+## Libraries
+- WebSockets: socketio
+- Authentication: socketio-auth
 
 ## The current functionality
 
-- the app loads on the Login page (user verification not yet functional, defaults to 'user5' at present). The io client connects to the server on clicking the submit button.
-- the server looks up for the client in the DB and fetches the list of rooms the client has previously interacted with. It sends them to client in the "joined rooms" io event. The server then fetches all the past messages of that user from DB and sends them back to the client in a "past messages" event. 
+- the app loads on the Login page, which propmpts the user to fill in their name and password. This has been tested agaist users already stored in db. The io client creates io socket on clicking the submit button, and sends their credentials to the server
+- the server verifies user (passwords are encrypted), and on success looks up for the client in the DB and fetches the list of rooms the client has previously interacted with, sends them to client in the "joined rooms" io event. Next the server fetches all the past messages of that user from DB and sends them back to the client in a "past messages" event. 
 - the client initializes the RoomList and ChatRoom components with the received list. 
 - all communication that follows is stored in the DB.
 
 ## In progress:
 
-- user authentication
+- user signup
 - users can create new rooms (and accept/reject other users wanting to join)
 - implement video calls with webRTC
 - users can send multi-type files like photos, videos etc.
@@ -34,7 +37,7 @@ Multi-client, real-time chat application based on web-sockets connections that a
 - run npm install
 - cd into the server:
    - run npm install
-   - run node populate.js (this will create the DB) 
+   - run node populate.js (this will create and populate DB with dummy users, rooms and messages) 
    - open the file and:
       - comment line 309, and uncomment lines 289, 311-320, save
       - run node populate.js again (this will populate the DB)
