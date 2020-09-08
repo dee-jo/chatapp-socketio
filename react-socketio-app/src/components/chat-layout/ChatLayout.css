@@ -1,5 +1,5 @@
 .container {
-  margin: 0 auto;
+  margin: 5vh auto;
   width: 90%;
   height: 100%;
   display: flex;
@@ -22,8 +22,4 @@ a {
   color: black !important;
 }
 
-@media (min-width: 767px) {
-  div.field {
-    min-width: 300px;
-  }
-}
+

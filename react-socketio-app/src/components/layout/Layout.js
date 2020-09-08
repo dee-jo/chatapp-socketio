@@ -7,6 +7,7 @@ const Layout = (props) => {
   
  const { 
   authenticateUser,
+  logoutUser,
   userAuthenticated,
   roomNames,
   rooms,
@@ -18,6 +19,9 @@ const Layout = (props) => {
   // MAPPED FROM USESOCKET: 
   const onAuthenticate = (username, password) => {
     authenticateUser(username, password);
+  }
+  const onLogout = () => {
+    logoutUser();
   }
   const onSendMessage = (activeRoom) => {
     return sendMessage(activeRoom);
@@ -32,16 +36,17 @@ const Layout = (props) => {
     return roomNames;
   }
 
-  const socketMethods = {
+  const socketMethodsToProps = {
     onSendMessage,
     onMessageReceived,
     getRooms,
-    getRoomNames
+    getRoomNames,
+    onLogout
   }
 
     
   const renderChatLayout = () => {
-    return (<ChatLayout  {...socketMethods} />);
+    return (<ChatLayout  {...socketMethodsToProps} />);
   }
 
   return (

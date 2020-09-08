@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Header from './header/Header';
 import { Grid, Menu, Segment } from 'semantic-ui-react';
 import { List, Input, Icon, Transition } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
@@ -12,20 +13,21 @@ const ChatLayout = ({
   onMessageReceived,
   checkPastMessagesReceived,
   getRooms,
-  getRoomNames
+  getRoomNames,
+  onLogout
 }) => {
 
   const [ activeItem, setActiveItem ] = useState(getRoomNames()[0]);
-  const [ visible, setVisible ] = useState(true);
+  // const [ visible, setVisible ] = useState(true);
   
 
   console.log(`ChatLayout mounted, messages in ${activeItem}: `, onMessageReceived(activeItem));
   
-  const toggleArrow = () => {
-    setVisible((prevState) => {
-      return !prevState.visible
-    })
-  }  
+  // const toggleArrow = () => {
+  //   setVisible((prevState) => {
+  //     return !prevState.visible
+  //   })
+  // }  
 
   useEffect(() => {
     console.log(`ChatLayout rerendered, messages in ${activeItem}: `, onMessageReceived(activeItem));
@@ -34,11 +36,13 @@ const ChatLayout = ({
   return (
     
     <div className='container'>
-      <Link to='/'> 
+      {/* <Link to='/'> 
           <Transition animation='pulse' duration={500} visible={visible}>
             <Icon name='arrow left' size='large' onMouseOver={toggleArrow} onMouseOut={toggleArrow} />
           </Transition> 
-      </Link>
+      </Link> */}
+
+      <Header onLogout={onLogout} />
 
       <Grid>
         <Grid.Column width={4}>

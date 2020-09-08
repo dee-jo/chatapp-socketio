@@ -70,6 +70,17 @@ const useSocket = () => {
     setUsername(username);
     setPassword(password);
   }
+
+  const logoutUser = () => {
+    setUserAuthenticated(false);
+    setUsername(null);
+    setPassword(null);
+    setRooms(null);
+    setRoomNames(null);
+    setEventsWereSet(null);
+    // socketRef.current = null;
+    return socketRef.current.disconnect();
+  }
   
   const sendMessage = (roomName) => {
     const longDate = new Date();
@@ -126,6 +137,7 @@ const useSocket = () => {
 
   return { 
       authenticateUser,
+      logoutUser,
       userAuthenticated,
       roomNames,
       rooms,

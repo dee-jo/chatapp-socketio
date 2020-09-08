@@ -1,81 +1,147 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Form, Grid } from 'semantic-ui-react';
-import PropTypes from 'prop-types';
-import { BrowserRouter as Router, Route, withRouter, Redirect } from 'react-router-dom';
-import useSocket from '../_useSocket';
-import ChatLayout from '../chat-layout/ChatLayout';
+import WarningMessage from './WarningMessage';
+import * as classes from './Login.css';
 
-const options = [
-  { key: 's', text: 'Sport', value: 'sport' },
-  { key: 'm', text: 'Music', value: 'music' },
-  { key: 'w', text: 'Work', value: 'work' },
-];
 
 
 const Login = ({authenticateUser}) => {
 
+  // form state
   const [ username, setUsername ] = useState('');
   const [ password, setPassword ] = useState('');
- 
+  const [ passwordConfirm, setPasswordConfirm ] = useState('');
 
-  // redirectToChat = () => {
-  //   this.props.history.push(__dirname +`chat`);
-  // }
+  const [ isSignupMode, setIsSignupMode ] = useState(false);
 
+  const [ nameError, setNameError ] = useState(false);
+  const [ passwordError, setPasswordError ] = useState(false);
+  const [ passwordConfirmError, setPasswordConfirmError ] = useState(false);
+  
+
+  // input handlers
+  const handleNameChange = (e) => {
+    const currentName = e.target.value;
+    setUsername(currentName);
+    if (!currentName) setNameError(true)
+    else setNameError(false)
+  };
+
+  const handlePasswordChange = (e) => {
+    const currentPassword = e.target.value;
+    setPassword(currentPassword);
+    if (!currentPassword || currentPassword.length < 6 || currentPassword.length > 20) setPasswordError(true);
+    else setPasswordError(false);
+  };
+  
+  const handlePasswordConfirmChange = (e) => {
+    const currentPasswordConfirm = e.target.value;
+    setPasswordConfirm(currentPasswordConfirm)
+    if (!currentPasswordConfirm || password != currentPasswordConfirm) setPasswordConfirmError(true);
+    else setPasswordConfirmError(false);
+  };
+  
+  // submit handlers
   const verifyAndRedirect = () => {
     authenticateUser(username, password);
   }
-
-
-  // const renderRedirect = () => {
-  //   console.log('socketManager@Login: ');
-  //   console.dir(socketManager);
-  //   return erified && (
-  //     <Redirect to={{
-  //       pathname: '/chat',
-  //       state: { useSocket: socketManager }
-  //     }}/>
+  const signupNewUser = () => {
+    if (password != passwordConfirm) {
       
-  //   );
-  // }
+    }
+  }
+  const toggleSignup = () => setIsSignupMode(prevstate => !prevstate);
+  
+  // renderers
 
+  const renderErrorMessage = () => {
+    let attributes = {};
+    if (nameError) {
+      attributes = { 
+        negative: true, 
+        message: {title: 'Username required', text: 'Please provide a valid name.'}
+      };
+    } 
+    else if (passwordError) {
+      attributes = {
+         negative: true, 
+         message: {title: 'Password required', text: 'Please provide a valid password.'}
+      };
+    } 
+    else if (passwordConfirmError) {
+      attributes = { 
+        negative: true, 
+        message: {title: 'Password confirmation required', text: 'Please confirm your password.'}
+      }
+    } 
+    else {
+      attributes = { 
+        negative: true, 
+        message: {title: 'Password confirmation required', text: 'Please confirm your password.'}
+      }
+    }
+    return <WarningMessage {...attributes} />
+  }
 
-  const handleNameChange = (e) => setUsername(e.target.value);
-  const handlePasswordChange = (e) => setPassword(e.target.value);
-  // handleSubmit = () => re
+  const renderSignupForm = () => {
+    return (
+      <Form.Group widths='equal'>
+        <Form.Field id='username'>
+          <label style={{'textAlign': 'left'}}>User Name</label>
+          <input placeholder='User Name' value={username} onChange={handleNameChange} error={{
+        content: 'Please enter User Name',
+        pointing: 'below',
+      }}/>
+        </Form.Field>
+        <Form.Field id='password'>
+          <label style={{'textAlign': 'left'}}>Password</label>
+          <input placeholder='Password' value={password} onChange={handlePasswordChange} error={{
+        content: 'Please enter a valid password',
+        pointing: 'below',
+      }}/>
+        </Form.Field>
+        <Form.Field id='passwordConfirm'>
+          <label style={{'textAlign': 'left'}}>Confirm Password</label>
+          <input placeholder='Password' value={passwordConfirm} onChange={handlePasswordConfirmChange} error={{
+        content: 'Paswords need to match!',
+        pointing: 'below',
+      }}/>
+        </Form.Field>
+      </Form.Group>
+    )
+  }
+
+  const renderLoginForm = () => {
+    return (
+      <Form.Group widths='equal'>
+        <Form.Field>
+          <label style={{'textAlign': 'left'}}>User Name</label>
+          <input placeholder='User Name' value={username} onChange={handleNameChange} error/>
+        </Form.Field>
+        <Form.Field>
+          <label style={{'textAlign': 'left'}}>Password</label>
+          <input placeholder='Password' value={password} onChange={handlePasswordChange} error/>
+        </Form.Field>
+      </Form.Group>
+    )
+  }
 
     return (
       <div>
         <Grid centered >
           <Form >
-            <Form.Group widths='equal'>
-              <Form.Field>
-                <label style={{'textAlign': 'left'}}>User Name</label>
-                <input placeholder='User Name' value={username} onChange={handleNameChange}/>
-              </Form.Field>
-              <Form.Field>
-                <label style={{'textAlign': 'left'}}>Password</label>
-                <input placeholder='Password' value={password} onChange={handlePasswordChange}/>
-              </Form.Field>
-              {/* <Form.Input fluid label='User name' placeholder='User name' /> */}
-              {/* <Form.Input fluid label='Password' placeholder='Password' /> */}
-              
-              {/* <Form.Select
-                fluid
-                label='Room'
-                options={options}
-                placeholder='Room'
-                style={{'textAlign': 'left'}}
-              /> */}
-            </Form.Group>
-            <Form.Button type='submit' onClick={verifyAndRedirect}>Submit</Form.Button>
+            { nameError || passwordError || passwordConfirmError ? renderErrorMessage() : null }
+            { isSignupMode ? renderSignupForm() : renderLoginForm() }
+            <div className='buttons'>
+              <Form.Button  onClick={toggleSignup}>
+                {isSignupMode ? 'Already a user, log me in!' : 'Not yet a user, sign me up!'}
+              </Form.Button>
+              <Form.Button type='submit' onClick={isSignupMode ? signupNewUser : verifyAndRedirect } disabled={!username || !password}>
+                {isSignupMode ? 'Sign Up' : 'Login'}
+              </Form.Button>
+            </div>
           </Form>
-
-         
-          
-    
         </Grid>
-        
       </div>
     );
 }

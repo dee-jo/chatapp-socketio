@@ -1,0 +1,27 @@
+div.field {
+  display: inline-block;
+}
+
+button.ui.button:not([type="submit"]) {
+  background-color: white;
+  padding-left: 2px;
+  padding-top: 2px;
+  color: rgb(228, 83, 83);
+}
+
+div.buttons {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: initial;
+  justify-content: space-between;
+}
+
+@media (min-width: 767px) {
+  div.field {
+    min-width: 350px;
+  }
+  div.buttons {
+    flex-direction: column;
+  }
+}
