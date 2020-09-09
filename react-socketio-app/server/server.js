@@ -1,20 +1,51 @@
+// DB
+const db = require('./postgres/DBqueries');
+
 // SERVER
 const app = require('express')();
 const http = require('http').createServer(app);
-
-http.listen(3001, () => {
-  console.log('listening on :3001');
-});
-
-
-// DB
-const db = require('./postgres/DBqueries');
 
 // SOCKETIO
 
 const io = require('socket.io')(http, {
   perMessageDeflate: false
 });
+
+// SERVER CONFIGURATION
+const cors = require('cors');
+const bodyParser = require('body-parser');
+app.use(cors());  
+// app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
+app.post('/signup', (req, res) => {
+  if (!req.body||req.body=={}){
+    return res.status(400).send("Bad Request")
+}
+  console.log('server received POST request, req: ');
+  console.dir('req ', req.body);
+  const { username, password } = req.body;
+  console.log(`username: ${username}, password: ${password}`);
+  // return res.status(200).send(`Your name and password stored at the server!, username: ${username}, password: ${password}`);
+  db.signupNewUser({username, password})
+  .then(response => {
+    if (response) {
+      console.log('Signup response: ', response);
+      return res.status(201).send({success: true});
+    }
+  })
+  .catch(error => {
+    console.log('Signup error: ', error);
+    return res.status(403).send(error);
+  })
+});
+
+http.listen(3001, () => {
+  console.log('listening on :3001');
+});
+
+
+
 
 // SOCKETIO AUTHENTICATION;
 
@@ -36,7 +67,6 @@ const authenticate = async (socket, data, callback) => {
       return callback(new Error("User not verified"));
     }
   });
-        
 }
 
 const postAuthenticate = (socket, data) => {

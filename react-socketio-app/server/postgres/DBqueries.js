@@ -1,6 +1,7 @@
 const { Client } = require('pg');
 const sqlString = require('sqlstring');
 const bcrypt = require('bcrypt');
+const {v4} = require('uuid');
 
 const client = new Client({
   user: 'postgres',
@@ -24,8 +25,46 @@ const checkIfConnected = (userName) => {
   let connected = false;
   let userid = '';
   return client.query(query)
-    
 }
+
+const signupNewUser = ({username, password}) => {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT userid FROM users WHERE name='${username}';`;
+    client.query(query)
+    .then(res => {
+      if (res.rows.length) return reject(new Error('User already exists!, db res: ', res))
+      else return res;
+    })
+    .then(res => {
+      console.log('User doesn\'t exist, inserting into db');
+      const userid = v4();
+      const query = `INSERT INTO users (userid, name, connected) VALUES ('${userid}', '${username}', false) RETURNING userid;`;
+      return client.query(query)
+    })
+    .then(res => res.rows[0].userid)
+    .then(userid => {
+      console.log('userid returned from db after inserting user: userid', userid);
+      const saltRounds = 10;
+      return new Promise((resolveHash, rejectHash) => {
+        bcrypt.hash(password, saltRounds, (err, hash) => {
+          if (err) rejectHash(new Error(`[DBqueries@44]: couldn't hash user's password, error: ${err}`))
+          resolveHash({userid, hash});
+        });
+      })
+    })
+    .then(({userid, hash}, error) => {
+      if (error) reject(new Error(error));
+      else {
+        const query = `INSERT INTO auth (userid, userhash) VALUES ('${userid}', '${hash}') RETURNING userid;`;
+        client.query(query).then(res => {
+          if (res.rows[0].userid) {
+            return resolve(res.rows[0].userid);
+          }
+        })
+      }   
+    })
+  })
+};
 
 const verifyUser = (user, callback) => {
     
@@ -258,6 +297,7 @@ const mergeRoomsUsersAndMessages = ( messagesArray , roomsAndUsers ) => {
 
 module.exports = {
   checkIfConnected,
+  signupNewUser,
   addMessage,
   getJoinedRooms,
   getRoomNames,

@@ -42,7 +42,6 @@ const useSocket = () => {
     }
   }, [username, password]);
 
-  
 
   // set room events
   useEffect(() => {

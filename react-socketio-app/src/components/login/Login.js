@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Grid } from 'semantic-ui-react';
 import WarningMessage from './WarningMessage';
 import * as classes from './Login.css';
+import axios from 'axios';
+import qs from 'querystring';
 
 
 
@@ -13,11 +15,13 @@ const Login = ({authenticateUser}) => {
   const [ passwordConfirm, setPasswordConfirm ] = useState('');
 
   const [ isSignupMode, setIsSignupMode ] = useState(false);
+  const [ signupSuccess, setSignupSuccess ] = useState(false);
 
   const [ nameError, setNameError ] = useState(false);
   const [ passwordError, setPasswordError ] = useState(false);
   const [ passwordConfirmError, setPasswordConfirmError ] = useState(false);
   
+ 
 
   // input handlers
   const handleNameChange = (e) => {
@@ -40,19 +44,62 @@ const Login = ({authenticateUser}) => {
     if (!currentPasswordConfirm || password != currentPasswordConfirm) setPasswordConfirmError(true);
     else setPasswordConfirmError(false);
   };
+
+
   
   // submit handlers
+  const signupNewUser = () => {
+    if (username && (password === passwordConfirm) && isSignupMode) {
+      const payload = {
+        username: username,
+        password: password
+      };
+      axios({
+        method: 'post',
+        url: 'http://localhost:3001/signup',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data:  payload,
+      })
+      .then(response => {
+        console.log('response satatus: ', response.status);
+        console.log('POST request result ', response);
+        console.log('response from server: ', response.data);
+        if (response.status===201) {
+          setSignupSuccess(true);
+          setIsSignupMode(false);
+        }
+      })
+      .catch(error => {
+        console.log('POST request error: ', error);
+      })
+    };
+  } 
+
   const verifyAndRedirect = () => {
     authenticateUser(username, password);
   }
-  const signupNewUser = () => {
-    if (password != passwordConfirm) {
-      
-    }
-  }
-  const toggleSignup = () => setIsSignupMode(prevstate => !prevstate);
+  
+  const toggleSignup = () => {
+    setIsSignupMode(prevstate => {
+      if (!prevstate.isSignupMode) setSignupSuccess(false); 
+      return !prevstate
+    })
+  };
   
   // renderers
+
+  const renderSuccessMessage = () => {
+    const attributes = {
+      color: 'green',
+      message: {
+        title: 'You have successfully signed up!',
+        text: 'Please log in to continue.'
+      }
+    }
+    return <WarningMessage {...attributes} />
+  }
 
   const renderErrorMessage = () => {
     let attributes = {};
@@ -126,24 +173,32 @@ const Login = ({authenticateUser}) => {
     )
   }
 
-    return (
-      <div>
-        <Grid centered >
-          <Form >
-            { nameError || passwordError || passwordConfirmError ? renderErrorMessage() : null }
-            { isSignupMode ? renderSignupForm() : renderLoginForm() }
-            <div className='buttons'>
-              <Form.Button  onClick={toggleSignup}>
-                {isSignupMode ? 'Already a user, log me in!' : 'Not yet a user, sign me up!'}
-              </Form.Button>
-              <Form.Button type='submit' onClick={isSignupMode ? signupNewUser : verifyAndRedirect } disabled={!username || !password}>
-                {isSignupMode ? 'Sign Up' : 'Login'}
-              </Form.Button>
-            </div>
-          </Form>
-        </Grid>
-      </div>
-    );
+
+  return (
+    <div>
+      <Grid centered >
+        <Form >
+          { nameError || passwordError || passwordConfirmError ? renderErrorMessage() : null }
+          { signupSuccess && renderSuccessMessage()}
+          { isSignupMode ? renderSignupForm() : renderLoginForm() }
+          <div className='buttons'>
+            <Form.Button  onClick={toggleSignup}>
+              {isSignupMode ? 'Already a user, log me in!' : 'Not yet a user, sign me up!'}
+            </Form.Button>
+            <Form.Button 
+              type='submit' 
+              onClick={isSignupMode ? signupNewUser : verifyAndRedirect } 
+              disabled={
+                isSignupMode 
+                ? !username || !password || password.length < 6 || password.length > 20 || password != passwordConfirm
+                : !username || !password || password.length < 6 || password.length > 20} >
+              {isSignupMode ? 'Sign Up' : 'Login'}
+            </Form.Button>
+          </div>
+        </Form>
+      </Grid>
+    </div>
+  );
 }
 
 export default Login;
