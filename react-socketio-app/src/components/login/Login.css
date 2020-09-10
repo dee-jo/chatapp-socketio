@@ -2,11 +2,19 @@ div.field {
   display: inline-block;
 }
 
-button.ui.button:not([type="submit"]) {
+form button.ui.button {
   background-color: white;
   padding-left: 2px;
   padding-top: 2px;
-  color: rgb(228, 83, 83);
+  color: rgba(0,0,0,.8);
+  transition: font-size .7s;
+}
+
+form button.ui.button:hover {
+  box-shadow: none;
+  background-color: white;
+  background-image: none;
+  font-size: 1.2rem;
 }
 
 div.buttons {

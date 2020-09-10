@@ -34,7 +34,7 @@ const Login = ({authenticateUser}) => {
   const handlePasswordChange = (e) => {
     const currentPassword = e.target.value;
     setPassword(currentPassword);
-    if (!currentPassword || currentPassword.length < 6 || currentPassword.length > 20) setPasswordError(true);
+    if (!currentPassword || currentPassword.length < 5 || currentPassword.length > 20) setPasswordError(true);
     else setPasswordError(false);
   };
   
@@ -187,11 +187,12 @@ const Login = ({authenticateUser}) => {
             </Form.Button>
             <Form.Button 
               type='submit' 
+              className={classes.login_button}
               onClick={isSignupMode ? signupNewUser : verifyAndRedirect } 
               disabled={
                 isSignupMode 
-                ? !username || !password || password.length < 6 || password.length > 20 || password != passwordConfirm
-                : !username || !password || password.length < 6 || password.length > 20} >
+                ? !username || !password || password.length < 5 || password.length > 20 || password != passwordConfirm
+                : !username || !password || password.length < 5 || password.length > 20} >
               {isSignupMode ? 'Sign Up' : 'Login'}
             </Form.Button>
           </div>

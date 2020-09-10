@@ -49,24 +49,31 @@ http.listen(3001, () => {
 
 // SOCKETIO AUTHENTICATION;
 
-const authenticate = async (socket, data, callback) => {
+const authenticate = (socket, data, callback) => {
+ // return callback(new Error('User unauthenticated'));
   console.log('[server.js@authenticate, client: ]', socket.id);
   const { username, password } = data;
   console.log('username: ', username, 'password: ', password);
-  return db.verifyUser({name: username, password}, (passwordValid) => {
-    console.log('validPassword in callback: ', passwordValid);  
-    if (passwordValid) {
-      db.checkIfConnected(username)
-      .then((res,err) => {
-        const connected = res.rows[0].connected;
-        return connected 
-            ? callback(new Error("User is already connected!"))
-            : callback(null, username && passwordValid && !connected);
-      });
-    } else {
-      return callback(new Error("User not verified"));
-    }
-  });
+  
+  db.verifyUser({name: username, password})
+  .then(passwordValid => {
+    return !passwordValid 
+      ? callback(new Error(`Invalid username or password !`), false)
+      : db.checkIfConnected(username)
+  })
+  .then(alreadyConnected => {
+    return !alreadyConnected 
+      ? callback(null, true)
+      : callback(new Error(`User already connected!`), false)
+  })
+  .catch(dbError => {
+    console.log('Verification error server.js@65: ', dbError);
+    return callback(new Error(`Invalid username or password !, error: ${dbError}`), false);
+  })
+  .catch(err => {
+    console.log('Verification failed with error: ');
+    return false;
+  })
 }
 
 const postAuthenticate = (socket, data) => {

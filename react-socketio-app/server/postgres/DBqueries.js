@@ -2,6 +2,7 @@ const { Client } = require('pg');
 const sqlString = require('sqlstring');
 const bcrypt = require('bcrypt');
 const {v4} = require('uuid');
+const { reject } = require('lodash');
 
 const client = new Client({
   user: 'postgres',
@@ -22,9 +23,16 @@ client.connect(err => {
 
 const checkIfConnected = (userName) => {
   const query = `SELECT userid, connected FROM users WHERE name = '${userName}';`;
-  let connected = false;
-  let userid = '';
   return client.query(query)
+  .then(res => {
+    if (res.rows.length) {
+      return res.rows[0].connected;
+    }
+  })
+  .catch(err => {
+    console.log('Error checking if user connected, error: ', err);
+    return false;
+  })
 }
 
 const signupNewUser = ({username, password}) => {
@@ -66,27 +74,31 @@ const signupNewUser = ({username, password}) => {
   })
 };
 
-const verifyUser = (user, callback) => {
+const verifyUser = (user) => {
     
   const useridQuery = `SELECT userid FROM users WHERE name = '${user.name}'`;
 
-  const verified = client.query(useridQuery)
+  return client.query(useridQuery)
   .then(res => {
-    const userid = res.rows[0].userid;
-    return userid;
+    if (res.rows.length) return res.rows[0].userid;
+    else throw new Error('User doesn\'t exist!');
   })
-  .then(userid => { // 
+  .then(userid => { 
     const query = `SELECT userhash FROM auth WHERE userid = '${userid}'`;
     return client.query(query)
   }) 
   .then(res => {
-    const dbHash = res.rows[0].userhash;
-    console.log('dbHash: ', dbHash);
-    return compare(user.password, dbHash);
+    if (res.rows[0].userhash) {
+      const dbHash = res.rows[0].userhash;
+      console.log('dbHash: ', dbHash);
+      return compare(user.password, dbHash);
+    }
+    else throw new Error('Could not find userhash in db!');
   })
   .then(result => {
-    console.log('chained result: ', result);
-    return callback(result);
+    console.log('hash compare result: ', result);
+    if (!result) throw new Error('Pasword verification failed!');
+    else return result;
   })
 }
 
@@ -103,10 +115,14 @@ const compare =(enteredPassword, dbHash) => {
 
 const findUserId = (username) => {
   const query = `SELECT userid FROM users WHERE name = '${username}';`;
-  return client.query(query).then(res => {
-    // console.log('res in findUserId: ', res)
-    const userid = res.rows[0].userid;
-    return userid;
+  return client.query(query)
+  .then(res => {
+    if (res.rows.length) {
+      return res.rows[0].userid;
+    }
+  })
+  .catch(err => {
+    console.log('Error finding the user, err: ', err);
   })
 }
 
@@ -132,6 +148,9 @@ const getJoinedRooms = (username) => {
   .then(res => {
     console.log('res.rows in getJoinedRooms: ', res)
     return res.rows;
+  })
+  .catch(err => {
+    console.log('Error getting rooms joined by the user, error: ', err);
   })
   // console.log('userid in getJoinedRooms: ', userid);
 }

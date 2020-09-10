@@ -18,7 +18,7 @@ const useSocket = () => {
 
       socketRef.current.on('connect', () => {
         console.log('Socket connected: ', socketRef.current.socket);
-        console.log('username: ', username, 'password: ', password);
+        // console.log('username: ', username, 'password: ', password);
         socketRef.current.emit('authentication', {username: username, password: password});
       });
       socketRef.current.on("user not verified", () => {
