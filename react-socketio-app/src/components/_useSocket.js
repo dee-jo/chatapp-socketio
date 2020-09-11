@@ -12,6 +12,7 @@ const useSocket = () => {
   const [ roomNames, setRoomNames ] = useState([]);
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
  
+  // authenticate user
   useEffect(() => {
     if (username && password) {
       socketRef.current = io("http://localhost:3001");
@@ -21,7 +22,10 @@ const useSocket = () => {
         // console.log('username: ', username, 'password: ', password);
         socketRef.current.emit('authentication', {username: username, password: password});
       });
-      socketRef.current.on("user not verified", () => {
+      socketRef.current.on("unauthorized", () => {
+        setUserAuthenticated(false);
+        setUsername(null);
+        setPassword(null);
         // redirect to login
       })
       socketRef.current.on('authenticated', function() {

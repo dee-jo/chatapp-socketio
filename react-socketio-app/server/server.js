@@ -1,5 +1,5 @@
 // DB
-const db = require('./postgres/DBqueries');
+const db = require('./postgres/DBqueriesKNEX');
 
 // SERVER
 const app = require('express')();

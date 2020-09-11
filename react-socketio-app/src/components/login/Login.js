@@ -78,6 +78,8 @@ const Login = ({authenticateUser}) => {
   } 
 
   const verifyAndRedirect = () => {
+    setUsername('');
+    setPassword('');
     authenticateUser(username, password);
   }
   

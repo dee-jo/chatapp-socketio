@@ -110,9 +110,6 @@ const compare =(enteredPassword, dbHash) => {
 }
 
 
-// $2b$10$TmNFgorFZNOU08J2ThCP9uGHjmai7d483sssUNMzuYttwASpJzW7u
-// $2b$10$fySXec.9UCwOFkmyt7hti.le4wivG99ShHKBKuRpi30ybsXcUZ6CK
-
 const findUserId = (username) => {
   const query = `SELECT userid FROM users WHERE name = '${username}';`;
   return client.query(query)
@@ -173,8 +170,7 @@ const addMessage = (message) => {
     .then(res => {
       // console.log('addMessageQuery, res:', res);
     })
-  });
-  
+  }); 
 }
 
 const getRoomNames = (rooms) => {
@@ -206,7 +202,7 @@ const getMessagesPerUser = (userid, roomids) => {
 
 
 
-const getUserInRoom = (roomid) => {
+const getUsersInRoom = (roomid) => {
   query = `SELECT u.name AS username, r.name AS roomname FROM users u INNER JOIN messages m ON m.userid = u.userid INNER JOIN rooms r ON m.roomid = r.roomid WHERE m.roomid = '${roomid}';`;
 
   return client.query(query)
@@ -236,7 +232,7 @@ const getUsersInRooms = async (roomids) => {
   const roomsAndUsers = {};
 
   for (const roomid of roomids) {
-    const {roomName, roomUsers} = await getUserInRoom(roomid);
+    const {roomName, roomUsers} = await getUsersInRoom(roomid);
     // console.log('[after await] roomName: ', roomName, 'roomUsers: ', roomUsers);
     roomsAndUsers[roomName] = {
       users: roomUsers[roomName]
