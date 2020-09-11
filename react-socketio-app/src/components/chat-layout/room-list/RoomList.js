@@ -9,7 +9,6 @@ const RoomList = ({ roomNames, activeTab, setActiveItem }) => {
   console.log('active item: ', activeTab);
 
   return (
-
     <Menu fluid vertical tabular>
         {
           roomNames.map(room => {
@@ -29,7 +28,6 @@ const RoomList = ({ roomNames, activeTab, setActiveItem }) => {
           onClick={()=> {}}
         />
     </Menu>
-
   )
 }
 

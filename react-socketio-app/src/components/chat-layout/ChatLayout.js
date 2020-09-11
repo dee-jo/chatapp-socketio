@@ -31,6 +31,18 @@ const ChatLayout = ({
     return  <RoomsDashboard />
   }
 
+  const renderSection = (activeTab) => {
+    switch (activeTab) {
+      case 'messages': return !activeRoom ? 'Nothing to show!' : renderRoomsAndMessages();
+        break;
+      case 'dashboard': return renderDashboard();
+        break;
+      case 'notifications': return 'no notifications to show';
+        break;
+      default: return renderDashboard()
+    }
+  }
+
   const renderRoomsAndMessages = () => {
     return (
       <Grid>
@@ -59,11 +71,8 @@ const ChatLayout = ({
 
       <Header onLogout={onLogout} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* { renderSection('activeTab')} */}
-      
-      { !activeRoom && renderDashboard() }
-      { activeRoom && renderRoomsAndMessages() }
-  
+      { renderSection(activeTab) }
+
     </div>
     
   )
