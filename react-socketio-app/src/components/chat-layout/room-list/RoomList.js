@@ -1,12 +1,12 @@
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 
-const RoomList = ({ roomNames, activeItem, setActiveItem }) => {
+const RoomList = ({ roomNames, activeTab, setActiveItem }) => {
 
   console.log('in RoomList, roomNames: ', roomNames);
 
   const handleItemClick = (e, { name }) => setActiveItem(name);
-  console.log('active item: ', activeItem);
+  console.log('active item: ', activeTab);
 
   return (
 
@@ -17,7 +17,7 @@ const RoomList = ({ roomNames, activeItem, setActiveItem }) => {
               <Menu.Item
                 name={room}
                 key={room}
-                active={activeItem === room}
+                active={activeTab === room}
                 onClick={handleItemClick}
               />
             )
@@ -25,7 +25,7 @@ const RoomList = ({ roomNames, activeItem, setActiveItem }) => {
         }
         <Menu.Item
           name='Create Room'
-          active={activeItem === 'Create Room'}
+          active={activeTab === 'Create Room'}
           onClick={()=> {}}
         />
     </Menu>

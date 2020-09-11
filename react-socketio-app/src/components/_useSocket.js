@@ -7,10 +7,13 @@ const useSocket = () => {
 
   const [ username, setUsername ] = useState(null);
   const [ password, setPassword ] = useState(null);
+
   const [ userAuthenticated, setUserAuthenticated ] = useState(false);
+  const [ eventsWereSet, setEventsWereSet ] = useState(false);
   const [ rooms, setRooms ] = useState(null);
   const [ roomNames, setRoomNames ] = useState([]);
-  const [ eventsWereSet, setEventsWereSet ] = useState(false);
+
+  const [ availableRooms, setAvailableRooms ] = useState(null);
  
   // authenticate user
   useEffect(() => {
@@ -38,6 +41,10 @@ const useSocket = () => {
         socketRef.current.on("past messages", (pastMessages) => {
           console.log('recieved past messages: ', pastMessages);
           setRooms(pastMessages);
+        })
+        socketRef.current.on("available rooms", (availableRooms) => {
+          setUserAuthenticated(true);
+          setAvailableRooms(availableRooms);
         })
       });
       return () => {
@@ -144,6 +151,7 @@ const useSocket = () => {
       userAuthenticated,
       roomNames,
       rooms,
+      availableRooms,
       getMessagesForRoom,
       sendMessage
   };

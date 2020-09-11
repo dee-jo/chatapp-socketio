@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ChatLayout from '../chat-layout/ChatLayout';
+import RoomsDashboard from '../chat-layout/rooms-dashboard/RoomsDashboard';
 import Login from '../login/Login';
 import useSocket from '../_useSocket';
 
@@ -11,6 +12,7 @@ const Layout = (props) => {
   userAuthenticated,
   roomNames,
   rooms,
+  availableRooms,
   getMessagesForRoom,
   sendMessage
 } = useSocket();
@@ -35,10 +37,14 @@ const Layout = (props) => {
   const getRoomNames = () => {
     return roomNames;
   }
+  const getAvailableRooms = () => {
+    return availableRooms
+  }
 
   const socketMethodsToProps = {
     onSendMessage,
     onMessageReceived,
+    getAvailableRooms,
     getRooms,
     getRoomNames,
     onLogout

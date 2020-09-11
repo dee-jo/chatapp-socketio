@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Header from './header/Header';
-import { Grid, Menu, Segment } from 'semantic-ui-react';
-import { List, Input, Icon, Transition } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
+import { Grid, Segment } from 'semantic-ui-react';
 import ChatRoom from '../chatroom/ChatRoom';
 import * as classes from './ChatLayout.css'
 import RoomList from './room-list/RoomList';
-import useSocket from '../_useSocket';
+import RoomsDashboard from './rooms-dashboard/RoomsDashboard';
 
 const ChatLayout = ({
   onSendMessage,
@@ -17,50 +15,54 @@ const ChatLayout = ({
   onLogout
 }) => {
 
-  const [ activeItem, setActiveItem ] = useState(getRoomNames()[0]);
-  // const [ visible, setVisible ] = useState(true);
-  
 
-  console.log(`ChatLayout mounted, messages in ${activeItem}: `, onMessageReceived(activeItem));
-  
-  // const toggleArrow = () => {
-  //   setVisible((prevState) => {
-  //     return !prevState.visible
-  //   })
-  // }  
+  // currently active room
+  const [ activeRoom, setActiveRoom ] = useState(getRoomNames()[0]);
+
+  // For Header: currently active Tab
+  const [ activeTab, setActiveTab ] = useState(activeRoom ? 'messages' : 'dashboard')
+
 
   useEffect(() => {
-    console.log(`ChatLayout rerendered, messages in ${activeItem}: `, onMessageReceived(activeItem));
+    console.log(`ChatLayout rerendered, messages in ${activeRoom}: `, onMessageReceived(activeRoom));
   })
 
-  return (
-    
-    <div className='container'>
-      {/* <Link to='/'> 
-          <Transition animation='pulse' duration={500} visible={visible}>
-            <Icon name='arrow left' size='large' onMouseOver={toggleArrow} onMouseOut={toggleArrow} />
-          </Transition> 
-      </Link> */}
+  const renderDashboard = () => {
+    return  <RoomsDashboard />
+  }
 
-      <Header onLogout={onLogout} />
-
+  const renderRoomsAndMessages = () => {
+    return (
       <Grid>
         <Grid.Column width={4}>
-          {activeItem && 
-            <RoomList roomNames={getRoomNames()} activeItem={activeItem} setActiveItem={setActiveItem} />
+          {activeRoom && 
+            <RoomList roomNames={getRoomNames()} activeTab={activeRoom} setActiveRoom={setActiveRoom} />
           }
         </Grid.Column>
         <Grid.Column stretched width={12}>
           <Segment>
             {getRooms() &&
                 ( <ChatRoom 
-                activeRoom={activeItem} 
-                messages={onMessageReceived(activeItem)} 
-                onSendMessage={onSendMessage(activeItem)} />)
+                activeRoom={activeRoom} 
+                messages={onMessageReceived(activeRoom)} 
+                onSendMessage={onSendMessage(activeRoom)} />)
             }
             </Segment>
         </Grid.Column>
       </Grid>
+    )
+  }
+
+  return (
+    
+    <div className='container'>
+
+      <Header onLogout={onLogout} activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* { renderSection('activeTab')} */}
+      
+      { !activeRoom && renderDashboard() }
+      { activeRoom && renderRoomsAndMessages() }
   
     </div>
     

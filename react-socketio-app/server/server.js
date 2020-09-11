@@ -22,11 +22,11 @@ app.post('/signup', (req, res) => {
   if (!req.body||req.body=={}){
     return res.status(400).send("Bad Request")
 }
-  console.log('server received POST request, req: ');
-  console.dir('req ', req.body);
+  // console.log('server received POST request, req: ');
+  // console.dir('req ', req.body);
   const { username, password } = req.body;
-  console.log(`username: ${username}, password: ${password}`);
-  // return res.status(200).send(`Your name and password stored at the server!, username: ${username}, password: ${password}`);
+  //console.log(`username: ${username}, password: ${password}`);
+
   db.signupNewUser({username, password})
   .then(response => {
     if (response) {
@@ -91,7 +91,7 @@ const initialiseSocket = (username, socket) => {
 
   db.getJoinedRooms(username)
   .then(rows => {
-    console.log('server.js line 56, getJoinedRooms res: ', rows);
+    // console.log('server.js line 56, getJoinedRooms res: ', rows);
     joinedRooms = rows;
     return joinedRooms;
   })
@@ -101,20 +101,16 @@ const initialiseSocket = (username, socket) => {
   })
   .then(roomNames => {
     socket.join(roomNames, () => {
-      console.log('at socket.join, roomNames: ', roomNames);
-        // console.log('server, on socket.join, rooms: ', roomsNames);
-        io.to(socket.id).emit('joined rooms', roomNames);
+      io.to(socket.id).emit('joined rooms', roomNames);
     });
-    // console.log('[server.js], userid: ', userid);
-    console.log('[server.js], joinedRooms: ');
-    console.dir(joinedRooms);
 
     db.getUsersAndMessagesPerRoom(username, joinedRooms.map(room => room.roomid))
     .then(roomsMap => {
-      console.log('roomsMap in server: ', roomsMap);
+      // console.log('roomsMap in server: ', roomsMap);
       io.to(socket.id).emit('past messages', roomsMap);
+      sendAllExistingRooms(socket);
     });
-
+    
     // set up dynamic message listeners for each room
     roomNames.forEach((roomName) => {
       socket.on(`message for ${roomName}`, ({message}) => {
@@ -126,24 +122,35 @@ const initialiseSocket = (username, socket) => {
         // console.log("Emiting message back to all clients!");
       });
     })
+  })
+  .catch(error => {
+    console.error(error); 
+    sendAllExistingRooms(socket);
+  });
 
 
-    socket.on("disconnecting", () => {
-      const rooms = Object.keys(socket.rooms);
-      rooms.forEach(room => {
-        socket.leave(room);
-      })
-    })
-    
-    socket.on("disconnect", function() {
-      console.log("Socket id: ", socket.id, " disconnected!");
-      // TODO: make socket leave rooms
-      // useDB.saveToFile();
-      //useDB.reloadDB();
+  socket.on("disconnecting", () => {
+    const rooms = Object.keys(socket.rooms);
+    rooms.forEach(room => {
+      socket.leave(room);
     })
   })
-  .catch((err) => {
-    console.log('server.js@line:104:err: ', err);
-  }); 
-    
+  
+  socket.on("disconnect", function() {
+    console.log("Socket id: ", socket.id, " disconnected!");
+    // TODO: make socket leave rooms
+    // useDB.saveToFile();
+    //useDB.reloadDB();
+  })
+}
+
+const sendAllExistingRooms = (socket) => {
+  db.getAllExistingRooms()
+    .then(res => {
+      console.log('all rooms: ', res);
+      io.to(socket.id).emit('available rooms', res)
+    })
+    .catch(error => {
+      console.error(error);
+    }) 
 }

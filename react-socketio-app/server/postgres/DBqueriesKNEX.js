@@ -222,9 +222,6 @@ const getJoinedRooms = (username) => {
     if (rows.length) return rows;
     else throw new Error(`Could not find any previously joined rooms for user: ${username}`);
   })
-  .catch(err => {
-    console.log(err);
-  })
 }
 
 // TEST:
@@ -234,6 +231,20 @@ const getJoinedRooms = (username) => {
 //   console.log(`Joined rooms for user ${username}: `);
 //   console.dir(res);
 // })
+
+
+
+
+// _____________________________________________________________
+// GET USERS IN ROOMS
+
+const getAllExistingRooms = () => {
+  return knex('rooms')
+  .select('name')
+  .then(rows => {
+    return rows.map(row => row.name)
+  })
+}
 
 
 
@@ -429,6 +440,7 @@ module.exports = {
   checkIfConnected,
   signupNewUser,
   addMessage,
+  getAllExistingRooms,
   getJoinedRooms,
   getRoomNames,
   getUsersAndMessagesPerRoom
