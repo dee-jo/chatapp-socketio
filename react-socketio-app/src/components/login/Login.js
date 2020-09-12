@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Form, Grid } from 'semantic-ui-react';
 import WarningMessage from './WarningMessage';
 import * as classes from './Login.css';
-import axios from 'axios';
-import qs from 'querystring';
 
 
 
-const Login = ({authenticateUser}) => {
+const Login = ({authenticateUser, signupNewUser, userUnauthorised}) => {
 
   // form state
   const [ username, setUsername ] = useState('');
@@ -20,11 +18,20 @@ const Login = ({authenticateUser}) => {
   const [ nameError, setNameError ] = useState(false);
   const [ passwordError, setPasswordError ] = useState(false);
   const [ passwordConfirmError, setPasswordConfirmError ] = useState(false);
+
+  const [ signupError, setSignupError ] = useState(false);
+  const [ signinError, setSigninError ] = useState(false);
+
+
+  useEffect(() => {
+    setSigninError(userUnauthorised);
+  }, [userUnauthorised]);
   
  
-
   // input handlers
   const handleNameChange = (e) => {
+    setSignupError(false);
+    setSigninError(false);
     const currentName = e.target.value;
     setUsername(currentName);
     if (!currentName) setNameError(true)
@@ -48,42 +55,48 @@ const Login = ({authenticateUser}) => {
 
   
   // submit handlers
-  const signupNewUser = () => {
+
+  const sendSignUp = () => {
     if (username && (password === passwordConfirm) && isSignupMode) {
-      const payload = {
-        username: username,
-        password: password
-      };
-      axios({
-        method: 'post',
-        url: 'http://localhost:3001/signup',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data:  payload,
-      })
+      console.log(`[Login@sendSignup]`);
+      signupNewUser(username,password)
       .then(response => {
         console.log('response satatus: ', response.status);
         console.log('POST request result ', response);
         console.log('response from server: ', response.data);
         if (response.status===201) {
+          console.log('received response 201')
           setSignupSuccess(true);
-          setIsSignupMode(false);
+          setIsSignupMode(false);  
         }
+        clearInputs()
       })
       .catch(error => {
+        setSignupError(username);
+        clearInputs();
         console.log('POST request error: ', error);
       })
-    };
-  } 
+    }
+  }
 
-  const verifyAndRedirect = () => {
+  const clearInputs = () => {
     setUsername('');
     setPassword('');
+    setPasswordConfirm('');
+  }
+  
+  const verifyAndRedirect = () => {
+    clearInputs();
     authenticateUser(username, password);
   }
   
   const toggleSignup = () => {
+    clearInputs();
+    setNameError(false);
+    setPasswordError(false);
+    setPasswordConfirmError(false);
+    setSignupError(false);
+    setSignupError(false);
     setIsSignupMode(prevstate => {
       if (!prevstate.isSignupMode) setSignupSuccess(false); 
       return !prevstate
@@ -104,32 +117,42 @@ const Login = ({authenticateUser}) => {
   }
 
   const renderErrorMessage = () => {
-    let attributes = {};
+    const attributes = {
+      negative: true
+    };
     if (nameError) {
-      attributes = { 
-        negative: true, 
-        message: {title: 'Username required', text: 'Please provide a valid name.'}
-      };
-    } 
-    else if (passwordError) {
-      attributes = {
-         negative: true, 
-         message: {title: 'Password required', text: 'Please provide a valid password.'}
-      };
-    } 
-    else if (passwordConfirmError) {
-      attributes = { 
-        negative: true, 
-        message: {title: 'Password confirmation required', text: 'Please confirm your password.'}
-      }
-    } 
-    else {
-      attributes = { 
-        negative: true, 
-        message: {title: 'Password confirmation required', text: 'Please confirm your password.'}
+      attributes.message = { 
+        title: 'Username required!', 
+        text: 'Please provide a valid name.'
       }
     }
-    return <WarningMessage {...attributes} />
+    else if (passwordError) {
+      attributes.message = {
+        title: 'Password required!', 
+        text: 'Please provide a valid password.'
+      }
+    }
+    else if (passwordConfirmError) {
+      attributes.message = {
+        title: 'Password confirmation required!', 
+        text: 'Please confirm your password.'
+      } 
+    }
+    else if (signupError) {
+      attributes.message = {
+        title: `Username ${signupError} already exists!`,
+        text: 'Please use different name'
+      }
+    }
+    else if (signinError) {
+      attributes.message = {
+        title: 'Wrong username or password!',
+        text: 'Please sign in with valid name and password'
+      }
+    }
+    return nameError || passwordError || passwordConfirmError || signinError || signupError
+      ? <WarningMessage {...attributes} />
+      : null;
   }
 
   const renderSignupForm = () => {
@@ -180,7 +203,7 @@ const Login = ({authenticateUser}) => {
     <div>
       <Grid centered >
         <Form >
-          { nameError || passwordError || passwordConfirmError ? renderErrorMessage() : null }
+          { renderErrorMessage() }
           { signupSuccess && renderSuccessMessage()}
           { isSignupMode ? renderSignupForm() : renderLoginForm() }
           <div className='buttons'>
@@ -190,7 +213,7 @@ const Login = ({authenticateUser}) => {
             <Form.Button 
               type='submit' 
               className={classes.login_button}
-              onClick={isSignupMode ? signupNewUser : verifyAndRedirect } 
+              onClick={isSignupMode ? sendSignUp : verifyAndRedirect } 
               disabled={
                 isSignupMode 
                 ? !username || !password || password.length < 5 || password.length > 20 || password != passwordConfirm

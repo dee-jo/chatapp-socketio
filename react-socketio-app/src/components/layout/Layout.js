@@ -7,9 +7,11 @@ import useSocket from '../_useSocket';
 const Layout = (props) => {
   
  const { 
+  signupNewUser,
   authenticateUser,
   logoutUser,
   userAuthenticated,
+  userUnauthorised,
   roomNames,
   rooms,
   availableRooms,
@@ -57,7 +59,10 @@ const Layout = (props) => {
 
   return (
     <div>
-      {!userAuthenticated ? <Login authenticateUser={onAuthenticate} /> : null}
+      {!userAuthenticated 
+        ? <Login authenticateUser={onAuthenticate} 
+                 signupNewUser={signupNewUser} 
+                 userUnauthorised={userUnauthorised} /> : null}
       {userAuthenticated && renderChatLayout()}
     </div>
     

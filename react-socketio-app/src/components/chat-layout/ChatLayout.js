@@ -34,11 +34,8 @@ const ChatLayout = ({
   const renderSection = (activeTab) => {
     switch (activeTab) {
       case 'messages': return !activeRoom ? 'Nothing to show!' : renderRoomsAndMessages();
-        break;
       case 'dashboard': return renderDashboard();
-        break;
       case 'notifications': return 'no notifications to show';
-        break;
       default: return renderDashboard()
     }
   }

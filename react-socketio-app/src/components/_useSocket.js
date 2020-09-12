@@ -1,6 +1,7 @@
 import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 import { v4 } from 'uuid';
+import axios from 'axios';
 
 const useSocket = () => {
   const socketRef = useRef();
@@ -9,6 +10,7 @@ const useSocket = () => {
   const [ password, setPassword ] = useState(null);
 
   const [ userAuthenticated, setUserAuthenticated ] = useState(false);
+  const [ userUnauthorised, setUserUnauthorised ] = useState(false);
   const [ eventsWereSet, setEventsWereSet ] = useState(false);
   const [ rooms, setRooms ] = useState(null);
   const [ roomNames, setRoomNames ] = useState([]);
@@ -26,6 +28,7 @@ const useSocket = () => {
         socketRef.current.emit('authentication', {username: username, password: password});
       });
       socketRef.current.on("unauthorized", () => {
+        setUserUnauthorised(true);
         setUserAuthenticated(false);
         setUsername(null);
         setPassword(null);
@@ -76,10 +79,26 @@ const useSocket = () => {
     };
   }, [rooms]);
 
-  const authenticateUser = (username, password) => {
-    setUsername(username);
-    setPassword(password);
+  const authenticateUser = (name, pass) => {
+    setUsername(name);
+    setPassword(pass);
   }
+
+  const signupNewUser = (newName, newPassword) => {
+    console.log('[_useSocket@signupNewUser]')
+      const payload = {
+        username: newName,
+        password: newPassword
+      };
+      return axios({
+        method: 'post',
+        url: 'http://localhost:3001/signup',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data:  payload,
+      })
+  } 
 
   const logoutUser = () => {
     setUserAuthenticated(false);
@@ -147,8 +166,10 @@ const useSocket = () => {
 
   return { 
       authenticateUser,
+      signupNewUser,
       logoutUser,
       userAuthenticated,
+      userUnauthorised,
       roomNames,
       rooms,
       availableRooms,
