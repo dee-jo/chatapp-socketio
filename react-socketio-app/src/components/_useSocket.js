@@ -16,6 +16,7 @@ const useSocket = () => {
   const [ roomNames, setRoomNames ] = useState([]);
 
   const [ availableRooms, setAvailableRooms ] = useState(null);
+  const [ availableUsers, setAvailableUsers ] = useState(null);
  
   // authenticate user
   useEffect(() => {
@@ -48,6 +49,9 @@ const useSocket = () => {
         socketRef.current.on("available rooms", (availableRooms) => {
           setUserAuthenticated(true);
           setAvailableRooms(availableRooms);
+        })
+        socketRef.current.on("available users", (availableUsers) => {
+          setAvailableUsers(availableUsers);
         })
       });
       return () => {
@@ -173,6 +177,7 @@ const useSocket = () => {
       roomNames,
       rooms,
       availableRooms,
+      availableUsers,
       getMessagesForRoom,
       sendMessage
   };

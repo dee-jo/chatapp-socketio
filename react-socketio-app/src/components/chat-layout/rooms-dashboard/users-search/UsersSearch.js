@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Accordion, Icon, Segment, Input } from 'semantic-ui-react'
 import * as classes from './UsersSearch.css'
 
-const UsersSearch = () => {
+const UsersSearch = ({filteredUsers}) => {
 
   const [ activeIndex, setActiveIndex ] = useState(0);
 
@@ -12,25 +12,33 @@ const UsersSearch = () => {
     setActiveIndex(newIndex);
   }
 
+  console.log('filtered users in UsersSearch: ', filteredUsers);
+
   return (
-      <Segment >
-        <Accordion >
+    <Segment >
+      {filteredUsers.map((user, i) => ( 
+        <Accordion >  
           <Accordion.Title
-            active={activeIndex === 0}
-            index={0}
+            active={activeIndex === i}
+            index={i}
             onClick={handleClick}>
             <Icon name='dropdown' />
-            User 1
+            {user}
           </Accordion.Title>
-          <Accordion.Content active={activeIndex === 0}>
+          <Accordion.Content active={activeIndex === i}>
           <Input
             className='messageInput'
             action='Send Message'
             actionPosition='right'
-            placeholder='Message User 1'
+            placeholder={`Message ${user}`}
           />
           </Accordion.Content>
-
+        </Accordion>
+        ))
+      }
+    </Segment>
+  )
+{/* 
           <Accordion.Title
             active={activeIndex === 1}
             index={1}
@@ -114,10 +122,8 @@ const UsersSearch = () => {
               actionPosition='right'
               placeholder='Message User 6'
             />
-          </Accordion.Content>
-        </Accordion>
-      </Segment>
-    )
+          </Accordion.Content> */}
+      
 }
 
 export default UsersSearch;

@@ -15,6 +15,7 @@ const Layout = (props) => {
   roomNames,
   rooms,
   availableRooms,
+  availableUsers,
   getMessagesForRoom,
   sendMessage
 } = useSocket();
@@ -42,11 +43,15 @@ const Layout = (props) => {
   const getAvailableRooms = () => {
     return availableRooms
   }
+  const getAvailableUsers = () => {
+    return availableUsers;
+  }
 
   const socketMethodsToProps = {
     onSendMessage,
     onMessageReceived,
     getAvailableRooms,
+    getAvailableUsers,
     getRooms,
     getRoomNames,
     onLogout

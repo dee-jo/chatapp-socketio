@@ -109,6 +109,7 @@ const initialiseSocket = (username, socket) => {
       // console.log('roomsMap in server: ', roomsMap);
       io.to(socket.id).emit('past messages', roomsMap);
       sendAllExistingRooms(socket);
+      sendAllAvailableUsers(socket);
     });
     
     // set up dynamic message listeners for each room
@@ -126,6 +127,7 @@ const initialiseSocket = (username, socket) => {
   .catch(error => {
     console.error(error); 
     sendAllExistingRooms(socket);
+    sendAllAvailableUsers(socket);
   });
 
 
@@ -153,4 +155,11 @@ const sendAllExistingRooms = (socket) => {
     .catch(error => {
       console.error(error);
     }) 
+}
+
+const sendAllAvailableUsers = (socket) => {
+  db.getAllAvailableUsers()
+  .then(users => {
+    io.to(socket.id).emit('available users', users);
+  })
 }

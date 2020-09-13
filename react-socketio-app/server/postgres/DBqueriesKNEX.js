@@ -236,7 +236,7 @@ const getJoinedRooms = (username) => {
 
 
 // _____________________________________________________________
-// GET USERS IN ROOMS
+// GET ALL EXISTING ROOMS
 
 const getAllExistingRooms = () => {
   return knex('rooms')
@@ -247,7 +247,16 @@ const getAllExistingRooms = () => {
 }
 
 
+// _____________________________________________________________
+// GET ALL AVAILABLE USERS
 
+const getAllAvailableUsers = () => {
+  return knex('users')
+  .select('name')
+  .then(rows => {
+    return rows.map(row => row.name)
+  })
+}
 
 // _____________________________________________________________
 // GET USERS IN ROOMS
@@ -441,6 +450,7 @@ module.exports = {
   signupNewUser,
   addMessage,
   getAllExistingRooms,
+  getAllAvailableUsers,
   getJoinedRooms,
   getRoomNames,
   getUsersAndMessagesPerRoom

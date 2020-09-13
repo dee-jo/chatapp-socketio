@@ -43,20 +43,20 @@ const RoomsSearch = ({availableRooms}) =>  {
     options
   }
   
-  console.log('search value: ', value);
+  // console.log('search value: ', value);
 
   const handleChange = (e, { value }) => setValue( value )
   const handleSearchChange = (e, { searchQuery }) => setSearchQuery( searchQuery )
 
-  // const fetchOptions = () => {
-  //   setIsFetching(true);
+  const fetchOptions = () => {
+    setIsFetching(true);
 
-  //   setTimeout(() => {
-  //     setIsFetching(false);
-  //     setOptions(getOptions());
-  //     selectRandom()
-  //   }, 500)
-  // }
+    setTimeout(() => {
+      setIsFetching(false);
+      setOptions(getOptions());
+      // selectRandom()
+    }, 500)
+  }
 
   // const selectRandom = () => {
   //   const value = _.sample(options).value

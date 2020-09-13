@@ -13,7 +13,8 @@ const ChatLayout = ({
   getRooms,
   getRoomNames,
   onLogout,
-  getAvailableRooms
+  getAvailableRooms,
+  getAvailableUsers
 }) => {
 
 
@@ -30,8 +31,11 @@ const ChatLayout = ({
 
   const renderDashboard = () => {
     const availableRooms = getAvailableRooms();
+    const availableUsers = getAvailableUsers();
     console.log('available rooms in ChatLayout: ', availableRooms);
-    return  availableRooms && <RoomsDashboard availableRooms={availableRooms} />
+    console.log('available users in ChatLayout: ', availableUsers);
+    return  (availableRooms && availableUsers) 
+      && <RoomsDashboard availableRooms={availableRooms} availableUsers={availableUsers} />
   }
 
   const renderSection = (activeTab) => {
