@@ -1,0 +1,13 @@
+.buttonWrapper {
+  margin: 20px 0;
+}
+
+.roomSearch {
+  display: flex;
+  flex-direction: column;
+}
+
+button.ui.button.joinButton {
+  padding: 30px 0;
+}
+

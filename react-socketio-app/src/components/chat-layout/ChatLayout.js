@@ -12,7 +12,8 @@ const ChatLayout = ({
   checkPastMessagesReceived,
   getRooms,
   getRoomNames,
-  onLogout
+  onLogout,
+  getAvailableRooms
 }) => {
 
 
@@ -28,7 +29,9 @@ const ChatLayout = ({
   })
 
   const renderDashboard = () => {
-    return  <RoomsDashboard />
+    const availableRooms = getAvailableRooms();
+    console.log('available rooms in ChatLayout: ', availableRooms);
+    return  availableRooms && <RoomsDashboard availableRooms={availableRooms} />
   }
 
   const renderSection = (activeTab) => {

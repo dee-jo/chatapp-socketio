@@ -1,0 +1,6 @@
+.searchContainer {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  justify-content: space-around;
+}
