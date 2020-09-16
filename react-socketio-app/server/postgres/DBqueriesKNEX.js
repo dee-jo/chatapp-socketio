@@ -259,6 +259,59 @@ const getAllAvailableUsers = () => {
 }
 
 // _____________________________________________________________
+// GET ADMINISTRATORS OF GIVEN ROOMS
+
+const getAdministrators = (rooms) => {
+  return knex('rooms')
+  .select('*')
+  .whereIn('name', rooms)
+}
+
+// _____________________________________________________________
+// SEND JOIN REQUESTS TO ROOMS ADMINS
+
+const storeJoinRequests = (rooms, user) => {
+  let requestingUserid = '';
+  return knex('users')
+  .select('userid')
+  .where({name: user})
+  .then(rows => {
+    return rows[0].userid
+  })
+  .then(userid => {
+    requestingUserid = userid;
+    return getAdministrators(rooms)
+  })
+  .then((roomsAdmins) => {
+    const longDate = Date.parse(new Date());
+    return roomsAdmins.map(ra => {
+      return knex('room_requests')
+      .insert({
+        id: v4(),
+        requesting_user: requestingUserid,
+        requested_room: ra.name,
+        request_for: ra.created_by,
+        date: longDate / 1000
+      })
+      .then(result => {
+        console.log('single room request insert result: ', result);
+        return result;
+      })
+      .catch(error => {
+        console.log('single room request insert error: ', error);
+      })
+    })
+  })
+  .then(results => {
+    return results;
+  })
+  .catch(error => {
+    console.log('[sendJoinRequestToRoomsAdmins@DBqueriesKNEX.js] error: ', error);
+  })
+}
+
+ 
+// _____________________________________________________________
 // GET USERS IN ROOMS
 
 
@@ -450,8 +503,10 @@ module.exports = {
   signupNewUser,
   addMessage,
   getAllExistingRooms,
+  getAdministrators,
   getAllAvailableUsers,
   getJoinedRooms,
   getRoomNames,
-  getUsersAndMessagesPerRoom
+  getUsersAndMessagesPerRoom,
+  storeJoinRequests
 }

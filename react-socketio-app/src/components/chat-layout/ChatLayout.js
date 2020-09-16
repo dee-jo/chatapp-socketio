@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import Header from './header/Header';
 import { Grid, Segment } from 'semantic-ui-react';
 import ChatRoom from '../chatroom/ChatRoom';
-import * as classes from './ChatLayout.css'
+import * as classes from './ChatLayout.css';
 import RoomList from './room-list/RoomList';
 import RoomsDashboard from './rooms-dashboard/RoomsDashboard';
 
 const ChatLayout = ({
   onSendMessage,
   onMessageReceived,
-  checkPastMessagesReceived,
+  onJoinRoomsRequest,
+  getJoinRoomsSuccess,
+  getJoinRequestSent,
+  setJoinRequestSent,
   getRooms,
   getRoomNames,
   onLogout,
@@ -26,16 +29,22 @@ const ChatLayout = ({
 
 
   useEffect(() => {
-    console.log(`ChatLayout rerendered, messages in ${activeRoom}: `, onMessageReceived(activeRoom));
+    // console.log(`ChatLayout rerendered, messages in ${activeRoom}: `, onMessageReceived(activeRoom));
   })
 
   const renderDashboard = () => {
     const availableRooms = getAvailableRooms();
     const availableUsers = getAvailableUsers();
-    console.log('available rooms in ChatLayout: ', availableRooms);
-    console.log('available users in ChatLayout: ', availableUsers);
+
     return  (availableRooms && availableUsers) 
-      && <RoomsDashboard availableRooms={availableRooms} availableUsers={availableUsers} />
+      && <RoomsDashboard 
+            availableRooms={availableRooms} 
+            availableUsers={availableUsers} 
+            onJoinRoomsRequest={onJoinRoomsRequest} 
+            joinRoomsSuccess={getJoinRoomsSuccess}
+            joinRequestSent={getJoinRequestSent()}
+            setJoinRequestSent={setJoinRequestSent}
+          />
   }
 
   const renderSection = (activeTab) => {
@@ -45,6 +54,10 @@ const ChatLayout = ({
       case 'notifications': return 'no notifications to show';
       default: return renderDashboard()
     }
+  }
+
+  const renderNotifications = () => {
+    // return <Notifications joinRequestSent={getJoinRoomsSuccess} />
   }
 
   const renderRoomsAndMessages = () => {

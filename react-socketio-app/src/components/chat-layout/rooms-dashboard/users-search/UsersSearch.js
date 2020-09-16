@@ -12,7 +12,7 @@ const UsersSearch = ({filteredUsers}) => {
     setActiveIndex(newIndex);
   }
 
-  console.log('filtered users in UsersSearch: ', filteredUsers);
+  // console.log('filtered users in UsersSearch: ', filteredUsers);
 
   return (
     <Segment >
@@ -38,91 +38,6 @@ const UsersSearch = ({filteredUsers}) => {
       }
     </Segment>
   )
-{/* 
-          <Accordion.Title
-            active={activeIndex === 1}
-            index={1}
-            onClick={handleClick}
-          >
-            <Icon name='dropdown' />
-            User 2
-          </Accordion.Title>
-          <Accordion.Content active={activeIndex === 1}>
-            <Input
-              className='messageInput'
-              action='Send Message'
-              actionPosition='right'
-              placeholder='Message User 2'
-            />
-          </Accordion.Content>
-
-          <Accordion.Title
-            active={activeIndex === 2}
-            index={2}
-            onClick={handleClick}
-          >
-            <Icon name='dropdown' />
-            User 3
-          </Accordion.Title>
-          <Accordion.Content active={activeIndex === 2}>
-            <Input
-              className='messageInput'
-              action='Send Message'
-              actionPosition='right'
-              placeholder='Message User 3'
-            />
-          </Accordion.Content>
-
-          <Accordion.Title
-            active={activeIndex === 3}
-            index={3}
-            onClick={handleClick}
-          >
-            <Icon name='dropdown' />
-            User 4
-          </Accordion.Title>
-          <Accordion.Content active={activeIndex === 3}>
-            <Input
-              className='messageInput'
-              action='Send Message'
-              actionPosition='right'
-              placeholder='Message User 4'
-            />
-          </Accordion.Content>
-
-          <Accordion.Title
-            active={activeIndex === 4}
-            index={4}
-            onClick={handleClick}
-          >
-            <Icon name='dropdown' />
-            User 5
-          </Accordion.Title>
-          <Accordion.Content active={activeIndex === 4}>
-            <Input
-              className='messageInput'
-              action='Send Message'
-              actionPosition='right'
-              placeholder='Message User 5'
-            />
-          </Accordion.Content>
-
-          <Accordion.Title
-            active={activeIndex === 5}
-            index={5}
-            onClick={handleClick}
-          >
-            <Icon name='dropdown' />
-            User 6
-          </Accordion.Title>
-          <Accordion.Content active={activeIndex === 5}>
-            <Input
-              className='messageInput'
-              action='Send Message'
-              actionPosition='right'
-              placeholder='Message User 6'
-            />
-          </Accordion.Content> */}
       
 }
 

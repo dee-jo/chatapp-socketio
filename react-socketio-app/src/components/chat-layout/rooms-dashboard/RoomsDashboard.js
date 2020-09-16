@@ -5,7 +5,13 @@ import UsersSearch from './users-search/UsersSearch';
 import * as classes from './RoomsDashboard.css';
 import { filter } from 'lodash';
 
-const RoomsDashboard = ({availableRooms, availableUsers}) => {
+const RoomsDashboard = ({
+  availableRooms, 
+  availableUsers, 
+  joinRequestSent, 
+  onJoinRoomsRequest, 
+  setJoinRequestSent
+}) => {
 
   const [ filteredUsers, setFilteredUsers ] = useState([]);
 
@@ -23,7 +29,10 @@ const RoomsDashboard = ({availableRooms, availableUsers}) => {
     <div className='searchContainer'>
       <Input className='mainSearch' label='Find User' placeholder='Search...' onChange={filterUsers} />
       <UsersSearch filteredUsers={filteredUsers} />
-      <RoomsSearch availableRooms={availableRooms} />
+      <RoomsSearch availableRooms={availableRooms} 
+                   onJoinRoomsRequest={onJoinRoomsRequest} 
+                   joinRequestSent={joinRequestSent}
+                   setJoinRequestSent={setJoinRequestSent} />
     </div>
   )
 }

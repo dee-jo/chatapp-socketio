@@ -18,14 +18,25 @@ app.use(cors());
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+app.post('/joinRooms', (req, res) => {
+  if (!req.body||req.body=={}) {
+    return res.status(400).send("Bad Request")
+  }
+  const {rooms, username} = req.body;
+  db.storeJoinRequests(rooms, username)
+  .then(result => {
+    return res.status(200).send("Room access requests successful.");
+  })
+  .catch(error => {
+    return res.status(403).send(error);
+  })
+});
+
 app.post('/signup', (req, res) => {
   if (!req.body||req.body=={}){
     return res.status(400).send("Bad Request")
-}
-  // console.log('server received POST request, req: ');
-  // console.dir('req ', req.body);
+  }
   const { username, password } = req.body;
-  //console.log(`username: ${username}, password: ${password}`);
 
   db.signupNewUser({username, password})
   .then(response => {
@@ -163,3 +174,4 @@ const sendAllAvailableUsers = (socket) => {
     io.to(socket.id).emit('available users', users);
   })
 }
+

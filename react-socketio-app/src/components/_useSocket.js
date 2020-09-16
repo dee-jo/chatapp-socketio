@@ -17,6 +17,9 @@ const useSocket = () => {
 
   const [ availableRooms, setAvailableRooms ] = useState(null);
   const [ availableUsers, setAvailableUsers ] = useState(null);
+
+  const [ joinRequestSent, setJoinRequestSent ] = useState(null);
+  const [ joinRoomsSuccess, setJoinRoomsSuccess ] = useState(false);
  
   // authenticate user
   useEffect(() => {
@@ -60,6 +63,10 @@ const useSocket = () => {
     }
   }, [username, password]);
 
+  useEffect(() => {
+    console.log('[useSocket], availableRooms: ', availableRooms);
+  }, [availableRooms])
+
 
   // set room events
   useEffect(() => {
@@ -89,7 +96,7 @@ const useSocket = () => {
   }
 
   const signupNewUser = (newName, newPassword) => {
-    console.log('[_useSocket@signupNewUser]')
+    // console.log('[_useSocket@signupNewUser]')
       const payload = {
         username: newName,
         password: newPassword
@@ -103,6 +110,34 @@ const useSocket = () => {
         data:  payload,
       })
   } 
+
+  const sendJoinRequest = (rooms) => {
+    const payload = {
+      rooms: rooms,
+      username: username
+    };
+    return axios({
+      method: 'post',
+      url: 'http://localhost:3001/joinRooms',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data:  payload,
+    })
+    .then(res => {
+      if (res.status === 200) {
+        setJoinRequestSent({requestedRooms: rooms});
+        setAvailableRooms(prevstate => {
+          const updatedAvailableRooms = prevstate.filter((room) => {
+            return !rooms.includes(room);
+          })
+          console.log('[_useSocket], updatedAvailableRooms', updatedAvailableRooms);
+          return [...updatedAvailableRooms]
+        })
+      }
+    })
+  }
+
 
   const logoutUser = () => {
     setUserAuthenticated(false);
@@ -178,6 +213,10 @@ const useSocket = () => {
       rooms,
       availableRooms,
       availableUsers,
+      joinRoomsSuccess,
+      joinRequestSent,
+      setJoinRequestSent,
+      sendJoinRequest,
       getMessagesForRoom,
       sendMessage
   };

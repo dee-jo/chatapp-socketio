@@ -16,10 +16,13 @@ const Layout = (props) => {
   rooms,
   availableRooms,
   availableUsers,
+  joinRequestSent,
+  joinRoomsSuccess,
+  setJoinRequestSent,
+  sendJoinRequest,
   getMessagesForRoom,
   sendMessage
 } = useSocket();
-
 
   // MAPPED FROM USESOCKET: 
   const onAuthenticate = (username, password) => {
@@ -47,11 +50,29 @@ const Layout = (props) => {
     return availableUsers;
   }
 
+  const getJoinRoomsSuccess = () => {
+    return joinRoomsSuccess;
+  }
+
+  const getJoinRequestSent = () => {
+    return joinRequestSent;
+  }
+
+  const onJoinRoomsRequest = (rooms) => {
+    return sendJoinRequest(rooms);
+  }
+
+  
+
   const socketMethodsToProps = {
     onSendMessage,
     onMessageReceived,
+    onJoinRoomsRequest,
     getAvailableRooms,
     getAvailableUsers,
+    getJoinRequestSent,
+    setJoinRequestSent,
+    getJoinRoomsSuccess,
     getRooms,
     getRoomNames,
     onLogout
