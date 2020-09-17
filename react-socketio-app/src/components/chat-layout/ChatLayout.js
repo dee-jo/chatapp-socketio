@@ -5,6 +5,7 @@ import ChatRoom from '../chatroom/ChatRoom';
 import * as classes from './ChatLayout.css';
 import RoomList from './room-list/RoomList';
 import RoomsDashboard from './rooms-dashboard/RoomsDashboard';
+import Notifications from './notifications/Notifications';
 
 const ChatLayout = ({
   onSendMessage,
@@ -15,6 +16,7 @@ const ChatLayout = ({
   setJoinRequestSent,
   getRooms,
   getRoomNames,
+  getJoinRequestsReceived,
   onLogout,
   getAvailableRooms,
   getAvailableUsers
@@ -51,13 +53,13 @@ const ChatLayout = ({
     switch (activeTab) {
       case 'messages': return !activeRoom ? 'Nothing to show!' : renderRoomsAndMessages();
       case 'dashboard': return renderDashboard();
-      case 'notifications': return 'no notifications to show';
+      case 'notifications': return renderNotifications();
       default: return renderDashboard()
     }
   }
 
   const renderNotifications = () => {
-    // return <Notifications joinRequestSent={getJoinRoomsSuccess} />
+    return <Notifications joinRequestsReceived={getJoinRequestsReceived()} />
   }
 
   const renderRoomsAndMessages = () => {

@@ -18,6 +18,7 @@ const Layout = (props) => {
   availableUsers,
   joinRequestSent,
   joinRoomsSuccess,
+  joinRequestsReceived,
   setJoinRequestSent,
   sendJoinRequest,
   getMessagesForRoom,
@@ -62,6 +63,10 @@ const Layout = (props) => {
     return sendJoinRequest(rooms);
   }
 
+  const getJoinRequestsReceived = () => {
+    return joinRequestsReceived;
+  }
+
   
 
   const socketMethodsToProps = {
@@ -73,6 +78,7 @@ const Layout = (props) => {
     getJoinRequestSent,
     setJoinRequestSent,
     getJoinRoomsSuccess,
+    getJoinRequestsReceived,
     getRooms,
     getRoomNames,
     onLogout

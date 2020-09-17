@@ -4,7 +4,7 @@ import * as classes from './MessageList.css';
 
 const MessageList = ({activeRoom, messages}) => {
 
-  console.log(messages);
+  // console.log(messages);
 
   const messagesRef = useRef(null);
 

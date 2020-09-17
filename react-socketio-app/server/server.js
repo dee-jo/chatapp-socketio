@@ -72,7 +72,7 @@ const authenticate = (socket, data, callback) => {
       ? callback(new Error(`Invalid username or password !`), false)
       : db.checkIfConnected(username)
   })
-  .then(alreadyConnected => {
+  .then(alreadyConnected => { // TODO: SET USER AS CONNECTED
     return !alreadyConnected 
       ? callback(null, true)
       : callback(new Error(`User already connected!`), false)
@@ -121,6 +121,7 @@ const initialiseSocket = (username, socket) => {
       io.to(socket.id).emit('past messages', roomsMap);
       sendAllExistingRooms(socket);
       sendAllAvailableUsers(socket);
+      sendNotifications(socket, username);
     });
     
     // set up dynamic message listeners for each room
@@ -172,6 +173,15 @@ const sendAllAvailableUsers = (socket) => {
   db.getAllAvailableUsers()
   .then(users => {
     io.to(socket.id).emit('available users', users);
+  })
+}
+
+const sendNotifications = (socket, username) => {
+  db.getJoinRoomsRequests(username)
+  .then(res => {
+    if (res) {
+      io.to(socket.id).emit('join room requests', res);
+    }
   })
 }
 

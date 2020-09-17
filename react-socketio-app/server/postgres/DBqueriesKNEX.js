@@ -42,7 +42,7 @@ const checkIfConnected = (userName) => {
 // SIGNUP NEW USER:
 
 const signupNewUser = ({username, password}) => {
-  console.log('DBqueriesKNEX@signupNewUser!');
+  // console.log('DBqueriesKNEX@signupNewUser!');
   return new Promise((resolve, reject) => {
     knex('users')
     .where({name: username})
@@ -64,7 +64,7 @@ const signupNewUser = ({username, password}) => {
     .returning('userid')
   })
   .then((res, err) => {
-    console.log('after db insert: rows: ', res)
+    // console.log('after db insert: rows: ', res)
     if (!res.length) throw new Error('DB error while inserting new user, error: ', err)
     else return res[0];
   })
@@ -294,7 +294,7 @@ const storeJoinRequests = (rooms, user) => {
         date: longDate / 1000
       })
       .then(result => {
-        console.log('single room request insert result: ', result);
+        // console.log('single room request insert result: ', result);
         return result;
       })
       .catch(error => {
@@ -307,6 +307,34 @@ const storeJoinRequests = (rooms, user) => {
   })
   .catch(error => {
     console.log('[sendJoinRequestToRoomsAdmins@DBqueriesKNEX.js] error: ', error);
+  })
+}
+
+
+// _____________________________________________________________
+// NOTIFY ADMINS OF JOIN ROOM REQUESTS
+const getJoinRoomsRequests = (username) => {
+  return knex('users')
+  .select('userid')
+  .where({name: username})
+  .then(rows => {
+    return rows[0].userid;
+  })
+  .then(userid => {
+    return knex
+    .select('rq.requested_room', 'rq.date', 'u.name')
+    .from('room_requests AS rq')
+    .innerJoin('users AS u', 'u.userid', 'rq.requesting_user')
+    .where({request_for: userid})
+  })
+  .then(rows => {
+    if (rows.length) {
+      return rows;
+    }
+    else return null;
+  })
+  .catch(error => {
+    console.log('[getJoinRoomsRequests()@DBqueriesKNEX.js], error: ', error);
   })
 }
 
@@ -354,7 +382,7 @@ const getUsersInRooms = async (roomids) => {
       users: roomUsers[roomName]
     }
   }
-  console.log('roomsAndUsers: ', roomsAndUsers);
+  // console.log('roomsAndUsers: ', roomsAndUsers);
   return roomsAndUsers;
 }
 
@@ -459,19 +487,19 @@ const getMessagesInRooms = (roomids) => {
 // GET USERS AND MESSAGES PER ROOM
 
 const mergeRoomsUsersAndMessages = ( messagesArray , roomsAndUsers ) => {
-  console.log('[mergeRoomsUsersAndMessages] messagesArray: ', messagesArray);
-  console.log('[mergeRoomsUsersAndMessages] roomsAndUsers: ', roomsAndUsers);
+  // console.log('[mergeRoomsUsersAndMessages] messagesArray: ', messagesArray);
+  // console.log('[mergeRoomsUsersAndMessages] roomsAndUsers: ', roomsAndUsers);
 
   const roomNames = Object.keys(roomsAndUsers);
   for (const roomName of roomNames) {
     roomsAndUsers[roomName].messages = messagesArray.filter(message => {
       return message.roomname === roomName;
     });
-    console.log('roomsAndUsers[roomName].messages: ');
-    console.dir(roomsAndUsers[roomName].messages);
+    // console.log('roomsAndUsers[roomName].messages: ');
+    // console.dir(roomsAndUsers[roomName].messages);
   }
-  console.log('[mergeRoomsUsersAndMessages - after messages added] roomsAndUsers: ');
-  console.dir(roomsAndUsers);
+  // console.log('[mergeRoomsUsersAndMessages - after messages added] roomsAndUsers: ');
+  // console.dir(roomsAndUsers);
   return roomsAndUsers;
 }
 
@@ -492,7 +520,7 @@ const getUsersAndMessagesPerRoom = async (username, roomids) => {
   })
   .then(roomsArrayMap => {
     // const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
-    console.log('getUsersAndMessagesPerRoom, roomsArrayMap ', roomsArrayMap);
+    // console.log('getUsersAndMessagesPerRoom, roomsArrayMap ', roomsArrayMap);
     return roomsArrayMap;
   })
 }
@@ -506,6 +534,7 @@ module.exports = {
   getAdministrators,
   getAllAvailableUsers,
   getJoinedRooms,
+  getJoinRoomsRequests,
   getRoomNames,
   getUsersAndMessagesPerRoom,
   storeJoinRequests

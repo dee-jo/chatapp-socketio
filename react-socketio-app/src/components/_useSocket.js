@@ -20,6 +20,9 @@ const useSocket = () => {
 
   const [ joinRequestSent, setJoinRequestSent ] = useState(null);
   const [ joinRoomsSuccess, setJoinRoomsSuccess ] = useState(false);
+
+  // NOTIFICATIONS:
+  const [ joinRequestsReceived, setJoinRequestsReceived ] = useState(null);
  
   // authenticate user
   useEffect(() => {
@@ -52,6 +55,9 @@ const useSocket = () => {
         socketRef.current.on("available rooms", (availableRooms) => {
           setUserAuthenticated(true);
           setAvailableRooms(availableRooms);
+        })
+        socketRef.current.on("join room requests", (join_requests) => {
+          setJoinRequestsReceived(join_requests);
         })
         socketRef.current.on("available users", (availableUsers) => {
           setAvailableUsers(availableUsers);
@@ -196,9 +202,9 @@ const useSocket = () => {
 
   const getMessagesForRoom = (roomName) => {
       if (rooms) {
-        console.log('getMessagesForRoom(): roomName: ', roomName);
-        console.log('getMessagesForRoom(): rooms: ', rooms);
-        console.log(`[getMessagesForRoom()] rooms[${roomName}].messages: `, rooms[roomName].messages);
+        // console.log('getMessagesForRoom(): roomName: ', roomName);
+        // console.log('getMessagesForRoom(): rooms: ', rooms);
+        // console.log(`[getMessagesForRoom()] rooms[${roomName}].messages: `, rooms[roomName].messages);
         return rooms[roomName].messages;
       }
   }
@@ -215,6 +221,7 @@ const useSocket = () => {
       availableUsers,
       joinRoomsSuccess,
       joinRequestSent,
+      joinRequestsReceived,
       setJoinRequestSent,
       sendJoinRequest,
       getMessagesForRoom,

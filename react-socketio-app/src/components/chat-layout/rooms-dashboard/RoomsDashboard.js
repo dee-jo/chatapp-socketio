@@ -9,7 +9,7 @@ const RoomsDashboard = ({
   availableRooms, 
   availableUsers, 
   joinRequestSent, 
-  onJoinRoomsRequest, 
+  onJoinRoomsRequest,
   setJoinRequestSent
 }) => {
 
