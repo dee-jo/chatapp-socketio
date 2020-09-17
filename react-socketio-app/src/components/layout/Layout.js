@@ -19,6 +19,7 @@ const Layout = (props) => {
   joinRequestSent,
   joinRoomsSuccess,
   joinRequestsReceived,
+  confirmJoinRequest,
   setJoinRequestSent,
   sendJoinRequest,
   getMessagesForRoom,
@@ -79,6 +80,7 @@ const Layout = (props) => {
     setJoinRequestSent,
     getJoinRoomsSuccess,
     getJoinRequestsReceived,
+    confirmJoinRequest,
     getRooms,
     getRoomNames,
     onLogout

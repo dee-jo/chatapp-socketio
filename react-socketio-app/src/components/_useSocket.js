@@ -144,6 +144,14 @@ const useSocket = () => {
     })
   }
 
+  const confirmJoinRequest = (request) => {
+    socketRef.current.emit('confirm join request', request);
+    setJoinRequestsReceived(prevstate => {
+      const updated = prevstate.filter(req => req.id != request.id);
+      return [...updated];
+    }) 
+  }
+
 
   const logoutUser = () => {
     setUserAuthenticated(false);
@@ -222,6 +230,7 @@ const useSocket = () => {
       joinRoomsSuccess,
       joinRequestSent,
       joinRequestsReceived,
+      confirmJoinRequest,
       setJoinRequestSent,
       sendJoinRequest,
       getMessagesForRoom,

@@ -135,6 +135,13 @@ const initialiseSocket = (username, socket) => {
         // console.log("Emiting message back to all clients!");
       });
     })
+    socket.on('confirm join request', (req) => {
+      db.confirmJoinRequest(req)
+      .then(res => {
+        // io.to(socket.id).emit('room request confirmation')
+      })
+      // console.log('received confirmation for request id: ', req);
+    })
   })
   .catch(error => {
     console.error(error); 

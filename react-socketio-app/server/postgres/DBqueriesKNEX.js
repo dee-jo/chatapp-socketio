@@ -322,10 +322,13 @@ const getJoinRoomsRequests = (username) => {
   })
   .then(userid => {
     return knex
-    .select('rq.requested_room', 'rq.date', 'u.name')
+    .select('rq.id', 'rq.requested_room', 'rq.date', 'u.name')
     .from('room_requests AS rq')
     .innerJoin('users AS u', 'u.userid', 'rq.requesting_user')
-    .where({request_for: userid})
+    .where({
+      request_for: userid,
+      confirmed: false
+    })
   })
   .then(rows => {
     if (rows.length) {
@@ -335,6 +338,43 @@ const getJoinRoomsRequests = (username) => {
   })
   .catch(error => {
     console.log('[getJoinRoomsRequests()@DBqueriesKNEX.js], error: ', error);
+  })
+}
+
+
+// _____________________________________________________________
+// CONFIRM JOIN REQUEST
+
+const confirmJoinRequest = (req) => {
+  console.log('[DBqueriesKNEX@confirmJoinRequest] request from client: ', req)
+  const reqId = req.id;
+  return knex('room_requests')
+  .update({confirmed: true})
+  .where('id', reqId)
+  .returning('requesting_user')
+  .then(res => {
+    console.log('[DBqueriesKNEX@confirmJoinRequest] update response: ', res[0]);
+    const userid = res[0];
+    return knex('rooms')
+    .select('roomid')
+    .where('name', req.requested_room)
+    .then(res => {
+      console.log('roomid response: ', res);
+      const roomid = res[0].roomid;
+      return { userid , roomid }
+    })
+  })
+  .then(({ userid, roomid }) => {
+    const longDate = Date.parse(new Date())
+    return knex('join_room_events')
+    .insert({
+      userid : userid,
+      roomid: roomid,
+      joineddate: longDate / 1000
+    })
+  })
+  .catch(error => {
+    console.log('[DBqueriesKNEX@confirmJoinRequest] error: ', error);
   })
 }
 
@@ -537,5 +577,6 @@ module.exports = {
   getJoinRoomsRequests,
   getRoomNames,
   getUsersAndMessagesPerRoom,
-  storeJoinRequests
+  storeJoinRequests,
+  confirmJoinRequest
 }

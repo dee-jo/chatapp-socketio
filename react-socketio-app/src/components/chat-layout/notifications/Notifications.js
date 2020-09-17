@@ -1,18 +1,10 @@
 import React from 'react';
+import NotificationsList from './NotificationsList';
 
-const Notifications = ({joinRequestsReceived}) => {
+const Notifications = ({joinRequestsReceived, confirmJoinRequest}) => {
   console.log('[Notifications], joinRequestReceived: ', joinRequestsReceived);
   return (
-    <>
-      <div>In Notifications</div>
-      {joinRequestsReceived.map(req => 
-        <>
-          <p>{req.requested_room}</p>
-          <p>{req.name}</p>
-          <p>{req.date}</p>
-        </>
-      )}
-    </>
+      <NotificationsList joinRequests={joinRequestsReceived} confirmJoinRequest={confirmJoinRequest} />
   )
 }
 

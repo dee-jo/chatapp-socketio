@@ -19,7 +19,8 @@ const ChatLayout = ({
   getJoinRequestsReceived,
   onLogout,
   getAvailableRooms,
-  getAvailableUsers
+  getAvailableUsers,
+  confirmJoinRequest
 }) => {
 
 
@@ -59,7 +60,7 @@ const ChatLayout = ({
   }
 
   const renderNotifications = () => {
-    return <Notifications joinRequestsReceived={getJoinRequestsReceived()} />
+    return <Notifications joinRequestsReceived={getJoinRequestsReceived()} confirmJoinRequest={confirmJoinRequest} />
   }
 
   const renderRoomsAndMessages = () => {
