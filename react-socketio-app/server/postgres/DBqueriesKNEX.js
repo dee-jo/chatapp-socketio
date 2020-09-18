@@ -248,6 +248,31 @@ const getAllExistingRooms = () => {
 
 
 // _____________________________________________________________
+// GET ROOMS NOT JOINED
+
+const getRoomsNotJoined = (joinedRoomNames) => {
+  return knex.select('r.name')
+  .from('rooms AS r')
+  .innerJoin('join_room_events AS jre', 'jre.roomid', 'r.roomid')
+  .whereNotIn('r.name', joinedRoomNames)
+  .groupBy('r.name')
+  .then(rows => {
+    return rows.map(row => row.name);
+  })
+  .then(roomNames => {
+    return roomNames
+  })
+  .catch(error => {
+    console.log('[DBqueriesKNEX@getRoomsNotJoined] error: ', error);
+  })
+}
+
+// TEST
+// getRoomsNotJoined(['dance', 'work', 'news']);
+
+
+
+// _____________________________________________________________
 // GET ALL AVAILABLE USERS
 
 const getAllAvailableUsers = () => {
@@ -576,6 +601,7 @@ module.exports = {
   getJoinedRooms,
   getJoinRoomsRequests,
   getRoomNames,
+  getRoomsNotJoined,
   getUsersAndMessagesPerRoom,
   storeJoinRequests,
   confirmJoinRequest

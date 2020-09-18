@@ -109,11 +109,12 @@ const initialiseSocket = (username, socket) => {
 // EVENT GROUPING METHODS
 const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
   const roomNames = joinedRooms.map(room => room.name);
+  console.log('[server@initialiseClientWithExistingRooms] roomNames: ', roomNames);
     emitPreviouslyJoinedRooms(socket, joinedRooms)
     emitRoomsWithMessages(username, socket, joinedRooms)
     setMessageListenersForEachRoom(roomNames, socket);
     setDisconnectingEvents(socket);
-    emitAllExistingRooms(socket);
+    emitRoomsNotJoined(socket, roomNames);
     emitAllAvailableUsers(socket);
     emitNotifications(socket, username);
     setJoinReqConfirmationListener(socket)
@@ -194,6 +195,16 @@ const emitAllExistingRooms = (socket) => {
     .catch(error => {
       console.error(error);
     }) 
+}
+
+const emitRoomsNotJoined = (socket, joinedRoomNames) => {
+  db.getRoomsNotJoined(joinedRoomNames)
+  .then(res => {
+    io.to(socket.id).emit('available rooms', res)
+  })
+  .catch(error => {
+    console.log('[server@emitRoomsNotJoined], error: ', error);
+  })
 }
 
 const emitAllAvailableUsers = (socket) => {
