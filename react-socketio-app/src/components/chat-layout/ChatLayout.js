@@ -25,7 +25,8 @@ const ChatLayout = ({
 
 
   // currently active room
-  const [ activeRoom, setActiveRoom ] = useState(getRoomNames()[0]);
+  const roomNames = getRoomNames();
+  const [ activeRoom, setActiveRoom ] = useState(roomNames ? roomNames[0] : null);
 
   // For Header: currently active Tab
   const [ activeTab, setActiveTab ] = useState(activeRoom ? 'messages' : 'dashboard')

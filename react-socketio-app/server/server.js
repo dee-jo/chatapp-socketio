@@ -15,9 +15,9 @@ const io = require('socket.io')(http, {
 const cors = require('cors');
 const bodyParser = require('body-parser');
 app.use(cors());  
-// app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+// SERVER API ENDPOINTS
 app.post('/joinRooms', (req, res) => {
   if (!req.body||req.body=={}) {
     return res.status(400).send("Bad Request")
@@ -54,8 +54,6 @@ app.post('/signup', (req, res) => {
 http.listen(3001, () => {
   console.log('listening on :3001');
 });
-
-
 
 
 // SOCKETIO AUTHENTICATION;
@@ -98,74 +96,94 @@ socketioAuth(io, { authenticate, postAuthenticate });
 
  
 const initialiseSocket = (username, socket) => {
-  let joinedRooms = [];
-
-  db.getJoinedRooms(username)
-  .then(rows => {
-    // console.log('server.js line 56, getJoinedRooms res: ', rows);
-    joinedRooms = rows;
+  return emitPreviouslyJoinedRooms(username, socket)
+  .then((joinedRooms, joinedRoomNames) => {
+    emitRoomsWithMessages(username, socket, joinedRooms)
+    setDisconnectingEvents(socket);
+    return joinedRooms;
+  })
+  .then(joinedRooms => {
+    emitAllExistingRooms(socket);
+    emitAllAvailableUsers(socket);
+    emitNotifications(socket, username);
     return joinedRooms;
   })
   .then(joinedRooms => {
     const roomNames = joinedRooms.map(room => room.name);
-    return roomNames;
-  })
-  .then(roomNames => {
-    socket.join(roomNames, () => {
-      io.to(socket.id).emit('joined rooms', roomNames);
-    });
-
-    db.getUsersAndMessagesPerRoom(username, joinedRooms.map(room => room.roomid))
-    .then(roomsMap => {
-      // console.log('roomsMap in server: ', roomsMap);
-      io.to(socket.id).emit('past messages', roomsMap);
-      sendAllExistingRooms(socket);
-      sendAllAvailableUsers(socket);
-      sendNotifications(socket, username);
-    });
-    
-    // set up dynamic message listeners for each room
-    roomNames.forEach((roomName) => {
-      socket.on(`message for ${roomName}`, ({message}) => {
-
-        io.to(roomName).emit(`message for ${roomName}`, {message: message});
-        console.log('message received: ', message);
-        db.addMessage(message);
-        // console.log("Received a message from roomName: ", roomName, ", socket.id: ", socket.id , ", message: ", data.message);
-        // console.log("Emiting message back to all clients!");
-      });
-    })
-    socket.on('confirm join request', (req) => {
-      db.confirmJoinRequest(req)
-      .then(res => {
-        // io.to(socket.id).emit('room request confirmation')
-      })
-      // console.log('received confirmation for request id: ', req);
-    })
+    setMessageListenersForEachRoom(roomNames);
+    setJoinReqConfirmationListener(socket)
   })
   .catch(error => {
     console.error(error); 
-    sendAllExistingRooms(socket);
-    sendAllAvailableUsers(socket);
+    emitAllExistingRooms(socket);
+    emitAllAvailableUsers(socket);
   });
+}
 
+// EVENT HELPER METHODS
 
+const setDisconnectingEvents = (socket) => {
   socket.on("disconnecting", () => {
     const rooms = Object.keys(socket.rooms);
     rooms.forEach(room => {
       socket.leave(room);
     })
   })
-  
   socket.on("disconnect", function() {
     console.log("Socket id: ", socket.id, " disconnected!");
-    // TODO: make socket leave rooms
-    // useDB.saveToFile();
-    //useDB.reloadDB();
+  })
+}
+  
+const setJoinReqConfirmationListener = (socket) => {
+  socket.on('confirm join request', (req) => {
+    db.confirmJoinRequest(req)
+    .then(res => {
+      // io.to(socket.id).emit('room request confirmation')
+    })
+    .catch(error => {
+      console.log('[server@setJoinReqConfirmatinListener], error: ', error);
+    })
+    // console.log('received confirmation for request id: ', req);
   })
 }
 
-const sendAllExistingRooms = (socket) => {
+const setMessageListenersForEachRoom = (roomNames) => {
+  roomNames.forEach((roomName) => {
+    socket.on(`message for ${roomName}`, ({message}) => {
+      io.to(roomName).emit(`message for ${roomName}`, {message: message});
+      console.log('message received: ', message);
+      db.addMessage(message);
+    });
+  })
+}
+
+const emitPreviouslyJoinedRooms = (username, socket) => {
+  return db.getJoinedRooms(username)
+  .then(joinedRooms => {
+    const joinedRoomNames = joinedRooms.map(room => room.name);
+    socket.join(joinedRoomNames, () => {
+      io.to(socket.id).emit('joined rooms', joinedRoomNames);
+    })
+    return joinedRooms;
+  })
+  .catch(error => {
+    console.log('[server@emitPreviouslyJoinedRooms], error: ', error);
+  }) 
+}
+
+const emitRoomsWithMessages = (username, socket, joinedRooms) => {
+  const joinedRoomsIds = joinedRooms.map(room => room.roomid)
+  db.getUsersAndMessagesPerRoom(username, joinedRoomsIds)
+  .then(roomsMap => {
+    // console.log('roomsMap in server: ', roomsMap);
+    io.to(socket.id).emit('past messages', roomsMap);
+  })
+  .catch(error => {
+    console.log('[server@emitRoomsWithMessages], error: ', error);
+  })
+}
+
+const emitAllExistingRooms = (socket) => {
   db.getAllExistingRooms()
     .then(res => {
       console.log('all rooms: ', res);
@@ -176,14 +194,14 @@ const sendAllExistingRooms = (socket) => {
     }) 
 }
 
-const sendAllAvailableUsers = (socket) => {
+const emitAllAvailableUsers = (socket) => {
   db.getAllAvailableUsers()
   .then(users => {
     io.to(socket.id).emit('available users', users);
   })
 }
 
-const sendNotifications = (socket, username) => {
+const emitNotifications = (socket, username) => {
   db.getJoinRoomsRequests(username)
   .then(res => {
     if (res) {
