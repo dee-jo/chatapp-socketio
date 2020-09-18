@@ -98,7 +98,17 @@ socketioAuth(io, { authenticate, postAuthenticate });
 const initialiseSocket = (username, socket) => { 
   return getPreviouslyJoinedRooms(username)
   .then((joinedRooms) => {
-    const roomNames = joinedRooms.map(room => room.name);
+    initialiseClientWithExistingRooms(joinedRooms, socket, username);
+  })
+  .catch(error => { // if user didn't join any rooms before db will throw error when getting past rooms
+    console.error('[server@initialiseSocket], error: ', error); 
+    initialiseClientWithNoRooms(socket);
+  });
+}
+
+// EVENT GROUPING METHODS
+const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
+  const roomNames = joinedRooms.map(room => room.name);
     emitPreviouslyJoinedRooms(socket, joinedRooms)
     emitRoomsWithMessages(username, socket, joinedRooms)
     setMessageListenersForEachRoom(roomNames, socket);
@@ -107,12 +117,11 @@ const initialiseSocket = (username, socket) => {
     emitAllAvailableUsers(socket);
     emitNotifications(socket, username);
     setJoinReqConfirmationListener(socket)
-  })
-  .catch(error => { // when user didn't join any rooms before
-    console.error(error); 
-    emitAllExistingRooms(socket);
-    emitAllAvailableUsers(socket);
-  });
+}
+
+const initialiseClientWithNoRooms = (socket) => {
+  emitAllExistingRooms(socket);
+  emitAllAvailableUsers(socket);
 }
 
 // EVENT HELPER METHODS
@@ -142,7 +151,7 @@ const setJoinReqConfirmationListener = (socket) => {
   })
 }
 
-const setMessageListenersForEachRoom = (roomNames) => {
+const setMessageListenersForEachRoom = (roomNames, socket) => {
   roomNames.forEach((roomName) => {
     socket.on(`message for ${roomName}`, ({message}) => {
       io.to(roomName).emit(`message for ${roomName}`, {message: message});
