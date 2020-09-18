@@ -94,7 +94,7 @@ const useSocket = () => {
       setUserAuthenticated(true);
       return;
     };
-  }, [rooms]);
+  }, [rooms, roomNames]);
 
   const authenticateUser = (name, pass) => {
     setUsername(name);

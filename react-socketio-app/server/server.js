@@ -95,25 +95,20 @@ const socketioAuth = require("socketio-auth");
 socketioAuth(io, { authenticate, postAuthenticate });
 
  
-const initialiseSocket = (username, socket) => {
-  return emitPreviouslyJoinedRooms(username, socket)
-  .then((joinedRooms, joinedRoomNames) => {
+const initialiseSocket = (username, socket) => { 
+  return getPreviouslyJoinedRooms(username)
+  .then((joinedRooms) => {
+    const roomNames = joinedRooms.map(room => room.name);
+    emitPreviouslyJoinedRooms(socket, joinedRooms)
     emitRoomsWithMessages(username, socket, joinedRooms)
+    setMessageListenersForEachRoom(roomNames, socket);
     setDisconnectingEvents(socket);
-    return joinedRooms;
-  })
-  .then(joinedRooms => {
     emitAllExistingRooms(socket);
     emitAllAvailableUsers(socket);
     emitNotifications(socket, username);
-    return joinedRooms;
-  })
-  .then(joinedRooms => {
-    const roomNames = joinedRooms.map(room => room.name);
-    setMessageListenersForEachRoom(roomNames);
     setJoinReqConfirmationListener(socket)
   })
-  .catch(error => {
+  .catch(error => { // when user didn't join any rooms before
     console.error(error); 
     emitAllExistingRooms(socket);
     emitAllAvailableUsers(socket);
@@ -157,18 +152,16 @@ const setMessageListenersForEachRoom = (roomNames) => {
   })
 }
 
-const emitPreviouslyJoinedRooms = (username, socket) => {
+const getPreviouslyJoinedRooms = (username) => {
   return db.getJoinedRooms(username)
-  .then(joinedRooms => {
-    const joinedRoomNames = joinedRooms.map(room => room.name);
-    socket.join(joinedRoomNames, () => {
-      io.to(socket.id).emit('joined rooms', joinedRoomNames);
-    })
-    return joinedRooms;
+}
+
+const emitPreviouslyJoinedRooms = (socket, joinedRooms) => {
+  const joinedRoomNames = joinedRooms.map(room => room.name);
+  socket.join(joinedRoomNames, () => {
+    io.to(socket.id).emit('joined rooms', joinedRoomNames);
   })
-  .catch(error => {
-    console.log('[server@emitPreviouslyJoinedRooms], error: ', error);
-  }) 
+  return joinedRooms;
 }
 
 const emitRoomsWithMessages = (username, socket, joinedRooms) => {
