@@ -9,6 +9,8 @@ const RoomsDashboard = ({
   availableRooms, 
   availableUsers, 
   joinRequestSent, 
+  joinRequestsPending,
+  joinRequestsApproved,
   onJoinRoomsRequest,
   setJoinRequestSent
 }) => {
@@ -32,6 +34,8 @@ const RoomsDashboard = ({
       <RoomsSearch availableRooms={availableRooms} 
                    onJoinRoomsRequest={onJoinRoomsRequest} 
                    joinRequestSent={joinRequestSent}
+                   joinRequestsPending={joinRequestsPending}
+                   joinRequestsApproved={joinRequestsApproved}
                    setJoinRequestSent={setJoinRequestSent} />
     </div>
   )

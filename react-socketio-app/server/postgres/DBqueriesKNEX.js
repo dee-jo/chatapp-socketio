@@ -248,27 +248,68 @@ const getAllExistingRooms = () => {
 
 
 // _____________________________________________________________
-// GET ROOMS NOT JOINED
+// GET ROOMS NOT JOINED AND NOT YET REQUESTED BY USER
 
 const getRoomsNotJoined = (joinedRoomNames) => {
-  return knex.select('r.name')
-  .from('rooms AS r')
-  .innerJoin('join_room_events AS jre', 'jre.roomid', 'r.roomid')
-  .whereNotIn('r.name', joinedRoomNames)
-  .groupBy('r.name')
-  .then(rows => {
-    return rows.map(row => row.name);
+  return knex('rooms')
+  .select('name')
+  .then(res => {
+    return res.map(r => r.name)
   })
-  .then(roomNames => {
-    return roomNames
+  .then(allRooms => {
+    return allRooms.filter(room => {
+      return !joinedRoomNames.includes(room);
+    })
+  })
+}
+// TEST
+// getRoomsNotJoined(['dance', 'work', 'news']);
+
+const getRoomsRequested = (username) => {
+  return knex
+  .select('rq.requested_room', 'u.name')
+  .from('room_requests AS rq')
+  .innerJoin('users AS u', 'u.userid', 'rq.requesting_user')
+  .where('u.name', username)
+  .then(response => {
+    // console.log('[getRoomsRequested] response: ', response);
+    const mapped = response.map(row => row.requested_room);
+    // console.log('[getRoomsRequested] mapped: ', mapped);
+    return mapped;
   })
   .catch(error => {
-    console.log('[DBqueriesKNEX@getRoomsNotJoined] error: ', error);
+    console.log('[getRoomsRequested] error: ', error);
   })
 }
 
-// TEST
-// getRoomsNotJoined(['dance', 'work', 'news']);
+
+const getRoomsNJoinedNrequested = (joinedRooms, username) => {
+  let roomsNotJoined = [];
+  return getRoomsNotJoined(joinedRooms)
+  .then(roomNames => {
+    // console.log('[getRoomsNJoinedNrequested] roomNames: ', roomNames)
+    roomsNotJoined = roomNames;
+    return getRoomsRequested(username)
+  })
+  .then(roomsRequested => {
+    // console.log('[getRoomsNJoinedNrequested] roomsRequeste: ', roomsRequested)
+    // console.log('[getRoomsNJoinedNrequested] roomsNotJoined: ', roomsNotJoined)
+    return roomsNotJoined.filter(rs => {
+      return !roomsRequested.includes(rs)
+    })
+  })
+  .catch(error => {
+    console.log('[getRoomsNJoinedNrequested] error: ', error);
+  })
+}
+
+// TEST:
+// getRoomsNJoinedNrequested(['dance'], 'adriana')
+// .then(res => {
+//   console.log('[getRoomsNJoinedNrequested] res: ', res);
+// })
+
+
 
 
 
@@ -290,6 +331,46 @@ const getAdministrators = (rooms) => {
   return knex('rooms')
   .select('*')
   .whereIn('name', rooms)
+}
+
+// _____________________________________________________________
+// GET ALL PENDING JOIN REQUESTS FOR USER
+const getPreviousJoinRequests = (username) => {
+  return knex('users')
+  .select('userid')
+  .where({name: username})
+  .then(res => {
+    return res[0].userid
+  })
+  .then(userid => {
+    return knex('room_requests')
+    .select('requested_room')
+    .where('requesting_user', userid)
+    .andWhere('confirmed', false);
+  })
+  .then(res => {
+    return res
+  })
+}
+
+// _____________________________________________________________
+// GET ALL ROOM REQUESTS APPROVED FOR THAT USER
+const getRequestsApproved = (username) => {
+  return knex('users')
+  .select('userid')
+  .where({name: username})
+  .then(res => {
+    return res[0].userid
+  })
+  .then(userid => {
+    return knex('room_requests')
+    .select('requested_room')
+    .where('requesting_user', userid)
+    .andWhere('confirmed', true);
+  })
+  .then(res => {
+    return res
+  })
 }
 
 // _____________________________________________________________
@@ -337,7 +418,7 @@ const storeJoinRequests = (rooms, user) => {
 
 
 // _____________________________________________________________
-// NOTIFY ADMINS OF JOIN ROOM REQUESTS
+// NOTIFY ADMINS OF JOIN ROOM REQUESTS PENDING APPROVAL
 const getJoinRoomsRequests = (username) => {
   return knex('users')
   .select('userid')
@@ -370,15 +451,15 @@ const getJoinRoomsRequests = (username) => {
 // _____________________________________________________________
 // CONFIRM JOIN REQUEST
 
-const confirmJoinRequest = (req) => {
-  console.log('[DBqueriesKNEX@confirmJoinRequest] request from client: ', req)
+const approveJoinRequest = (req) => {
+  console.log('[DBqueriesKNEX@approveJoinRequest] request from client: ', req)
   const reqId = req.id;
   return knex('room_requests')
   .update({confirmed: true})
   .where('id', reqId)
   .returning('requesting_user')
   .then(res => {
-    console.log('[DBqueriesKNEX@confirmJoinRequest] update response: ', res[0]);
+    console.log('[DBqueriesKNEX@approveJoinRequest] update response: ', res[0]);
     const userid = res[0];
     return knex('rooms')
     .select('roomid')
@@ -399,7 +480,7 @@ const confirmJoinRequest = (req) => {
     })
   })
   .catch(error => {
-    console.log('[DBqueriesKNEX@confirmJoinRequest] error: ', error);
+    console.log('[DBqueriesKNEX@approveJoinRequest] error: ', error);
   })
 }
 
@@ -600,9 +681,12 @@ module.exports = {
   getAllAvailableUsers,
   getJoinedRooms,
   getJoinRoomsRequests,
+  getRoomsRequested,
+  getRoomsNJoinedNrequested,
   getRoomNames,
-  getRoomsNotJoined,
   getUsersAndMessagesPerRoom,
   storeJoinRequests,
-  confirmJoinRequest
+  approveJoinRequest,
+  getPreviousJoinRequests,
+  getRequestsApproved
 }

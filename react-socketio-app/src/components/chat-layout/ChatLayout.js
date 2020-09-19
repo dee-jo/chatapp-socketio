@@ -14,9 +14,11 @@ const ChatLayout = ({
   getJoinRoomsSuccess,
   getJoinRequestSent,
   setJoinRequestSent,
+  getJoinRequestsApproved,
   getRooms,
   getRoomNames,
   getJoinRequestsReceived,
+  getJoinRequestsPending,
   onLogout,
   getAvailableRooms,
   getAvailableUsers,
@@ -45,6 +47,8 @@ const ChatLayout = ({
             availableRooms={availableRooms} 
             availableUsers={availableUsers} 
             onJoinRoomsRequest={onJoinRoomsRequest} 
+            joinRequestsPending={getJoinRequestsPending()}
+            joinRequestsApproved={getJoinRequestsApproved()}
             joinRoomsSuccess={getJoinRoomsSuccess}
             joinRequestSent={getJoinRequestSent()}
             setJoinRequestSent={setJoinRequestSent}

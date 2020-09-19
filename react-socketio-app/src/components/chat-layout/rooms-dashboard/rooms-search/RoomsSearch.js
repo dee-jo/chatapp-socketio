@@ -3,11 +3,16 @@ import React, { useState } from 'react';
 import { Button, Dropdown, Modal } from 'semantic-ui-react' 
 import RequestModal from './RequestModal';
 import * as classes from './RoomsSearch.css'
+import JoinRequestsPending from './join-requests/JoinRequestsPending';
+import JoinRequestsApproved from './join-requests/JoinRequestsApproved';
+
 
 const RoomsSearch = ({
   availableRooms, 
   onJoinRoomsRequest, 
   joinRequestSent, 
+  joinRequestsPending,
+  joinRequestsApproved,
   setJoinRequestSent
 }) =>  {
 
@@ -25,7 +30,7 @@ const RoomsSearch = ({
   const [ searchQuery, setSearchQuery ] = useState(null);
   const [ value, setValue ] = useState([]);
   const [ options, setOptions ] = useState(getOptions()); 
-
+  const [ requestSent, setRequestSent ] = useState(false)
 
   const [ open, setOpenModal] = useState(true);
 
@@ -46,10 +51,18 @@ const RoomsSearch = ({
   const handleSearchChange = (e, { searchQuery }) => setSearchQuery( searchQuery )
 
   const onSubmitJoinRequest = () => {
+    setRequestSent(true);
     onJoinRoomsRequest(value);
+    setValue([]);
   }
 
-  // const fetchOptions = () => {
+  const onButtonClick = () => {
+    setJoinRequestSent(false);
+    setOpenModal(false);
+    setOptions(getOptions);
+  }
+
+    // const fetchOptions = () => {
   //   setIsFetching(true);
 
   //   setTimeout(() => {
@@ -59,11 +72,6 @@ const RoomsSearch = ({
   //   }, 500)
   // }
 
-  const onButtonClick = () => {
-    setJoinRequestSent(false);
-    setOpenModal(false);
-    setOptions(getOptions);
-  }
 
   const renderModal = (open) => (
 
@@ -118,6 +126,8 @@ const RoomsSearch = ({
           />
         </div>
       </div>
+      <JoinRequestsPending joinRequestsPending={joinRequestsPending} />
+      <JoinRequestsApproved joinRequestsApproved={joinRequestsApproved} />
       </>
     )
 }

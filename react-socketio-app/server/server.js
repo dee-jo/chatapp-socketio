@@ -114,10 +114,12 @@ const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
     emitRoomsWithMessages(username, socket, joinedRooms)
     setMessageListenersForEachRoom(roomNames, socket);
     setDisconnectingEvents(socket);
-    emitRoomsNotJoined(socket, roomNames);
+    emitJoinReqPendingApproval(socket, username);
+    emitJoinReqApproved(socket,username);
+    emitJoinReqWaitingForApproval(socket, username);
+    emitRoomsNotJoined(roomNames, socket, username); // all rooms minus (previously joined or already requested)
     emitAllAvailableUsers(socket);
-    emitNotifications(socket, username);
-    setJoinReqConfirmationListener(socket)
+    setJoinReqConfirmationListener(socket) // for room admins confirming other users
 }
 
 const initialiseClientWithNoRooms = (socket) => {
@@ -126,7 +128,6 @@ const initialiseClientWithNoRooms = (socket) => {
 }
 
 // EVENT HELPER METHODS
-
 const setDisconnectingEvents = (socket) => {
   socket.on("disconnecting", () => {
     const rooms = Object.keys(socket.rooms);
@@ -141,7 +142,7 @@ const setDisconnectingEvents = (socket) => {
   
 const setJoinReqConfirmationListener = (socket) => {
   socket.on('confirm join request', (req) => {
-    db.confirmJoinRequest(req)
+    db.approveJoinRequest(req)
     .then(res => {
       // io.to(socket.id).emit('room request confirmation')
     })
@@ -197,8 +198,8 @@ const emitAllExistingRooms = (socket) => {
     }) 
 }
 
-const emitRoomsNotJoined = (socket, joinedRoomNames) => {
-  db.getRoomsNotJoined(joinedRoomNames)
+const emitRoomsNotJoined = (joinedRoomNames, socket, username) => {
+  db.getRoomsNJoinedNrequested(joinedRoomNames, username)
   .then(res => {
     io.to(socket.id).emit('available rooms', res)
   })
@@ -214,11 +215,29 @@ const emitAllAvailableUsers = (socket) => {
   })
 }
 
-const emitNotifications = (socket, username) => {
+const emitJoinReqPendingApproval = (socket, username) => {
+  db.getPreviousJoinRequests(username)
+  .then(res => {
+    console.log('[server@emitJoinReqPendingApproval] response: ', res);
+    const previousRequests = res.map(reqs => reqs.requested_room);
+    io.to(socket.id).emit('join requests pending approval', previousRequests);
+  })
+}
+
+const emitJoinReqApproved = (socket, username) => {
+  db.getRequestsApproved(username)
+  .then(res => {
+    console.log('[server@emitJoinReqPendingApproval] response: ', res);
+    const previousRequests = res.map(reqs => reqs.requested_room);
+    io.to(socket.id).emit('join requests approved', previousRequests);
+  })
+}
+
+const emitJoinReqWaitingForApproval = (socket, username) => {
   db.getJoinRoomsRequests(username)
   .then(res => {
     if (res) {
-      io.to(socket.id).emit('join room requests', res);
+      io.to(socket.id).emit('join room requests to approve', res);
     }
   })
 }

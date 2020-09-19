@@ -3,6 +3,7 @@ import ChatLayout from '../chat-layout/ChatLayout';
 import RoomsDashboard from '../chat-layout/rooms-dashboard/RoomsDashboard';
 import Login from '../login/Login';
 import useSocket from '../_useSocket';
+import JoinRequestsApproved from '../chat-layout/rooms-dashboard/rooms-search/join-requests/JoinRequestsApproved';
 
 const Layout = (props) => {
   
@@ -18,7 +19,9 @@ const Layout = (props) => {
   availableUsers,
   joinRequestSent,
   joinRoomsSuccess,
-  joinRequestsReceived,
+  joinRequestsToApprove,
+  joinRequestsPending,
+  joinRequestsApproved,
   confirmJoinRequest,
   setJoinRequestSent,
   sendJoinRequest,
@@ -60,13 +63,25 @@ const Layout = (props) => {
     return joinRequestSent;
   }
 
+  const getJoinRequestsReceived = () => {
+    return joinRequestsToApprove;
+  }
+
+  const getJoinRequestsPending = () => {
+    return joinRequestsPending;
+  }
+
+  const getJoinRequestsApproved = () => {
+    return joinRequestsApproved;
+  }
+
   const onJoinRoomsRequest = (rooms) => {
     return sendJoinRequest(rooms);
   }
 
-  const getJoinRequestsReceived = () => {
-    return joinRequestsReceived;
-  }
+ 
+
+  
 
   
 
@@ -80,6 +95,8 @@ const Layout = (props) => {
     setJoinRequestSent,
     getJoinRoomsSuccess,
     getJoinRequestsReceived,
+    getJoinRequestsApproved,
+    getJoinRequestsPending,
     confirmJoinRequest,
     getRooms,
     getRoomNames,
