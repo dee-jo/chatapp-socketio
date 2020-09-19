@@ -18,18 +18,18 @@ Multi-client, real-time chat application based on web-sockets connections that a
 
 ## The current functionality
 
-- the app loads on the Login page, where user can either sign in or sign up. Sign in has been tested agaist users already stored in db who already are linked with a set of rooms which are sent to them on succesful login in the "joined rooms" io event. Next the server fetches all the past messages of that user from DB and sends them back to the client in a "past messages" event. 
-The client initializes the RoomList and ChatRoom components with the received list. All communication that follows is stored in the DB.
-- new users can currently sign up, but if they log in with the new credentials they won't be able to communicate because the implementation of joining and creation of new rooms is in progress.
+- the app loads on the Login page, where user can either sign in or sign up. 
+- in case of the sign up, the request is sent to server and user's details stored in db
+- in case it's a login, username and password are checked against user credentials stored in db
+- on successful login user is either sent a list of rooms they previously joined, or a list of available rooms
+- a user can request to join a room from the list of available rooms, and the request will be sent to room administrator
+- once the room administrator confirms the request, the user will be sent a list of past communications in that room and will be able to comunicate with other users of that room (this will be later restricted to only past messages starting at the date that user joined the room)
 
 
 ## In progress:
+- users can message other users directly
+- users can create new rooms and (and become administrators of that room - accept/reject other users wanting to join)
 
-- users can create new rooms (and accept/reject other users wanting to join that room)
-- new users are presented with a list of rooms they can join (rooms with recorded activity of other users)
-- in db each room stores a record of userid who created it
-- new user can click the room they wish to join and the join request will be sent to the user that created the room
-- once the room creator accepts the request the confirmation is sent to the requesting user, and they can now interact with other users of that room
 
 ## Further functionality:
 
@@ -50,8 +50,6 @@ The client initializes the RoomList and ChatRoom components with the received li
    - cd back to the client ../
    - run npm run dev
    - go to localhost:3000 in at least two browser tabs to see the client to client communication
-   - check db entries for user credentials and login with name that exists in db (passwords are same as names for testing);
-   - log with another user credentials and test the room-room communication
 
    
 
