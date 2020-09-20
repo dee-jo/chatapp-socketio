@@ -118,7 +118,7 @@ const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
     emitRoomsWithMessages(username, socket, joinedRooms)
     setMessageListenersForEachRoom(roomNames, socket);
     setPrivateMessageListener(socket, username);
-    setDisconnectingEvents(socket);
+    setDisconnectingEvents(socket, username);
     emitJoinReqPendingApproval(socket, username);
     emitJoinReqApproved(socket,username);
     emitJoinReqWaitingForApproval(socket, username);
@@ -134,8 +134,10 @@ const initialiseClientWithNoRooms = (socket, username) => {
 }
 
 // EVENT HELPER METHODS
-const setDisconnectingEvents = (socket) => {
+const setDisconnectingEvents = (socket, username) => {
   socket.on("disconnecting", () => {
+    delete userSocketMap[username];
+    db.disconnectUser(username)
     const rooms = Object.keys(socket.rooms);
     rooms.forEach(room => {
       socket.leave(room);

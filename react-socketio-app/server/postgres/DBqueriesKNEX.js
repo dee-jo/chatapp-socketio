@@ -56,6 +56,23 @@ const checkIfConnected = (userName, socketid) => {
 // })
 
 
+// _____________________________________________________________
+// DISCONNECT USER:
+const disconnectUser = (username) => {
+  knex('users')
+  .update({connected: 'false'})
+  .where('name', username)
+  .returning('connected')
+  .then(rows => {
+    if (rows[0].connected !='false') {
+      throw new Error('Could not update user as disconnected!')
+    } 
+  })
+  .catch(error => {
+    console.log(error);
+  })
+}
+
 
 
 // _____________________________________________________________
@@ -739,5 +756,6 @@ module.exports = {
   storePrivateMessage,
   approveJoinRequest,
   getPreviousJoinRequests,
-  getRequestsApproved
+  getRequestsApproved,
+  disconnectUser
 }
