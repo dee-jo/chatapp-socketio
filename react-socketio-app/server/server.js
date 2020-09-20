@@ -74,14 +74,10 @@ const authenticate = (socket, data, callback) => {
       : db.checkIfConnected(username, socket.id)
   })
   .then(alreadyConnected => { // TODO: SET USER AS CONNECTED
-    if (alreadyConnected) {
-      console.log('alreadyConnected: ', alreadyConnected)
-      return callback(new Error(`User already connected!`), false)
-    }
-    else return callback(null, true);
-    // return !alreadyConnected
-    //   ? callback(null, true)
-    //   : callback(new Error(`User already connected!`), false)
+    console.log(typeof alreadyConnected)
+    return !alreadyConnected
+      ? callback(null, true)
+      : callback(new Error(`User already connected!`), false)
   })
   .catch(dbError => {
     console.log('Verification error @server: ', dbError);

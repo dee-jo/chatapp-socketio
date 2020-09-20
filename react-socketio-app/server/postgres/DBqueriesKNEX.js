@@ -22,13 +22,16 @@ const checkIfConnected = (userName, socketid) => {
   .where({name: userName})
   .select('userid', 'connected')
   .then(rows => {
-    return rows.length ? rows[0].connected : true;
+    if (rows.length && rows[0].connected==='false') {
+      return false
+    }
+    else return true;
   })
   .then(connected => {
     console.log('connected before update: ', connected)
     if (!connected) {
       console.log('not connected')
-      knex('users')
+      return knex('users')
       .update({
         connected: socketid
       })
