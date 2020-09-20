@@ -11,6 +11,8 @@ const io = require('socket.io')(http, {
   perMessageDeflate: false
 });
 
+const userSocketMap = {};
+
 // SERVER CONFIGURATION
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -62,21 +64,27 @@ const authenticate = (socket, data, callback) => {
  // return callback(new Error('User unauthenticated'));
   console.log('[server.js@authenticate, client: ]', socket.id);
   const { username, password } = data;
+  userSocketMap[username] = socket.id;
   console.log('username: ', username, 'password: ', password);
   
-  db.verifyUser({name: username, password})
+  return db.verifyUser({name: username, password})
   .then(passwordValid => {
     return !passwordValid 
       ? callback(new Error(`Invalid username or password !`), false)
-      : db.checkIfConnected(username)
+      : db.checkIfConnected(username, socket.id)
   })
   .then(alreadyConnected => { // TODO: SET USER AS CONNECTED
-    return !alreadyConnected 
-      ? callback(null, true)
-      : callback(new Error(`User already connected!`), false)
+    if (alreadyConnected) {
+      console.log('alreadyConnected: ', alreadyConnected)
+      return callback(new Error(`User already connected!`), false)
+    }
+    else return callback(null, true);
+    // return !alreadyConnected
+    //   ? callback(null, true)
+    //   : callback(new Error(`User already connected!`), false)
   })
   .catch(dbError => {
-    console.log('Verification error server.js@65: ', dbError);
+    console.log('Verification error @server: ', dbError);
     return callback(new Error(`Invalid username or password !, error: ${dbError}`), false);
   })
   .catch(err => {
@@ -88,21 +96,21 @@ const authenticate = (socket, data, callback) => {
 const postAuthenticate = (socket, data) => {
     const username = data.username;
     console.log('In postAuthenticate!, data.username: ', username);
-    initialiseSocket(username, socket);
+    initialiseSocket(socket, username);
 };
 
 const socketioAuth = require("socketio-auth");
 socketioAuth(io, { authenticate, postAuthenticate });
 
  
-const initialiseSocket = (username, socket) => { 
+const initialiseSocket = (socket, username) => { 
   return getPreviouslyJoinedRooms(username)
   .then((joinedRooms) => {
     initialiseClientWithExistingRooms(joinedRooms, socket, username);
   })
   .catch(error => { // if user didn't join any rooms before db will throw error when getting past rooms
     console.error('[server@initialiseSocket], error: ', error); 
-    initialiseClientWithNoRooms(socket);
+    initialiseClientWithNoRooms(socket, username);
   });
 }
 
@@ -113,6 +121,7 @@ const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
     emitPreviouslyJoinedRooms(socket, joinedRooms)
     emitRoomsWithMessages(username, socket, joinedRooms)
     setMessageListenersForEachRoom(roomNames, socket);
+    setPrivateMessageListener(socket, username);
     setDisconnectingEvents(socket);
     emitJoinReqPendingApproval(socket, username);
     emitJoinReqApproved(socket,username);
@@ -122,9 +131,10 @@ const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
     setJoinReqConfirmationListener(socket) // for room admins confirming other users
 }
 
-const initialiseClientWithNoRooms = (socket) => {
+const initialiseClientWithNoRooms = (socket, username) => {
   emitAllExistingRooms(socket);
   emitAllAvailableUsers(socket);
+  setPrivateMessageListener(socket, username);
 }
 
 // EVENT HELPER METHODS
@@ -150,6 +160,22 @@ const setJoinReqConfirmationListener = (socket) => {
       console.log('[server@setJoinReqConfirmatinListener], error: ', error);
     })
     // console.log('received confirmation for request id: ', req);
+  })
+}
+
+const setPrivateMessageListener = (socket, username) => {
+  console.log(`setPrivateMessageListener for ${username}, socket: ${socket.id}`)
+  socket.on('private message', (pm) => {
+    const { receipientName, sender, message } = pm;
+    console.log(receipientName, 'recieved private message from ', sender);
+    console.log(`receipientName: ${receipientName}, current user: ${username}`);
+    console.log(`here's ${receipientName}: sending back message: `);
+    console.dir(message);
+    if (userSocketMap[receipientName]) {
+      const receipientID = userSocketMap[receipientName];
+      io.to(receipientID).emit('private message',  { receipientName, sender, message });
+    }
+    db.storePrivateMessage(receipientName, sender, message);
   })
 }
 

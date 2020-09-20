@@ -9,6 +9,7 @@ import Notifications from './notifications/Notifications';
 
 const ChatLayout = ({
   onSendMessage,
+  onSendPrivateMessage,
   onMessageReceived,
   onJoinRoomsRequest,
   getJoinRoomsSuccess,
@@ -46,6 +47,7 @@ const ChatLayout = ({
       && <RoomsDashboard 
             availableRooms={availableRooms} 
             availableUsers={availableUsers} 
+            onSendPrivateMessage={onSendPrivateMessage}
             onJoinRoomsRequest={onJoinRoomsRequest} 
             joinRequestsPending={getJoinRequestsPending()}
             joinRequestsApproved={getJoinRequestsApproved()}

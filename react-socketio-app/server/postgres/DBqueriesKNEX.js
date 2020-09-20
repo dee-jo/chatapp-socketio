@@ -17,16 +17,33 @@ const knex = require('knex')({
 // _____________________________________________________________
 // CHECK IF USER CONNECTED:
 
-const checkIfConnected = (userName) => {
-  knex('users')
+const checkIfConnected = (userName, socketid) => {
+  return knex('users')
   .where({name: userName})
   .select('userid', 'connected')
   .then(rows => {
-    return rows.length ? rows[0].connected : false;
+    return rows.length ? rows[0].connected : true;
+  })
+  .then(connected => {
+    console.log('connected before update: ', connected)
+    if (!connected) {
+      console.log('not connected')
+      knex('users')
+      .update({
+        connected: socketid
+      })
+      .where('name', userName)
+      .returning('connected')
+      .then(res => {
+        console.log('connected update response: ', res)
+        return false;
+      })
+    }
+    else return connected;
   })
   .catch(err => {
     console.error('knex returned error: ', err);
-    return false
+    return true;
   })
 }
 // TEST:
@@ -532,9 +549,39 @@ const getUsersInRooms = async (roomids) => {
   return roomsAndUsers;
 }
 
+// _____________________________________________________________
+// STORE PRIVATE MESSAGE:
+const storePrivateMessage = (receipientName, senderName, message) => {
+  const longDate = Date.parse(new Date());
+  return findUserId(senderName)
+  .then(senderid => {
+    return findUserId(receipientName)
+    .then(receipientid => {
+      return {senderid, receipientid}
+    })
+  })
+  .then(({senderid, receipientid}) => {
+    return knex('private_messages')
+    .insert({
+      messageid: v4(),
+      senderid: senderid,
+      receipientid: receipientid,
+      date: longDate / 1000,
+      message: message
+    })
+    .returning('messageid')
+  })
+  .then(messageid => {
+    console.log('[DBknex@storePrivateMessage] stored messageid: ', messageid)
+  })
+  .catch(error => {
+    console.log('[DBknex@storePrivateMessage] error: ', error)
+  })
+  
+}
 
 // _____________________________________________________________
-// ADD MESSAGE:
+// STORE ROOM MESSAGE:
 
 const addMessage = (message) => {
   const { messageid, roomname, date, username, messagetext } = message;
@@ -686,6 +733,7 @@ module.exports = {
   getRoomNames,
   getUsersAndMessagesPerRoom,
   storeJoinRequests,
+  storePrivateMessage,
   approveJoinRequest,
   getPreviousJoinRequests,
   getRequestsApproved

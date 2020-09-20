@@ -171,6 +171,11 @@ const useSocket = () => {
     // socketRef.current = null;
     return socketRef.current.disconnect();
   }
+
+  const sendPrivateMessage = (receipientName, message) => {
+    console.log(`[_useSocket] sendPrivateMessage() receipientName: ${receipientName}, message: ${message}`)
+    socketRef.current.emit(`private message`, {receipientName, sender: username, message});
+  }
   
   const sendMessage = (roomName) => {
     const longDate = new Date();
@@ -245,6 +250,7 @@ const useSocket = () => {
       setJoinRequestSent,
       sendJoinRequest,
       getMessagesForRoom,
+      sendPrivateMessage,
       sendMessage
   };
 

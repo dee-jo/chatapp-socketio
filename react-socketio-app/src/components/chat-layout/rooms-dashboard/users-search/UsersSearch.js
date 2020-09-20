@@ -1,15 +1,20 @@
 import React, { useState } from 'react'
-import { Accordion, Icon, Segment, Input } from 'semantic-ui-react'
+import { Accordion, Icon, Segment, Input, Button } from 'semantic-ui-react'
 import * as classes from './UsersSearch.css'
 
-const UsersSearch = ({filteredUsers}) => {
+const UsersSearch = ({filteredUsers, onSendPrivateMessage}) => {
 
   const [ activeIndex, setActiveIndex ] = useState(0);
+  const [ privateMessage, setPrivateMessage ] = useState('');
 
-  const handleClick = (e, titleProps) => {
+  const onSelectUser = (e, titleProps) => {
     const { index } = titleProps
     const newIndex = activeIndex === index ? -1 : index
     setActiveIndex(newIndex);
+  }
+
+  const onSendPM = (e) => {
+    
   }
 
   // console.log('filtered users in UsersSearch: ', filteredUsers);
@@ -21,17 +26,19 @@ const UsersSearch = ({filteredUsers}) => {
           <Accordion.Title
             active={activeIndex === i}
             index={i}
-            onClick={handleClick}>
+            onClick={onSelectUser}>
             <Icon name='dropdown' />
             {user}
           </Accordion.Title>
           <Accordion.Content active={activeIndex === i}>
           <Input
             className='messageInput'
-            action='Send Message'
             actionPosition='right'
-            placeholder={`Message ${user}`}
-          />
+            onChange={(e) => setPrivateMessage(e.target.value)}
+            placeholder={`Message ${user}`} >
+            <input/>
+            <Button type='submit' onClick={(e) => onSendPrivateMessage(user, privateMessage)}>Send Message</Button>
+          </Input>
           </Accordion.Content>
         </Accordion>
         ))

@@ -26,7 +26,8 @@ const Layout = (props) => {
   setJoinRequestSent,
   sendJoinRequest,
   getMessagesForRoom,
-  sendMessage
+  sendMessage,
+  sendPrivateMessage
 } = useSocket();
 
   // MAPPED FROM USESOCKET: 
@@ -79,6 +80,10 @@ const Layout = (props) => {
     return sendJoinRequest(rooms);
   }
 
+  const onSendPrivateMessage = (username, message) => {
+    return sendPrivateMessage(username, message);
+  }
+
  
 
   
@@ -87,6 +92,7 @@ const Layout = (props) => {
 
   const socketMethodsToProps = {
     onSendMessage,
+    onSendPrivateMessage,
     onMessageReceived,
     onJoinRoomsRequest,
     getAvailableRooms,

@@ -11,6 +11,7 @@ const RoomsDashboard = ({
   joinRequestSent, 
   joinRequestsPending,
   joinRequestsApproved,
+  onSendPrivateMessage,
   onJoinRoomsRequest,
   setJoinRequestSent
 }) => {
@@ -30,7 +31,7 @@ const RoomsDashboard = ({
   return (
     <div className='searchContainer'>
       <Input className='mainSearch' label='Find User' placeholder='Search...' onChange={filterUsers} />
-      <UsersSearch filteredUsers={filteredUsers} />
+      <UsersSearch filteredUsers={filteredUsers} onSendPrivateMessage={onSendPrivateMessage} />
       <RoomsSearch availableRooms={availableRooms} 
                    onJoinRoomsRequest={onJoinRoomsRequest} 
                    joinRequestSent={joinRequestSent}
