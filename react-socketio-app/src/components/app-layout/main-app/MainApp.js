@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Header from './header/Header';
 import { Grid, Segment } from 'semantic-ui-react';
-import ChatRoom from '../chatroom/ChatRoom';
-import * as classes from './ChatLayout.css';
-import RoomList from './room-list/RoomList';
-import RoomsDashboard from './rooms-dashboard/RoomsDashboard';
+import ActiveChat from './active-rooms/current-room/ActiveChat';
+import * as classes from './MainApp.css';
+import RoomList from './active-rooms/room-list/RoomList';
+import RoomsDashboard from './dashboard/RoomsDashboard';
 import Notifications from './notifications/Notifications';
 
 const ChatLayout = ({
@@ -59,7 +59,7 @@ const ChatLayout = ({
 
   const renderSection = (activeTab) => {
     switch (activeTab) {
-      case 'messages': return !activeRoom ? 'Nothing to show!' : renderRoomsAndMessages();
+      case 'your rooms': return !activeRoom ? 'Nothing to show!' : renderRoomsAndMessages();
       case 'dashboard': return renderDashboard();
       case 'notifications': return renderNotifications();
       default: return renderDashboard()
@@ -81,27 +81,22 @@ const ChatLayout = ({
         <Grid.Column stretched width={12}>
           <Segment>
             {getRooms() &&
-                ( <ChatRoom 
+                ( <ActiveChat 
                 activeRoom={activeRoom} 
                 messages={onMessageReceived(activeRoom)} 
                 onSendMessage={onSendMessage(activeRoom)} />)
             }
-            </Segment>
+          </Segment>
         </Grid.Column>
       </Grid>
     )
   }
 
   return (
-    
     <div className='container'>
-
       <Header onLogout={onLogout} activeTab={activeTab} setActiveTab={setActiveTab} />
-
       { renderSection(activeTab) }
-
     </div>
-    
   )
 }
 

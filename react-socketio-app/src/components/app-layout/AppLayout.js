@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ChatLayout from '../chat-layout/ChatLayout';
-import RoomsDashboard from '../chat-layout/rooms-dashboard/RoomsDashboard';
-import Login from '../login/Login';
+import MainApp from './main-app/MainApp';
+import Login from './login/Login';
 import useSocket from '../_useSocket';
-import JoinRequestsApproved from '../chat-layout/rooms-dashboard/rooms-search/join-requests/JoinRequestsApproved';
 
-const Layout = (props) => {
+const AppLayout = (props) => {
   
  const { 
   signupNewUser,
@@ -110,8 +108,8 @@ const Layout = (props) => {
   }
 
     
-  const renderChatLayout = () => {
-    return (<ChatLayout  {...socketMethodsToProps} />);
+  const renderMainApp = () => {
+    return (<MainApp  {...socketMethodsToProps} />);
   }
 
   return (
@@ -120,10 +118,10 @@ const Layout = (props) => {
         ? <Login authenticateUser={onAuthenticate} 
                  signupNewUser={signupNewUser} 
                  userUnauthorised={userUnauthorised} /> : null}
-      {userAuthenticated && renderChatLayout()}
+      {userAuthenticated && renderMainApp()}
     </div>
     
   )
 }
 
-export default Layout;
+export default AppLayout;

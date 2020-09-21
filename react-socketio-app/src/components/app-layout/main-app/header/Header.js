@@ -23,8 +23,13 @@ const Header = ({onLogout, activeTab, setActiveTab}) => {
           onClick={handleItemClick}
         />
         <Menu.Item
-          name='messages'
-          active={activeTab === 'messages'}
+          name='your rooms'
+          active={activeTab === 'your rooms'}
+          onClick={handleItemClick}
+        />
+        <Menu.Item
+          name='private chats'
+          active={activeTab === 'private chats'}
           onClick={handleItemClick}
         />
         <Menu.Item

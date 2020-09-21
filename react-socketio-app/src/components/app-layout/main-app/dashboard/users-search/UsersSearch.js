@@ -20,7 +20,7 @@ const UsersSearch = ({filteredUsers, onSendPrivateMessage}) => {
   // console.log('filtered users in UsersSearch: ', filteredUsers);
 
   return (
-    <Segment >
+    <Segment className='users-search'>
       {filteredUsers.map((user, i) => ( 
         <Accordion >  
           <Accordion.Title
