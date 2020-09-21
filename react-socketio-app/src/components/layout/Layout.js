@@ -3,7 +3,7 @@ import MainApp from './main-app/MainApp';
 import Login from './login/Login';
 import useSocket from '../_useSocket';
 
-const AppLayout = (props) => {
+const Layout = (props) => {
   
  const { 
   signupNewUser,
@@ -27,6 +27,7 @@ const AppLayout = (props) => {
   sendMessage,
   sendPrivateMessage
 } = useSocket();
+
 
   // MAPPED FROM USESOCKET: 
   const onAuthenticate = (username, password) => {
@@ -82,28 +83,22 @@ const AppLayout = (props) => {
     return sendPrivateMessage(username, message);
   }
 
- 
-
-  
-
-  
-
   const socketMethodsToProps = {
+    availableRooms: getAvailableRooms(),
+    availableUsers: getAvailableUsers(),
+    joinRequestSent: getJoinRequestSent(),
+    rooms: getRooms(),
+    roomNames: getRoomNames(),
+    joinRequestsReceived: getJoinRequestsReceived(),
+    joinRoomsSuccess: getJoinRoomsSuccess(),
+    joinRequestsApproved: getJoinRequestsApproved(),
+    joinRequestsPending: getJoinRequestsPending(),
+    setJoinRequestSent,
     onSendMessage,
     onSendPrivateMessage,
     onMessageReceived,
     onJoinRoomsRequest,
-    getAvailableRooms,
-    getAvailableUsers,
-    getJoinRequestSent,
-    setJoinRequestSent,
-    getJoinRoomsSuccess,
-    getJoinRequestsReceived,
-    getJoinRequestsApproved,
-    getJoinRequestsPending,
     confirmJoinRequest,
-    getRooms,
-    getRoomNames,
     onLogout
   }
 
@@ -124,4 +119,4 @@ const AppLayout = (props) => {
   )
 }
 
-export default AppLayout;
+export default Layout;

@@ -1,11 +1,11 @@
 import React from 'react';
-import * as classes from './ActiveChat.css'
+import * as classes from './CurrentRoom.css'
 import MessageInput from './message-input/MessageInput';
 import MessageList from './message-list/MessageList';
 
 
 
-const ActiveChat = ({activeRoom, messages, onSendMessage}) => {
+const CurrentRoom = ({activeRoom, messages, onSendMessage}) => {
 
   console.log(activeRoom);
 
@@ -18,5 +18,5 @@ const ActiveChat = ({activeRoom, messages, onSendMessage}) => {
 }
 
 
-export default ActiveChat;
+export default CurrentRoom;
 

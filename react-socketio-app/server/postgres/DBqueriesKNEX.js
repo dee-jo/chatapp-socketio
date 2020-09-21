@@ -64,7 +64,7 @@ const disconnectUser = (username) => {
   .where('name', username)
   .returning('connected')
   .then(rows => {
-    if (rows[0].connected !='false') {
+    if (rows[0].connected ==='false') {
       throw new Error('Could not update user as disconnected!')
     } 
   })

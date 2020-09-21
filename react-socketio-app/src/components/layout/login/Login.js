@@ -48,7 +48,7 @@ const Login = ({authenticateUser, signupNewUser, userUnauthorised}) => {
   const handlePasswordConfirmChange = (e) => {
     const currentPasswordConfirm = e.target.value;
     setPasswordConfirm(currentPasswordConfirm)
-    if (!currentPasswordConfirm || password != currentPasswordConfirm) setPasswordConfirmError(true);
+    if (!currentPasswordConfirm || password !== currentPasswordConfirm) setPasswordConfirmError(true);
     else setPasswordConfirmError(false);
   };
 
@@ -216,7 +216,7 @@ const Login = ({authenticateUser, signupNewUser, userUnauthorised}) => {
               onClick={isSignupMode ? sendSignUp : verifyAndRedirect } 
               disabled={
                 isSignupMode 
-                ? !username || !password || password.length < 5 || password.length > 20 || password != passwordConfirm
+                ? !username || !password || password.length < 5 || password.length > 20 || password !== passwordConfirm
                 : !username || !password || password.length < 5 || password.length > 20} >
               {isSignupMode ? 'Sign Up' : 'Login'}
             </Form.Button>

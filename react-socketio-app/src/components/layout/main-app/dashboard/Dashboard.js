@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { Input } from 'semantic-ui-react';
 import RoomsSearch from './rooms-search/RoomsSearch';
 import UsersSearch from './users-search/UsersSearch';
-import * as classes from './RoomsDashboard.css';
+import * as classes from './Dashboard.css';
 import { filter } from 'lodash';
 
-const RoomsDashboard = ({
-  availableRooms, 
-  availableUsers, 
-  joinRequestSent, 
-  joinRequestsPending,
-  joinRequestsApproved,
+const Dashboard = ({
+  availableRooms,
+  availableUsers,
   onSendPrivateMessage,
   onJoinRoomsRequest,
+  joinRequestsPending,
+  joinRequestsApproved,
+  joinRequestSent,
   setJoinRequestSent
 }) => {
 
@@ -42,4 +42,4 @@ const RoomsDashboard = ({
   )
 }
 
-export default RoomsDashboard;
+export default Dashboard;
