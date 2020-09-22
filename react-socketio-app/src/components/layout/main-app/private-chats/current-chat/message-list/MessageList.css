@@ -1,0 +1,7 @@
+
+.ui.list {
+  text-align: right;
+  padding-right: 1em;
+  overflow-y: scroll;
+  max-height: 500px;
+}

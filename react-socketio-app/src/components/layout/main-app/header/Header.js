@@ -16,12 +16,12 @@ const Header = ({activeTab, setActiveTab}) => {
         onClick={handleItemClick}
       />
       <Menu.Item
-        name='your rooms'
+        name='your-rooms'
         active={activeTab === 'your rooms'}
         onClick={handleItemClick}
       />
       <Menu.Item
-        name='private chats'
+        name='private-chats'
         active={activeTab === 'private chats'}
         onClick={handleItemClick}
       />

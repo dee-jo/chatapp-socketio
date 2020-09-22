@@ -13,31 +13,26 @@ const UsersSearch = ({filteredUsers, onSendPrivateMessage}) => {
     setActiveIndex(newIndex);
   }
 
-  const onSendPM = (e) => {
-    
-  }
-
   // console.log('filtered users in UsersSearch: ', filteredUsers);
 
   return (
     <Segment className='users-search'>
-      {filteredUsers.map((user, i) => ( 
+      {filteredUsers.map((receipient, i) => ( 
         <Accordion >  
           <Accordion.Title
             active={activeIndex === i}
             index={i}
             onClick={onSelectUser}>
             <Icon name='dropdown' />
-            {user}
+            {receipient}
           </Accordion.Title>
           <Accordion.Content active={activeIndex === i}>
           <Input
             className='messageInput'
-            actionPosition='right'
             onChange={(e) => setPrivateMessage(e.target.value)}
-            placeholder={`Message ${user}`} >
+            placeholder={`Message ${receipient}`} >
             <input/>
-            <Button type='submit' onClick={(e) => onSendPrivateMessage(user, privateMessage)}>Send Message</Button>
+            <Button type='submit' onClick={(e) => onSendPrivateMessage(receipient)(privateMessage)}>Send Message</Button>
           </Input>
           </Accordion.Content>
         </Accordion>
@@ -45,7 +40,6 @@ const UsersSearch = ({filteredUsers, onSendPrivateMessage}) => {
       }
     </Segment>
   )
-      
 }
 
 export default UsersSearch;

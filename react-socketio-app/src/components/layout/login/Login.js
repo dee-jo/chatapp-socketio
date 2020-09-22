@@ -188,11 +188,11 @@ const Login = ({authenticateUser, signupNewUser, userUnauthorised}) => {
       <Form.Group widths='equal'>
         <Form.Field>
           <label style={{'textAlign': 'left'}}>User Name</label>
-          <input placeholder='User Name' value={username} onChange={handleNameChange} error/>
+          <input placeholder='User Name' value={username} onChange={handleNameChange} />
         </Form.Field>
         <Form.Field>
           <label style={{'textAlign': 'left'}}>Password</label>
-          <input placeholder='Password' value={password} onChange={handlePasswordChange} error/>
+          <input placeholder='Password' value={password} onChange={handlePasswordChange} />
         </Form.Field>
       </Form.Group>
     )

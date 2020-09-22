@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Icon, Modal } from 'semantic-ui-react'
+import { Button, Modal } from 'semantic-ui-react'
 
 
 const RequestModal = ({openModal, setJoinRequestSent}) => {

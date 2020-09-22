@@ -14,12 +14,12 @@ const JoinRequestsApproved = ({joinRequestsApproved}) => {
               <List.Item key={req.id}>
                 <List.Content floated='left' >{req} </List.Content>
               </List.Item>
-              <List.Item key={req.id}>
+              {/* <List.Item key={req.id}>
                 <List.Content floated='left' >{req} </List.Content>
               </List.Item>
               <List.Item key={req.id}>
                 <List.Content floated='left' >{req} </List.Content>
-              </List.Item>
+              </List.Item> */}
             </>
           )}
         </List>

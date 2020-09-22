@@ -571,8 +571,7 @@ const getUsersInRooms = async (roomids) => {
 
 // _____________________________________________________________
 // STORE PRIVATE MESSAGE:
-const storePrivateMessage = (receipientName, senderName, message) => {
-  const longDate = Date.parse(new Date());
+const storePrivateMessage = (receipientName, senderName, message, date) => {
   return findUserId(senderName)
   .then(senderid => {
     return findUserId(receipientName)
@@ -586,7 +585,7 @@ const storePrivateMessage = (receipientName, senderName, message) => {
       messageid: v4(),
       senderid: senderid,
       receipientid: receipientid,
-      date: longDate / 1000,
+      date,
       message: message
     })
     .returning('messageid')
@@ -604,7 +603,7 @@ const storePrivateMessage = (receipientName, senderName, message) => {
 // STORE ROOM MESSAGE:
 
 const addMessage = (message) => {
-  const { messageid, roomname, date, username, messagetext } = message;
+  const { roomname, date, username, messagetext } = message;
   let userID = '';
   return findUserId(username)
   .then(userid => {
@@ -619,7 +618,7 @@ const addMessage = (message) => {
     else {
       return knex('messages')
       .insert({
-        messageid,
+        messageid: v4(),
         roomid,
         userid: userID,
         date,
@@ -631,7 +630,7 @@ const addMessage = (message) => {
   .then(rows => {
     if (!rows.length) throw new Error(`Could not insert new message into db, messageid: ${messageid}`);
     else {
-      console.log(`Successfully inserted new message into db, messageid: ${messageid}`);
+      console.log(`Successfully inserted new message into db, messageid: ${rows[0]}`);
     }
   })
   .catch(error => {

@@ -3,7 +3,6 @@ import { Input } from 'semantic-ui-react';
 import RoomsSearch from './rooms-search/RoomsSearch';
 import UsersSearch from './users-search/UsersSearch';
 import * as classes from './Dashboard.css';
-import { filter } from 'lodash';
 
 const Dashboard = ({
   availableRooms,

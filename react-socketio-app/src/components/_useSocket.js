@@ -11,7 +11,8 @@ const useSocket = () => {
 
   const [ userAuthenticated, setUserAuthenticated ] = useState(false);
   const [ userUnauthorised, setUserUnauthorised ] = useState(false);
-  const [ eventsWereSet, setEventsWereSet ] = useState(false);
+
+  const [ roomEventsWereSet, setEventsWereSet ] = useState(false);
   const [ rooms, setRooms ] = useState(null);
   const [ roomNames, setRoomNames ] = useState([]);
 
@@ -19,14 +20,24 @@ const useSocket = () => {
   const [ availableUsers, setAvailableUsers ] = useState(null);
 
   const [ joinRequestSent, setJoinRequestSent ] = useState(null);
-  const [ joinRoomsSuccess, setJoinRoomsSuccess ] = useState(false);
   const [ joinRequestsPending, setJoinRequestsPending ] = useState([]);
   const [ joinRequestsApproved, setJoinRequestsApproved] = useState([]);
 
+  const [ PMUserNames, setPMUserNames ] = useState([]);
+  const [ PMChats, setPMChats ] = useState(null);
+  const [ PMeventsWereSet, setPMEventsWereSet ] = useState(false);
+
+  
   // NOTIFICATIONS:
   const [ joinRequestsToApprove, setjoinRequestsToApprove ] = useState(null);
  
+
   // authenticate user
+  const authenticateUser = (name, pass) => {
+    setUsername(name);
+    setPassword(pass);
+  } 
+
   useEffect(() => {
     if (username && password) {
       socketRef.current = io("http://localhost:3001");
@@ -44,7 +55,7 @@ const useSocket = () => {
         // redirect to login
       })
       socketRef.current.on('authenticated', function() {
-        
+        setUserAuthenticated(true);
         socketRef.current.on("joined rooms", (roomNames) => {
           setRoomNames(roomNames);
           // setConnectedSocket(socketRef.current.id);
@@ -77,36 +88,93 @@ const useSocket = () => {
     }
   }, [username, password]);
 
-  useEffect(() => {
-    console.log('[useSocket], availableRooms: ', availableRooms);
-  }, [availableRooms])
-
 
   // set room events
   useEffect(() => {
-    console.log('rooms have been updated! rooms: ');
-    console.dir(rooms);
-    if (rooms && !eventsWereSet) {
-      console.dir(rooms);
-      console.log('setRoomEvents outer fn, rooms: ', rooms);
-      roomNames.forEach((rmName) => {
-        console.log(`setting event for room: ${rmName}`);
-        socketRef.current.on(`message for ${rmName}`, ({ message }) => {
-          console.log(`event received: 'message for ' ${rmName}, message: ${message}`);
-          console.log(`rooms: `);
-          console.dir(rooms);
-          addMessageToRoom(rmName, message);
-        });
-      }); 
+    if (rooms && !roomEventsWereSet) {
+      setRoomEventsListeners(false);
       setEventsWereSet(true);
-      setUserAuthenticated(true);
       return;
     };
-  }, [rooms, roomNames]);
+  }, [rooms, roomNames, roomEventsWereSet]);
 
-  const authenticateUser = (name, pass) => {
-    setUsername(name);
-    setPassword(pass);
+  // set PM events
+  useEffect(() => {
+    if (PMChats && !PMeventsWereSet) {
+      console.log('private chats have been updated! private chats: ');
+      console.dir(PMChats);
+      setPMEventsListeners(true);
+      setPMEventsWereSet(true);
+      return;
+    }
+  }, [PMChats, PMUserNames, PMeventsWereSet])
+
+
+  const setRoomEventsListeners = (isPrivate) => {
+
+    console.log('setRoomEvents outer fn, rooms: ');
+    console.dir(rooms);
+    
+    roomNames.forEach((roomName) => {
+        console.log(`setting event for room: ${roomName}`);
+        socketRef.current.on(`message for ${roomName}`, ({ message }) => {
+          console.log(`event received: 'message for ' ${roomName}, message: ${message}`);
+          console.log(`chats: `);
+          console.dir(rooms);
+          addMessageToChat(roomName, message, isPrivate);
+        });
+    })
+  }
+
+  const setPMEventsListeners = (isPrivate) => {
+    PMChats.forEach((privChat) => {
+      socketRef.current.on(`private message` , (privateMessage) => {
+        console.log(`received private message for: ' ${privChat}, message: ${privateMessage.messageText}`);
+        console.log(`private chats: `);
+        console.dir(PMChats);
+        addMessageToChat(privChat, privateMessage, isPrivate);
+      });
+    }) 
+  }
+
+  const addMessageToChat = (chatName, message, privateMessage) => {
+    console.log(`[addMessageToChat] chatName: ${chatName}, message: `);
+    console.dir(message);
+    console.log(`addMessageToChat: rooms: ${rooms}`);
+  
+    if (privateMessage) {
+      setPMChats((prevstate) => {
+        return updateChatState(prevstate, chatName, message)
+      })
+    }
+    else {
+      setRooms((prevstate) => {
+        return updateChatState(prevstate, chatName, message);
+      });
+    } 
+  }
+
+  const updateChatState = (prevstate, chatName, message) => {
+    const oldMessages = prevstate[chatName].messages;
+    const updateMessages = [...oldMessages];
+    console.log('[addMessageToChat] oldMessages', oldMessages)
+    updateMessages.push(message);
+    console.log('[addMessageToChat] updateMessages', updateMessages)
+
+    const updatedRoom = {
+      ...prevstate[chatName],
+      messages: updateMessages
+    }
+    console.log('updatedRoom: ', updatedRoom);
+    const updatedRooms = {
+      ...prevstate,
+      [chatName]: updatedRoom
+    }
+    console.log('updatedRooms: ', updatedRooms);
+    return {
+      ...prevstate,
+      [chatName]: updatedRoom
+    }
   }
 
   const signupNewUser = (newName, newPassword) => {
@@ -155,7 +223,7 @@ const useSocket = () => {
   const confirmJoinRequest = (request) => {
     socketRef.current.emit('confirm join request', request);
     setjoinRequestsToApprove(prevstate => {
-      const updated = prevstate.filter(req => req.id != request.id);
+      const updated = prevstate.filter(req => req.id !== request.id);
       return [...updated];
     }) 
   }
@@ -172,17 +240,26 @@ const useSocket = () => {
     return socketRef.current.disconnect();
   }
 
-  const sendPrivateMessage = (receipientName, message) => {
-    console.log(`[_useSocket] sendPrivateMessage() receipientName: ${receipientName}, message: ${message}`)
-    socketRef.current.emit(`private message`, {receipientName, sender: username, message});
+  const sendPM = (receipientName) => {
+    console.log(`[_useSocket] sendPM receipientName: ${receipientName}`)
+    return (messageText) => {
+      const longDate = new Date();
+      console.log('[_useSocket] inner fn sendPM, roomName: ', receipientName);
+      const privateMessage = {
+        date: Date.parse(longDate) /1000,
+        messagetext: messageText,
+        receipientName,
+        sender: username
+      }
+      socketRef.current.emit(`private message`, privateMessage);
+    };
   }
   
   const sendMessage = (roomName) => {
     const longDate = new Date();
     return (messageText) => {
-      console.log('[sendMessage@_useSocket.js], roomName: ', roomName);
+      console.log('[sendMessage@_useSocket], roomName: ', roomName);
       const message = {
-        messageid: v4(),
         date: Date.parse(longDate) /1000,
         messagetext: messageText,
         roomname: roomName,
@@ -191,36 +268,6 @@ const useSocket = () => {
       socketRef.current.emit(`message for ${roomName}`, {message: message});
     };
   }
-
-  const addMessageToRoom = (roomName, message) => {
-    console.log(`[addMessageToRoom] roomName: ${roomName}, message: `);
-    console.dir(message);
-    console.log(`addMessageToRoom: rooms: ${rooms}`);
-  
-    setRooms((prevstate) => {
-      const oldMessages = prevstate[roomName].messages;
-      const updateMessages = [...oldMessages];
-      console.log('[addMessageToRoom] oldMessages', oldMessages)
-      updateMessages.push(message);
-      console.log('[addMessageToRoom] updateMessages', updateMessages)
-
-      const updatedRoom = {
-        ...prevstate[roomName],
-        messages: updateMessages
-      }
-      console.log('updatedRoom: ', updatedRoom);
-      const updatedRooms = {
-        ...prevstate,
-        [roomName]: updatedRoom
-      }
-      console.log('updatedRooms: ', updatedRooms);
-      return {
-        ... prevstate,
-        [roomName]: updatedRoom
-      }
-    });
-  }
-
 
   const getMessagesForRoom = (roomName) => {
       if (rooms) {
@@ -241,7 +288,6 @@ const useSocket = () => {
       rooms,
       availableRooms,
       availableUsers,
-      joinRoomsSuccess,
       joinRequestSent,
       joinRequestsToApprove,
       joinRequestsPending,
@@ -250,8 +296,10 @@ const useSocket = () => {
       setJoinRequestSent,
       sendJoinRequest,
       getMessagesForRoom,
-      sendPrivateMessage,
-      sendMessage
+      sendMessage,
+      PMUserNames,
+      PMChats,
+      sendPM
   };
 
 }

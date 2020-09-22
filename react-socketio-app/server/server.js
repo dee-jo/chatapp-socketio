@@ -164,16 +164,22 @@ const setJoinReqConfirmationListener = (socket) => {
 const setPrivateMessageListener = (socket, username) => {
   console.log(`setPrivateMessageListener for ${username}, socket: ${socket.id}`)
   socket.on('private message', (pm) => {
-    const { receipientName, sender, message } = pm;
-    console.log(receipientName, 'recieved private message from ', sender);
-    console.log(`receipientName: ${receipientName}, current user: ${username}`);
-    console.log(`here's ${receipientName}: sending back message: `);
-    console.dir(message);
+    const {
+      date,
+      messagetext,
+      receipientName,
+      sender
+    } = pm;
+    
+    console.log(receipientName, 'recieved private message from ', sender, 'message: ');
+    console.dir(messagetext);
+    // console.log(`receipientName: ${receipientName}, current user: ${username}`);
+    // console.log(`here's ${receipientName}: sending back message: `);
     if (userSocketMap[receipientName]) {
       const receipientID = userSocketMap[receipientName];
-      io.to(receipientID).emit('private message',  { receipientName, sender, message });
+      io.to(receipientID).emit('private message', pm);
     }
-    db.storePrivateMessage(receipientName, sender, message);
+    db.storePrivateMessage(receipientName, sender, messagetext, date);
   })
 }
 

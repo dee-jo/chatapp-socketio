@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import MainApp from './main-app/MainApp';
 import Login from './login/Login';
 import useSocket from '../_useSocket';
@@ -25,7 +25,9 @@ const Layout = (props) => {
   sendJoinRequest,
   getMessagesForRoom,
   sendMessage,
-  sendPrivateMessage
+  PMUserNames,
+  PMChats,
+  sendPM
 } = useSocket();
 
 
@@ -79,8 +81,20 @@ const Layout = (props) => {
     return sendJoinRequest(rooms);
   }
 
+  const setJoinReqSent = () => {
+    return setJoinRequestSent();
+  }
+
+  const getPMusernames = () => {
+    return PMUserNames;
+  }
+
+  const getPMchats = () => {
+    return PMChats;
+  }
+
   const onSendPrivateMessage = (username, message) => {
-    return sendPrivateMessage(username, message);
+    return sendPM(username, message);
   }
 
   const socketMethodsToProps = {
@@ -93,10 +107,12 @@ const Layout = (props) => {
     joinRoomsSuccess: getJoinRoomsSuccess(),
     joinRequestsApproved: getJoinRequestsApproved(),
     joinRequestsPending: getJoinRequestsPending(),
-    setJoinRequestSent,
+    setJoinRequestSent: setJoinReqSent,
     onSendMessage,
-    onSendPrivateMessage,
     onMessageReceived,
+    PMusernames: getPMusernames(),
+    PMchats: getPMchats(),
+    onSendPrivateMessage,
     onJoinRoomsRequest,
     confirmJoinRequest,
     onLogout

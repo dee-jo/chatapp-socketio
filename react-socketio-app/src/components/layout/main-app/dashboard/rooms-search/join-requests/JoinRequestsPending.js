@@ -10,15 +10,15 @@ const JoinRequestsPending = ({joinRequestsPending}) => {
         <List divided verticalAlign='middle' >
           {joinRequestsPending && joinRequestsPending.map(req => 
           <>
-            <List.Item key={req}>
+            <List.Item key={req.id}>
               <List.Content floated='left' >{req} </List.Content>
             </List.Item>
-            <List.Item key={req}>
+            {/* <List.Item key={req}>
               <List.Content floated='left' >{req} </List.Content>
             </List.Item>
             <List.Item key={req}>
             <List.Content floated='left' >{req} </List.Content>
-            </List.Item>
+            </List.Item> */}
             </>
           )}
         </List>

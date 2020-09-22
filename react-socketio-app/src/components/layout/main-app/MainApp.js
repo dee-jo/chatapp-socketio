@@ -4,10 +4,10 @@ import * as classes from './MainApp.css';
 import Dashboard from './dashboard/Dashboard';
 import Notifications from './notifications/Notifications';
 import ActiveRooms from './active-rooms/ActiveRooms';
+import PrivateChats from './private-chats/PrivateChats';
 
 const MainApp = ({
   onSendMessage,
-  onSendPrivateMessage,
   onMessageReceived,
   onJoinRoomsRequest,
   joinRequestSent,
@@ -20,11 +20,16 @@ const MainApp = ({
   onLogout,
   availableRooms,
   availableUsers,
-  confirmJoinRequest
+  confirmJoinRequest,
+  PMusernames,
+  PMchats,
+  onSendPrivateMessage
 }) => {
 
-  const [ activeRoom, setActiveRoom ] = useState(roomNames ? roomNames[0] : null);
-  const [ activeTab, setActiveTab ] = useState(activeRoom ? 'messages' : 'dashboard')
+ 
+  const [ activeTab, setActiveTab ] = useState(rooms ? 'messages' : 'dashboard');
+  console.log('[MainApp] PMchats: ');
+  console.dir(PMchats);
 
   const DashboardProps = {
     availableRooms,
@@ -40,10 +45,14 @@ const MainApp = ({
   const ActiveRoomsProps = {
     roomNames,
     rooms,
-    activeRoom,
-    setActiveRoom,
     onMessageReceived,
     onSendMessage
+  }
+
+  const PrivateChatsProps = {
+    PMusernames,
+    PMchats,
+    onSendPrivateMessage,
   }
 
   const NotificationsProps = {
@@ -54,7 +63,8 @@ const MainApp = ({
   const renderSection = (activeTab) => {
     switch (activeTab) {
       case 'logout': return onLogout();
-      case 'your rooms': return !activeRoom ? 'Nothing to show!' : <ActiveRooms {...ActiveRoomsProps} />;
+      case 'your-rooms': return  (rooms) ? <ActiveRooms {...ActiveRoomsProps} /> : null;
+      case 'private-chats': return (PMchats) ? <PrivateChats {...PrivateChatsProps} /> : null;
       case 'dashboard': return (availableRooms && availableUsers) ? <Dashboard {...DashboardProps} /> : null;
       case 'notifications': return <Notifications {...NotificationsProps} />;
       default: return (availableRooms && availableUsers) ? <Dashboard {...DashboardProps} /> : null;

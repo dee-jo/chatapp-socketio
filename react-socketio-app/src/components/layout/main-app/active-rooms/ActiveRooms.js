@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import RoomList from './room-list/RoomList';
 import CurrentRoom from './current-room/CurrentRoom';
 import { Grid, Segment } from 'semantic-ui-react';
@@ -6,14 +6,21 @@ import { Grid, Segment } from 'semantic-ui-react';
 const ActiveRooms = ({
   roomNames,
   rooms,
-  activeRoom,
-  setActiveRoom,
   onMessageReceived,
   onSendMessage
 }) => {
 
+  const [ activeRoom, setActiveRoom ] = useState(null);
+  
+  useEffect(() => {
+    if (rooms && roomNames) {
+      console.log('[MainApp] rooms arrived, setting active room to: ', roomNames[0])
+      setActiveRoom(roomNames[0])
+    };
+  }, [rooms, roomNames])
+
   return (
-    <Grid>
+    activeRoom &&<Grid>
       <Grid.Column width={4}>
         {activeRoom && 
           <RoomList roomNames={roomNames} activeTab={activeRoom} setActiveRoom={setActiveRoom} />

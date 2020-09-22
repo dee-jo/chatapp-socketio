@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import React, { useState } from 'react';
 import { Button, Dropdown, Modal } from 'semantic-ui-react' 
-import RequestModal from './RequestModal';
 import * as classes from './RoomsSearch.css'
 import JoinRequestsPending from './join-requests/JoinRequestsPending';
 import JoinRequestsApproved from './join-requests/JoinRequestsApproved';
@@ -17,8 +16,7 @@ const RoomsSearch = ({
 }) =>  {
 
   const getOptions = () => {
-    console.log('[RoomsSearch], availableRooms: ', availableRooms);
-    const mult = availableRooms.length;
+    // console.log('[RoomsSearch], availableRooms: ', availableRooms);
       return availableRooms.map(room => {
         return { key: room, text: room, value: _.snakeCase(room) }
       })
@@ -34,16 +32,7 @@ const RoomsSearch = ({
 
   const [ open, setOpenModal] = useState(true);
 
-  const state = {
-    isFetching,
-    multiple,
-    search,
-    searchQuery,
-    value,
-    options
-  }
-
-  console.log('availableRooms', availableRooms);
+  // console.log('availableRooms', availableRooms);
   
   // console.log('search value: ', value);
 
@@ -62,20 +51,8 @@ const RoomsSearch = ({
     setOptions(getOptions);
   }
 
-    // const fetchOptions = () => {
-  //   setIsFetching(true);
-
-  //   setTimeout(() => {
-  //     setIsFetching(false);
-  //     setOptions(getOptions());
-  //     // selectRandom()
-  //   }, 500)
-  // }
-
 
   const renderModal = (open) => (
-
-    // <RequestModal openModal={open} setJoinRequestSent={setJoinRequestSent} />
     
     <Modal
       size='mini'
@@ -95,41 +72,41 @@ const RoomsSearch = ({
     </Modal>
   )
 
-    const modalOpen = joinRequestSent ? true : false;
-    console.log('joinRequestSent: ', joinRequestSent, 'modalOpen: ', modalOpen);
-    return (
-      <>
-      {renderModal(modalOpen)}
-      {/* <RequestModal openModal={modalOpen} setJoinRequestSent={setJoinRequestSent} /> */}
-      <div className='roomSearch'>
-         <div className='buttonWrapper'>
-          <Button fluid 
-                  className='joinButton'
-                  disabled={!value.length}
-                  onClick={onSubmitJoinRequest} >
-                    {value.length ? 'Request To Join Selected Rooms' : 'Select rooms you wish to join'}
-          </Button>
-        </div>
-        <div>
-          <Dropdown
-            fluid
-            selection
-            multiple={multiple}
-            search={search}
-            options={options}
-            value={value}
-            placeholder='Select rooms'
-            onChange={handleChange}
-            onSearchChange={handleSearchChange}
-            disabled={isFetching}
-            loading={isFetching}
-          />
-        </div>
+  const modalOpen = joinRequestSent ? true : false;
+  // console.log('joinRequestSent: ', joinRequestSent, 'modalOpen: ', modalOpen);
+  return (
+    <>
+    {renderModal(modalOpen)}
+    {/* <RequestModal openModal={modalOpen} setJoinRequestSent={setJoinRequestSent} /> */}
+    <div className='roomSearch'>
+        <div className='buttonWrapper'>
+        <Button fluid 
+                className='joinButton'
+                disabled={!value.length}
+                onClick={onSubmitJoinRequest} >
+                  {value.length ? 'Request To Join Selected Rooms' : 'Select rooms you wish to join'}
+        </Button>
       </div>
-      <JoinRequestsPending joinRequestsPending={joinRequestsPending} />
-      <JoinRequestsApproved joinRequestsApproved={joinRequestsApproved} />
-      </>
-    )
+      <div>
+        <Dropdown
+          fluid
+          selection
+          multiple={multiple}
+          search={search}
+          options={options}
+          value={value}
+          placeholder='Select rooms'
+          onChange={handleChange}
+          onSearchChange={handleSearchChange}
+          disabled={isFetching}
+          loading={isFetching}
+        />
+      </div>
+    </div>
+    <JoinRequestsPending joinRequestsPending={joinRequestsPending} />
+    <JoinRequestsApproved joinRequestsApproved={joinRequestsApproved} />
+    </>
+  )
 }
 
 export default RoomsSearch;
