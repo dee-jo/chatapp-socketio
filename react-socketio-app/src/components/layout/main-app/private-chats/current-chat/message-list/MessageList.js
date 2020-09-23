@@ -14,13 +14,13 @@ const MessageList = ({activeRoom, messages}) => {
 
   const renderMessages = () => {
     const sortedMessages = messages.sort((a,b) => a.date - b.date);
-    return sortedMessages.map(({date, messageid, messagetext, roomname, username }, i) => { 
+    return sortedMessages.map(({ messageid, senderName, receipientName, message, date }, i) => { 
       return (
        <List.Item>
          {/* <List.Icon name='user_icon' size='large' verticalAlign='middle' /> */}
          <List.Content key={i}>
-           <List.Header>Room {activeRoom}, User name: {username}</List.Header>
-           <List.Description>{messagetext}</List.Description>
+           <List.Header>Receiver {receipientName}, Sender: {senderName}</List.Header>
+           <List.Description>{message}</List.Description>
          </List.Content>
        </List.Item>
      )

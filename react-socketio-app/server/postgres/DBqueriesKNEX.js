@@ -210,6 +210,19 @@ const findUserId = (username) => {
 //   console.log(`userid for user ${username}: ${userid}`)
 // })
 
+// _____________________________________________________________
+// FIND USER NAME
+
+const findUserName = (id) => {
+  return knex('users')
+  .select('name')
+  .where({userid: id})
+  .then(rows => {
+    if (rows.length) return rows[0].name;
+    else throw new Error(`Could not find userid for user ${username}`);
+  })
+}
+
 
 
 
@@ -596,8 +609,92 @@ const storePrivateMessage = (receipientName, senderName, message, date) => {
   .catch(error => {
     console.log('[DBknex@storePrivateMessage] error: ', error)
   })
-  
 }
+
+// _____________________________________________________________
+// GET PRIVATE MESSAGES
+
+const PMchats = {};
+const getPrivateMessages = (username) => {
+  let id = '';
+  return findUserId(username)
+  .then(userid => {
+    id = userid;
+    return getPMsentBy(userid)
+  })
+  .then(res => {
+    return addToPMchats(username, true, res)
+  })
+  .then(_ => {
+    console.log('[getPrivateMessages] PMchats as sender: ', PMchats['user200'])
+    return getPMreceivedBy(id)
+  })
+  .then(res => {
+    return addToPMchats(username, false, res)
+  })
+  .then(_ => {
+    console.log('[getPrivateMessages] PMchats as receiver: ', PMchats)
+    return PMchats;
+  })
+  .catch(error => {
+    console.log('[DB@getPrivateMessages] error: ', error);
+  })
+}
+
+const addToPMchats = (username, isSender, res) => {
+  return res.map(row => {
+    const newMessage = {
+      messageid: row.messageid,
+      senderName: isSender ? username : row.senderName,
+      receipientName: isSender ? row.receipientName : username,
+      date: row.date,
+      message: row.message
+    }
+    if (isSender) {
+      if (PMchats[row.receipientName] && PMchats[row.receipientName].messages) {
+        PMchats[row.receipientName].messages.push(newMessage)
+      }
+      else {
+        PMchats[row.receipientName] = {
+          messages: [newMessage]
+        }
+      }
+    }
+    else {
+      if (PMchats[row.senderName] && PMchats[row.senderName].messages) {
+        PMchats[row.senderName].messages.push(newMessage)
+      }
+      else {
+        PMchats[row.senderName] = {
+          messages: [newMessage]
+        }
+      }
+    }
+    
+  })
+}
+
+const getPMsentBy = (userid) => {
+  return knex('private_messages AS pm')
+  .select('u.name AS receipientName', 'pm.messageid', 'pm.senderid', 'pm.receipientid', 'pm.date', 'pm.message')
+  .innerJoin('users AS u', (join) => {
+    join.on('u.userid', 'pm.receipientid')
+  })
+  .where({senderid: userid})
+}
+
+const getPMreceivedBy = (userid) => {
+  return knex('private_messages AS pm')
+  .select('u.name AS senderName', 'pm.messageid', 'pm.senderid', 'pm.receipientid', 'pm.date', 'pm.message')
+  .innerJoin('users AS u', (join) => {
+    join.on('u.userid', 'pm.senderid')
+  })
+  .where({receipientid: userid})
+}
+
+
+
+
 
 // _____________________________________________________________
 // STORE ROOM MESSAGE:
@@ -753,6 +850,7 @@ module.exports = {
   getUsersAndMessagesPerRoom,
   storeJoinRequests,
   storePrivateMessage,
+  getPrivateMessages,
   approveJoinRequest,
   getPreviousJoinRequests,
   getRequestsApproved,

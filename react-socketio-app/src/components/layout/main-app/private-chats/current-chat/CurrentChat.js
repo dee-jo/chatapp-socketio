@@ -5,9 +5,10 @@ import MessageList from './message-list/MessageList';
 
 
 
-const CurrentRoom = ({activeRoom, messages, onSendPrivateMessage}) => {
+const CurrentChat = ({activeRoom, messages, onSendPrivateMessage}) => {
 
   console.log(activeRoom);
+  console.log('[CurrentChat] messages: ', messages)
 
     return (
       <div className='chat-room_container'>
@@ -18,5 +19,5 @@ const CurrentRoom = ({activeRoom, messages, onSendPrivateMessage}) => {
 }
 
 
-export default CurrentRoom;
+export default CurrentChat;
 

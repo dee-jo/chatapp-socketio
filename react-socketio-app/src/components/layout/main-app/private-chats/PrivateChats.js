@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import UserList from './user-list/UserList';
-import CurrentRoom from './current-chat/CurrentChat';
+import CurrentChat from './current-chat/CurrentChat';
 import { Grid, Segment } from 'semantic-ui-react';
 
 const PrivateChats = ({
@@ -24,7 +24,7 @@ const PrivateChats = ({
       <Grid.Column stretched width={12}>
         <Segment>
           {PMessages &&
-              ( <CurrentRoom 
+              ( <CurrentChat 
               PMactiveChat={PMactiveChat} 
               messages={onPrivateMessageReceived(PMactiveChat)} 
               onSendPrivateMessage={onSendPrivateMessage(PMactiveChat)} />)

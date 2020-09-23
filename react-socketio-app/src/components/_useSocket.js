@@ -24,7 +24,7 @@ const useSocket = () => {
   const [ joinRequestsApproved, setJoinRequestsApproved] = useState([]);
 
   const [ PMUserNames, setPMUserNames ] = useState([]);
-  const [ PMessages, setPMChats ] = useState(null);
+  const [ PMessages, setPMessages ] = useState(null);
   const [ PMeventsWereSet, setPMEventsWereSet ] = useState(false);
 
   
@@ -64,8 +64,11 @@ const useSocket = () => {
           console.log('roomsNames in useEffect: ', roomNames);
         });
         socketRef.current.on("past messages", (pastMessages) => {
-          console.log('recieved past messages: ', pastMessages);
+          // console.log('recieved past messages: ', pastMessages);
           setRooms(pastMessages);
+        })
+        socketRef.current.on("past private messages", (privateMessages) => {
+          setPMessages(privateMessages);
         })
         socketRef.current.on("available rooms", (availableRooms) => {
           setUserAuthenticated(true);
@@ -152,7 +155,7 @@ const useSocket = () => {
     console.log(`addMessageToChat: rooms: ${rooms}`);
   
     if (privateMessage) {
-      setPMChats((prevstate) => {
+      setPMessages((prevstate) => {
         return updateChatState(prevstate, chatName, message)
       })
     }
@@ -202,9 +205,9 @@ const useSocket = () => {
       console.log('[_useSocket] inner fn sendPM, roomName: ', receipientName);
       const privateMessage = {
         date: Date.parse(longDate) /1000,
-        messagetext: messageText,
+        message: messageText,
         receipientName,
-        sender: username
+        senderName: username
       }
       socketRef.current.emit(`private message`, privateMessage);
     };

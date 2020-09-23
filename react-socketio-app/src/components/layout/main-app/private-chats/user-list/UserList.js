@@ -1,11 +1,11 @@
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 
-const UserList = ({ PMuserNames, activeTab, setActiveRoom }) => {
+const UserList = ({ PMuserNames, activeTab, PMsetActiveChat }) => {
 
   console.log('in RoomList, PMuserNames: ', PMuserNames);
 
-  const handleItemClick = (e, { name }) => setActiveRoom(name);
+  const handleItemClick = (e, { name }) => PMsetActiveChat(name);
   console.log('active item: ', activeTab);
 
   return (

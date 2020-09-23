@@ -116,6 +116,7 @@ const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
   console.log('[server@initialiseClientWithExistingRooms] roomNames: ', roomNames);
     emitPreviouslyJoinedRooms(socket, joinedRooms)
     emitRoomsWithMessages(username, socket, joinedRooms)
+    emitPrivateMessages(username, socket);
     setMessageListenersForEachRoom(roomNames, socket);
     setPrivateMessageListener(socket, username);
     setDisconnectingEvents(socket, username);
@@ -215,6 +216,17 @@ const emitRoomsWithMessages = (username, socket, joinedRooms) => {
   })
   .catch(error => {
     console.log('[server@emitRoomsWithMessages], error: ', error);
+  })
+}
+
+const emitPrivateMessages = (username, socket) => {
+  db.getPrivateMessages(username)
+  .then(res => {
+    // console.log('[server@emitPrivateMessages] res: ', res);
+    io.to(socket.id).emit('past private messages', res);
+  })
+  .catch(error => {
+    console.log('[emitPrivateMessages] Could not get private messages, error: ', error)
   })
 }
 
