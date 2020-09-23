@@ -175,6 +175,7 @@ const setPrivateMessageListener = (socket, username) => {
     console.dir(messagetext);
     // console.log(`receipientName: ${receipientName}, current user: ${username}`);
     // console.log(`here's ${receipientName}: sending back message: `);
+    socket.emit('private message', pm )
     if (userSocketMap[receipientName]) {
       const receipientID = userSocketMap[receipientName];
       io.to(receipientID).emit('private message', pm);

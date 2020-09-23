@@ -1,9 +1,9 @@
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 
-const RoomList = ({ roomNames, activeTab, setActiveRoom }) => {
+const UserList = ({ PMuserNames, activeTab, setActiveRoom }) => {
 
-  console.log('in RoomList, roomNames: ', roomNames);
+  console.log('in RoomList, PMuserNames: ', PMuserNames);
 
   const handleItemClick = (e, { name }) => setActiveRoom(name);
   console.log('active item: ', activeTab);
@@ -11,7 +11,7 @@ const RoomList = ({ roomNames, activeTab, setActiveRoom }) => {
   return (
     <Menu fluid vertical tabular>
         {
-          roomNames.map(room => {
+          PMuserNames.map(room => {
             return (
               <Menu.Item
                 name={room}
@@ -31,4 +31,4 @@ const RoomList = ({ roomNames, activeTab, setActiveRoom }) => {
   )
 }
 
-export default RoomList;
+export default UserList;

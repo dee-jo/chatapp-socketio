@@ -25,8 +25,9 @@ const Layout = (props) => {
   sendJoinRequest,
   getMessagesForRoom,
   sendMessage,
+  getPrivateMessagesFromUser,
   PMUserNames,
-  PMChats,
+  PMessages,
   sendPM
 } = useSocket();
 
@@ -43,6 +44,9 @@ const Layout = (props) => {
   }
   const onMessageReceived = (roomName) => {
     return getMessagesForRoom(roomName);
+  }
+  const onPrivateMessageReceived = (userName) => {
+    return getPrivateMessagesFromUser(userName);
   }
   const getRooms = () => {
     return rooms;
@@ -85,12 +89,12 @@ const Layout = (props) => {
     return setJoinRequestSent();
   }
 
-  const getPMusernames = () => {
+  const getPMuserNames = () => {
     return PMUserNames;
   }
 
-  const getPMchats = () => {
-    return PMChats;
+  const getPMessages = () => {
+    return PMessages;
   }
 
   const onSendPrivateMessage = (username, message) => {
@@ -110,8 +114,9 @@ const Layout = (props) => {
     setJoinRequestSent: setJoinReqSent,
     onSendMessage,
     onMessageReceived,
-    PMusernames: getPMusernames(),
-    PMchats: getPMchats(),
+    PMuserNames: getPMuserNames(),
+    PMessages: getPMessages(),
+    onPrivateMessageReceived,
     onSendPrivateMessage,
     onJoinRoomsRequest,
     confirmJoinRequest,

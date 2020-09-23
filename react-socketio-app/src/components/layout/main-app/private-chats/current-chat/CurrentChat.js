@@ -5,14 +5,14 @@ import MessageList from './message-list/MessageList';
 
 
 
-const CurrentRoom = ({activeRoom, messages, onSendMessage}) => {
+const CurrentRoom = ({activeRoom, messages, onSendPrivateMessage}) => {
 
   console.log(activeRoom);
 
     return (
       <div className='chat-room_container'>
         <MessageList activeRoom={activeRoom} messages={messages} />
-        <MessageInput onSendMessage={onSendMessage} />
+        <MessageInput onSendPrivateMessage={onSendPrivateMessage} />
       </div>
     )
 }

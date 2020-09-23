@@ -21,15 +21,16 @@ const MainApp = ({
   availableRooms,
   availableUsers,
   confirmJoinRequest,
-  PMusernames,
-  PMchats,
+  onPrivateMessageReceived,
+  PMuserNames,
+  PMessages,
   onSendPrivateMessage
 }) => {
 
  
   const [ activeTab, setActiveTab ] = useState(rooms ? 'messages' : 'dashboard');
-  console.log('[MainApp] PMchats: ');
-  console.dir(PMchats);
+  console.log('[MainApp] PMessages: ');
+  console.dir(PMessages);
 
   const DashboardProps = {
     availableRooms,
@@ -50,8 +51,9 @@ const MainApp = ({
   }
 
   const PrivateChatsProps = {
-    PMusernames,
-    PMchats,
+    PMuserNames,
+    PMessages,
+    onPrivateMessageReceived,
     onSendPrivateMessage,
   }
 
@@ -64,7 +66,7 @@ const MainApp = ({
     switch (activeTab) {
       case 'logout': return onLogout();
       case 'your-rooms': return  (rooms) ? <ActiveRooms {...ActiveRoomsProps} /> : null;
-      case 'private-chats': return (PMchats) ? <PrivateChats {...PrivateChatsProps} /> : null;
+      case 'private-chats': return (PMessages) ? <PrivateChats {...PrivateChatsProps} /> : null;
       case 'dashboard': return (availableRooms && availableUsers) ? <Dashboard {...DashboardProps} /> : null;
       case 'notifications': return <Notifications {...NotificationsProps} />;
       default: return (availableRooms && availableUsers) ? <Dashboard {...DashboardProps} /> : null;

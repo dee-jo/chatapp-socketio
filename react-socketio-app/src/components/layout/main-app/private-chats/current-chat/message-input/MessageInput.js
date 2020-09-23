@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Input } from 'semantic-ui-react';
 import * as classes from './MessageInput.css';
 
-const MessageInput = ({onSendMessage}) => {
+const MessageInput = ({onSendPrivateMessage}) => {
 
   const [ messageText, setMessage ] = useState('');
   
   const onSend = () => {
     setMessage('');
     console.log('sending message from MessageInput: ', messageText);
-    onSendMessage(messageText);
+    onSendPrivateMessage(messageText);
   } 
 
   const updateCurrentMessage = (inputValue) => {
