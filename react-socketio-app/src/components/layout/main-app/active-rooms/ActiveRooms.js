@@ -10,29 +10,30 @@ const ActiveRooms = ({
   onSendMessage
 }) => {
 
-  const [ activeRoom, setActiveRoom ] = useState(null);
+  const [ currentRoom, setCurrentRoom ] = useState(null);
   
   useEffect(() => {
     if (rooms && roomNames) {
-      console.log('[MainApp] rooms arrived, setting active room to: ', roomNames[0])
-      setActiveRoom(roomNames[0])
+      // console.log('[MainApp] rooms arrived, setting active room to: ', roomNames[0])
+      setCurrentRoom(roomNames[0])
     };
   }, [rooms, roomNames])
 
   return (
-    activeRoom &&<Grid>
+    currentRoom && currentRoom !== 'create' && 
+    <Grid>
       <Grid.Column width={4}>
-        {activeRoom && 
-          <RoomList roomNames={roomNames} activeTab={activeRoom} setActiveRoom={setActiveRoom} />
+        {currentRoom && 
+          <RoomList roomNames={roomNames} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom} />
         }
       </Grid.Column>
       <Grid.Column stretched width={12}>
         <Segment>
           {rooms &&
               ( <CurrentRoom 
-              activeRoom={activeRoom} 
-              messages={onMessageReceived(activeRoom)} 
-              onSendMessage={onSendMessage(activeRoom)} />)
+              currentRoom={currentRoom} 
+              messages={currentRoom !== 'create room' && onMessageReceived(currentRoom)} 
+              onSendMessage={currentRoom !== 'create room' && onSendMessage(currentRoom)} />)
           }
         </Segment>
       </Grid.Column>

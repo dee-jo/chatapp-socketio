@@ -1,12 +1,11 @@
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 
-const RoomList = ({ roomNames, activeTab, setActiveRoom }) => {
+const RoomList = ({ roomNames, currentRoom, setCurrentRoom }) => {
 
-  console.log('in RoomList, roomNames: ', roomNames);
+  const handleItemClick = (e, { name }) => setCurrentRoom(name);
 
-  const handleItemClick = (e, { name }) => setActiveRoom(name);
-  console.log('active item: ', activeTab);
+  console.log('active item: ', currentRoom);
 
   return (
     <Menu fluid vertical tabular>
@@ -16,16 +15,16 @@ const RoomList = ({ roomNames, activeTab, setActiveRoom }) => {
               <Menu.Item
                 name={room}
                 key={room}
-                active={activeTab === room}
+                active={currentRoom === room}
                 onClick={handleItemClick}
               />
             )
           })
         }
         <Menu.Item
-          name='Create Room'
-          active={activeTab === 'Create Room'}
-          onClick={()=> {}}
+          name='create room'
+          active={currentRoom === 'create room'}
+          onClick={handleItemClick}
         />
     </Menu>
   )
