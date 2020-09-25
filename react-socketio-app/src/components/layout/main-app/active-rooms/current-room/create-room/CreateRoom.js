@@ -1,11 +1,11 @@
 import React from 'react';
 import NewRoomForm from './NewRoomForm';
 
-const CreateRoom = (props) => {
+const CreateRoom = ({sendCreatedNewRoom}) => {
 
   return (
     <div>
-      <NewRoomForm />
+      <NewRoomForm sendCreatedNewRoom={sendCreatedNewRoom} />
     </div>
   )
 }

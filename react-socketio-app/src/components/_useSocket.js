@@ -86,6 +86,9 @@ const useSocket = () => {
         socketRef.current.on("available users", (availableUsers) => {
           setAvailableUsers(availableUsers);
         })
+        socketRef.current.on("new room created", newRoom => {
+          updateRoomState(newRoom);
+        })
       });
       return () => {
         socketRef.current.disconnect();
@@ -110,17 +113,20 @@ const useSocket = () => {
     }
   }, [PMessages])
 
-  // set private message events
-  // useEffect(() => {
-  //   if (PMessages && !PMeventsWereSet) {
-  //     console.log('private chats have been updated! private chats: ');
-  //     console.dir(PMessages);
-  //     setPMEventsListeners();
-  //     setPMEventsWereSet(true);
-  //     return;
-  //   }
-  // }, [PMessages, PMUserNames, PMeventsWereSet])
-
+  const updateRoomState = (newRoom) => {
+    setRooms(prevstate => {
+      return {
+        ...prevstate,
+        newRoom
+      }
+    });
+    setRoomNames(prevstate => {
+      return [
+        ...prevstate,
+        newRoom.roomName
+      ]
+    })
+  }
 
   const setRoomEventsListeners = () => {
     const isPrivate = false;
@@ -228,22 +234,22 @@ const useSocket = () => {
   }
 
   const getMessagesForRoom = (roomName) => {
-      if (rooms) {
-        // console.log('getMessagesForRoom(): roomName: ', roomName);
-        // console.log('getMessagesForRoom(): rooms: ', rooms);
-        // console.log(`[getMessagesForRoom()] rooms[${roomName}].messages: `, rooms[roomName].messages);
+    console.log('[getMessagesForRoom], roomName: ', roomName);
+      if (rooms[roomName]) {
         return rooms[roomName].messages;
       }
   }
 
   const getPrivateMessagesFromUser = (userName) => {
     if (PMessages) {
-      // console.log('getMessagesForRoom(): roomName: ', roomName);
-      // console.log('getMessagesForRoom(): rooms: ', rooms);
-      // console.log(`[getMessagesForRoom()] rooms[${roomName}].messages: `, rooms[roomName].messages);
       return PMessages[userName].messages;
     }
-}
+  }
+
+  const sendCreateNewRoom = (newRoom) => {
+    newRoom.creatorName = username;
+    socketRef.current.emit('create new room', newRoom);
+  }
 
   const signupNewUser = (newName, newPassword) => {
     // console.log('[_useSocket@signupNewUser]')
@@ -328,6 +334,7 @@ const useSocket = () => {
       getMessagesForRoom,
       sendMessage,
       getPrivateMessagesFromUser,
+      sendCreateNewRoom,
       PMUserNames,
       PMessages,
       sendPM

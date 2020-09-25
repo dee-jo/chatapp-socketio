@@ -126,6 +126,7 @@ const initialiseClientWithExistingRooms = (joinedRooms, socket, username) => {
     emitRoomsNotJoined(roomNames, socket, username); // all rooms minus (previously joined or already requested)
     emitAllAvailableUsers(socket);
     setJoinReqConfirmationListener(socket) // for room admins confirming other users
+    setCreateNewRoomListener(socket);
 }
 
 const initialiseClientWithNoRooms = (socket, username) => {
@@ -192,6 +193,25 @@ const setMessageListenersForEachRoom = (roomNames, socket) => {
       console.log('message received: ', message);
       db.addMessage(message);
     });
+  })
+}
+
+const setCreateNewRoomListener = (socket) => {
+  socket.on('create new room', newRoom => {
+    db.createNewRoom(newRoom)
+    .then(res => {
+      const createdRoom = {
+        [newRoom.name]: {
+          creator: newRoom.creatorName,
+          users: [],
+          messages: []
+        }
+      }
+      io.to(socket.id).emit('new room created', newRoom)
+    })
+    .catch(error => {
+      console.log(error);
+    })
   })
 }
 

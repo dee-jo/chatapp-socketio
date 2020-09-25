@@ -20,6 +20,7 @@ const Layout = (props) => {
   joinRequestsToApprove,
   joinRequestsPending,
   joinRequestsApproved,
+  sendCreateNewRoom,
   confirmJoinRequest,
   setJoinRequestSent,
   sendJoinRequest,
@@ -48,6 +49,11 @@ const Layout = (props) => {
   const onPrivateMessageReceived = (userName) => {
     return getPrivateMessagesFromUser(userName);
   }
+
+  const onSendCreatedNewRoom = (roomName) => {
+    return sendCreateNewRoom(roomName);
+  }
+
   const getRooms = () => {
     return rooms;
   }
@@ -114,6 +120,7 @@ const Layout = (props) => {
     setJoinRequestSent: setJoinReqSent,
     onSendMessage,
     onMessageReceived,
+    onSendCreatedNewRoom,
     PMuserNames: getPMuserNames(),
     PMessages: getPMessages(),
     onPrivateMessageReceived,

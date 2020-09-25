@@ -626,14 +626,14 @@ const getPrivateMessages = (username) => {
     return addToPMchats(username, true, res)
   })
   .then(_ => {
-    console.log('[getPrivateMessages] PMchats as sender: ', PMchats['user200'])
+    // console.log('[getPrivateMessages] PMchats as sender: ', PMchats['user200'])
     return getPMreceivedBy(id)
   })
   .then(res => {
     return addToPMchats(username, false, res)
   })
   .then(_ => {
-    console.log('[getPrivateMessages] PMchats as receiver: ', PMchats)
+    // console.log('[getPrivateMessages] PMchats as receiver: ', PMchats)
     return PMchats;
   })
   .catch(error => {
@@ -794,16 +794,28 @@ const getMessagesInRooms = (roomids) => {
 
 // _____________________________________________________________
 // GET USERS AND MESSAGES PER ROOM
+const getRoomCreators = (roomids) => {
+  return knex('rooms AS r')
+  .select('r.name AS roomName', 'u.name AS creatorName')
+  .innerJoin('users AS u', 'created_by', 'userid')
+  .whereIn('roomid', roomids)
+  .catch(error => {
+    console.log('Could not get room creators, error: ', error);
+  })
+}
 
-const mergeRoomsUsersAndMessages = ( messagesArray , roomsAndUsers ) => {
-  // console.log('[mergeRoomsUsersAndMessages] messagesArray: ', messagesArray);
+const mergeRoomsUsersAndMessages = ( roomCreators, messagesInRooms , roomsAndUsers ) => {
+  // console.log('[mergeRoomsUsersAndMessages] messagesInRooms: ', messagesInRooms);
   // console.log('[mergeRoomsUsersAndMessages] roomsAndUsers: ', roomsAndUsers);
 
   const roomNames = Object.keys(roomsAndUsers);
   for (const roomName of roomNames) {
-    roomsAndUsers[roomName].messages = messagesArray.filter(message => {
+    roomsAndUsers[roomName].messages = messagesInRooms.filter(message => {
       return message.roomname === roomName;
     });
+    roomsAndUsers[roomName].creator = roomCreators.find(room => {
+      if (room.roomName === roomName) return room.creatorName;
+    })
     // console.log('roomsAndUsers[roomName].messages: ');
     // console.dir(roomsAndUsers[roomName].messages);
   }
@@ -813,25 +825,71 @@ const mergeRoomsUsersAndMessages = ( messagesArray , roomsAndUsers ) => {
 }
 
 const getUsersAndMessagesPerRoom = async (username, roomids) => {
-  let messagesArray = [];
-  return getMessagesInRooms(roomids)
+  let messagesInRooms = [];
+  let roomCreators = [];
+  return getRoomCreators(roomids)
+  .then(rmCreators =>   {
+    roomCreators = rmCreators;
+  })
+  .then(_ => {
+    return getMessagesInRooms(roomids)
+  })
   .then(messages => {
     // console.log('[getUsersAndMessagesPerRoom] return result from [getMessagesPerRoom], messages: ');
     // console.dir(messages);
-    messagesArray = messages;
+    messagesInRooms = messages;
     return getUsersInRooms(roomids);
   })
-  .then(roomsAndUsers => {
+  .then(roomsAndTheirUsers => {
     // console.log('[getUsersAndMessagesPerRoom] return result from [getUsersInRooms], roomsAndUsers: ');
     // console.dir(roomsAndUsers);
 
-    return mergeRoomsUsersAndMessages(messagesArray, roomsAndUsers);
+    return mergeRoomsUsersAndMessages(roomCreators, messagesInRooms, roomsAndTheirUsers);
   })
   .then(roomsArrayMap => {
     // const roomsMap = roomsArrayToRoomsMap(roomsArrayMap);
     // console.log('getUsersAndMessagesPerRoom, roomsArrayMap ', roomsArrayMap);
     return roomsArrayMap;
   })
+}
+
+const createNewRoom = (newRoom) => {
+  let userId = '';
+  let roomId = '';
+  return findUserId(newRoom.creatorName)
+  .then(userid => {
+    userId = userid;
+    roomId = v4();
+    return knex('rooms')
+    .insert({
+      roomid: roomId,
+      name: newRoom.roomName,
+      created_by: userid,
+      authorise: newRoom.authorise
+    })
+    .returning('*')
+    .then(res => {
+      console.log('Created new room, res: ', res);
+      return res;
+    })
+    .then(res => {
+      const longDate = Date.parse(new Date())
+      return knex('join_room_events')
+      .insert({
+        userid: userId,
+        roomid: roomId,
+        joineddate: longDate / 1000
+      })
+      .returning('*')
+    })
+    .then(res => {
+      console.log('Inserted new join_room_event: res', res);
+    })
+    .catch(error => {
+      console.log('Could not create a new room, error: ', error);
+    })
+  })
+  
 }
 
 module.exports = {
@@ -854,5 +912,6 @@ module.exports = {
   approveJoinRequest,
   getPreviousJoinRequests,
   getRequestsApproved,
-  disconnectUser
+  disconnectUser,
+  createNewRoom
 }

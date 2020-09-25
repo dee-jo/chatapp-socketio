@@ -24,7 +24,8 @@ const MainApp = ({
   onPrivateMessageReceived,
   PMuserNames,
   PMessages,
-  onSendPrivateMessage
+  onSendPrivateMessage,
+  onSendCreatedNewRoom
 }) => {
 
  
@@ -47,7 +48,8 @@ const MainApp = ({
     roomNames,
     rooms,
     onMessageReceived,
-    onSendMessage
+    onSendMessage,
+    onSendCreatedNewRoom
   }
 
   const PrivateChatsProps = {
