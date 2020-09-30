@@ -44,6 +44,13 @@ const MainApp = ({
     setJoinRequestSent
   }
 
+  const JoinNewRoomProps = {
+    availableRooms,
+    onJoinRoomsRequest,
+    joinRequestSent,
+    setJoinRequestSent
+  }
+
   const ActiveRoomsProps = {
     roomNames,
     rooms,
@@ -57,6 +64,7 @@ const MainApp = ({
     PMessages,
     onPrivateMessageReceived,
     onSendPrivateMessage,
+    availableUsers
   }
 
   const NotificationsProps = {
@@ -67,7 +75,7 @@ const MainApp = ({
   const renderSection = (activeTab) => {
     switch (activeTab) {
       case 'logout': return onLogout();
-      case 'your-rooms': return  (rooms) ? <ActiveRooms {...ActiveRoomsProps} /> : null;
+      case 'your-rooms': return  (rooms) ? <ActiveRooms {...ActiveRoomsProps} {...JoinNewRoomProps} /> : null;
       case 'private-chats': return (PMessages) ? <PrivateChats {...PrivateChatsProps} /> : null;
       case 'dashboard': return (availableRooms && availableUsers) ? <Dashboard {...DashboardProps} /> : null;
       case 'notifications': return <Notifications {...NotificationsProps} />;

@@ -26,6 +26,11 @@ const RoomList = ({ roomNames, currentRoom, setCurrentRoom }) => {
           active={currentRoom === 'create room'}
           onClick={handleItemClick}
         />
+        <Menu.Item
+          name='join new room'
+          active={currentRoom === 'join new room'}
+          onClick={handleItemClick}
+        />
     </Menu>
   )
 }

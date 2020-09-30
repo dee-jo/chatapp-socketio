@@ -16,8 +16,10 @@ const UsersSearch = ({filteredUsers, onSendPrivateMessage}) => {
   // console.log('filtered users in UsersSearch: ', filteredUsers);
 
   return (
-    <Segment className='users-search'>
-      {filteredUsers.map((receipient, i) => ( 
+    <>
+    <Segment className='users-search'> 
+      {!filteredUsers.length && <p>No results to show!</p>}
+      {filteredUsers && filteredUsers.map((receipient, i) => ( 
         <Accordion >  
           <Accordion.Title
             active={activeIndex === i}
@@ -28,7 +30,7 @@ const UsersSearch = ({filteredUsers, onSendPrivateMessage}) => {
           </Accordion.Title>
           <Accordion.Content active={activeIndex === i}>
           <Input
-            className='messageInput'
+            className='findAndMessageInput'
             onChange={(e) => setPrivateMessage(e.target.value)}
             placeholder={`Message ${receipient}`} >
             <input/>
@@ -39,6 +41,7 @@ const UsersSearch = ({filteredUsers, onSendPrivateMessage}) => {
         ))
       }
     </Segment>
+    </>
   )
 }
 

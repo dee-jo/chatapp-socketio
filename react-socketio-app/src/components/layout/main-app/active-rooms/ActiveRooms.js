@@ -8,7 +8,11 @@ const ActiveRooms = ({
   rooms,
   onMessageReceived,
   onSendMessage,
-  onSendCreatedNewRoom
+  onSendCreatedNewRoom,
+  availableRooms,
+  onJoinRoomsRequest,
+  joinRequestSent,
+  setJoinRequestSent
 }) => {
 
   const [ currentRoom, setCurrentRoom ] = useState(null);
@@ -38,7 +42,11 @@ const ActiveRooms = ({
                   currentRoom={currentRoom} 
                   getMessages={onMessageReceived} 
                   onSendMessage={onSendMessage} 
-                  onSendCreatedNewRoom={onSendCreatedNewRoom}/> )
+                  onSendCreatedNewRoom={onSendCreatedNewRoom}
+                  availableRooms={availableRooms}
+                  onJoinRoomsRequest={onJoinRoomsRequest}
+                  joinRequestSent={joinRequestSent}
+                  setJoinRequestSent={setJoinRequestSent} /> )
           }
         </Segment>
       </Grid.Column>

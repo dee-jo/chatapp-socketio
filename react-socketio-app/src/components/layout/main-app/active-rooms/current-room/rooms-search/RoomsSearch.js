@@ -2,34 +2,22 @@ import _ from 'lodash'
 import React, { useState } from 'react';
 import { Button, Dropdown, Modal } from 'semantic-ui-react' 
 import * as classes from './RoomsSearch.css'
-import JoinRequestsPending from './join-requests/JoinRequestsPending';
-import JoinRequestsApproved from './join-requests/JoinRequestsApproved';
-
 
 const RoomsSearch = ({
   availableRooms, 
   onJoinRoomsRequest, 
-  joinRequestSent, 
-  joinRequestsPending,
-  joinRequestsApproved,
+  joinRequestSent,
   setJoinRequestSent
 }) =>  {
 
   const getOptions = () => {
-    // console.log('[RoomsSearch], availableRooms: ', availableRooms);
       return availableRooms.map(room => {
         return { key: room, text: room, value: _.snakeCase(room) }
       })
   }
 
-  const [ isFetching, setIsFetching ] = useState(false);
-  const [ multiple, setMultiple ] = useState(true);
-  const [ search, setSearch ] = useState(true);
-  const [ searchQuery, setSearchQuery ] = useState(null);
   const [ value, setValue ] = useState([]);
   const [ options, setOptions ] = useState(getOptions()); 
-  const [ requestSent, setRequestSent ] = useState(false)
-
   const [ open, setOpenModal] = useState(true);
 
   // console.log('availableRooms', availableRooms);
@@ -37,10 +25,9 @@ const RoomsSearch = ({
   // console.log('search value: ', value);
 
   const handleChange = (e, { value }) => setValue( value )
-  const handleSearchChange = (e, { searchQuery }) => setSearchQuery( searchQuery )
+  // const handleSearchChange = (e, { searchQuery }) => setSearchQuery( searchQuery )
 
   const onSubmitJoinRequest = () => {
-    setRequestSent(true);
     onJoinRoomsRequest(value);
     setValue([]);
   }
@@ -51,8 +38,7 @@ const RoomsSearch = ({
     setOptions(getOptions);
   }
 
-
-  const renderModal = (open) => (
+  const renderModal = () => (
     
     <Modal
       size='mini'
@@ -79,7 +65,21 @@ const RoomsSearch = ({
     {renderModal(modalOpen)}
     {/* <RequestModal openModal={modalOpen} setJoinRequestSent={setJoinRequestSent} /> */}
     <div className='roomSearch'>
-        <div className='buttonWrapper'>
+      <div>
+        <Dropdown
+          fluid
+          selection
+          multiple={true}
+          search={true}
+          options={options}
+          value={value}
+          placeholder='Select rooms'
+          onChange={handleChange}
+          disabled={false}
+          loading={false}
+        />
+      </div>
+      <div className='buttonWrapper'>
         <Button fluid 
                 className='joinButton'
                 disabled={!value.length}
@@ -87,24 +87,7 @@ const RoomsSearch = ({
                   {value.length ? 'Request To Join Selected Rooms' : 'Select rooms you wish to join'}
         </Button>
       </div>
-      <div>
-        <Dropdown
-          fluid
-          selection
-          multiple={multiple}
-          search={search}
-          options={options}
-          value={value}
-          placeholder='Select rooms'
-          onChange={handleChange}
-          onSearchChange={handleSearchChange}
-          disabled={isFetching}
-          loading={isFetching}
-        />
-      </div>
     </div>
-    <JoinRequestsPending joinRequestsPending={joinRequestsPending} />
-    <JoinRequestsApproved joinRequestsApproved={joinRequestsApproved} />
     </>
   )
 }

@@ -23,9 +23,9 @@ const UserList = ({ PMuserNames, activeTab, PMsetActiveChat }) => {
           })
         }
         <Menu.Item
-          name='Create Room'
-          active={activeTab === 'Create Room'}
-          onClick={()=> {}}
+          name='find user'
+          active={activeTab === 'find user'}
+          onClick={handleItemClick}
         />
     </Menu>
   )
