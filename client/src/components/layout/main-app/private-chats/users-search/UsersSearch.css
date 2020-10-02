@@ -1,0 +1,13 @@
+div.ui.right.action.input.findAndMessageInput {
+  width: 75%;
+  padding-top: 0;
+} 
+
+.ui.action.input:not([class*="left action"])>input {
+  width: 100%;
+}
+
+div.ui.segment.users-search {
+  overflow-y: scroll;
+  max-height: 200px;
+}

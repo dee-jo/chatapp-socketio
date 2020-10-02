@@ -1,0 +1,35 @@
+div.field {
+  display: inline-block;
+}
+
+form button.ui.button {
+  background-color: white !important;
+  padding-left: 2px;
+  padding-top: 2px;
+  color: rgba(0,0,0,.8);
+  transition: font-size .7s;
+}
+
+form button.ui.button:hover {
+  box-shadow: none;
+  background-color: white !important;
+  background-image: none;
+  font-size: 1.2rem;
+}
+
+div.buttons {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: initial;
+  justify-content: space-between;
+}
+
+@media (min-width: 767px) {
+  div.field {
+    min-width: 350px;
+  }
+  div.buttons {
+    flex-direction: column;
+  }
+}
