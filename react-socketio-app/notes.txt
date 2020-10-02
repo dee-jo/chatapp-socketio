@@ -1,7 +1,7 @@
   - move the option of selecting new users for PM to PrivateMessages
+  - move the option of requesting to join rooms to ActiveRooms (extra tab in RoomList)
 
 TODO:
-  - move the option of requesting to join rooms to ActiveRooms (extra tab in RoomList)
   - delete Dashboard
   - add description field to rooms (from ui to db)
   - make ActiveRooms component reusable so that it can be used for PrivateRooms also
@@ -10,7 +10,7 @@ TODO:
   - implement load-balancer and compose with Docker
   - change socket.io to websockets
 
-  Functionality:
+ Extended Functionality:
     - implement nginx load balancer that will redirect traffic to multiple socketio servers, implement Kafka pubsub streaming so that each io server could subscribe to all existing Kafka topics and push messegas from clients to Kafka according to topic (room). Then create a db service to also subscribe to all kafka's topicks and store the data on each notification.
     - implement sending photos, videos and other files
     - implement phone calls and vide calls
