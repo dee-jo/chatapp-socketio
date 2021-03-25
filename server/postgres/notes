@@ -1,0 +1,21 @@
+/////// BUILD POSTGRES IMAGE AND POPULATE WITH DATA DUMP /////
+docker build -t sapphirepencil/postgres-data
+docker run -it \
+  -e POSTGRESS_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \ 
+  -e POSTGRES_DB=chat -p 5444:5432 \
+  sapphirepencil/postgres-data
+
+docker exec -it <postgres_container_id> sh
+psql -U postgres
+
+
+--------------
+the file postgres/chat_app_new1.sql was created with pg_dump:
+  pg_dump -W -U postgres chat_app_new1 > chat_app_new1.sql 
+
+
+--------------
+useful postgress cheat sheet:
+- \https://karloespiritu.github.io/cheatsheets/postgresql/
+
