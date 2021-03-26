@@ -15,3 +15,14 @@ the file postgres/chat_app_new1.sql was created with pg_dump:
 useful postgress cheat sheet:
 - \https://karloespiritu.github.io/cheatsheets/postgresql/
 
+
+
+
+------------------ running container with mounted volume for backup ----------------------------------
+(works, but files not visible on the host)
+26 March
+docker run -rm --name docker_vol_test_pg -e POSTGRES_PASSWORD=postgres -p 5434:5432 -v ~/react-socketio/server/postgres/data:/var/lib/postgresql/data postgres
+
+try next time:
+docker run -rm --name docker_vol_test_pg -e POSTGRES_PASSWORD=postgres -p 5434:5432 -v $(pwd)/data:/var/lib/postgresql/data postgres
+
