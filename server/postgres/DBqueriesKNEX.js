@@ -1,11 +1,6 @@
 const bcrypt = require('bcrypt');
 const {v4} = require('uuid');
-const { execute } = require('@getvim/execute');
-const fs = require('fs');
-const path = require('path');
 const database = 'chat';
-const dbFile = 'chat_app_new1_copy2';
-
 
 const knex = require('knex')({
   client: 'pg',

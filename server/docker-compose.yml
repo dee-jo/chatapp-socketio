@@ -1,0 +1,12 @@
+version: '1.1'
+services:
+  server:
+    build: .
+    ports:
+      - '3001:3001'
+  postgres:
+    image: 'postgres:latest'
+    ports:
+      - '5444:5432'
+    volumes:
+      - ~/react-socketio/server/postgres/pg-container-backup/data:/var/lib/postgresql/data

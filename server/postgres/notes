@@ -1,14 +1,8 @@
-/////// BUILD POSTGRES IMAGE AND POPULATE WITH DATA DUMP /////
-docker build -t sapphirepencil/postgres-data
-docker run -it -e POSTGRESS_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=chat -p 5444:5432 sapphirepencil/postgres-data
 
-docker exec -it <postgres_container_id> sh
-psql -U postgres
+26 March
+------------------ running postgres container with mounted volume with backed up data ----------------------
 
-
---------------
-the file postgres/chat_app_new1.sql was created with pg_dump:
-  pg_dump -W -U postgres chat_app_new1 > chat_app_new1.sql 
+docker run --name pg_with_data -e POSTGRES_PASSWORD=postgres -p 5444:5432 -v ~/react-socketio/server/postgres/pg-container-backup/data:/var/lib/postgresql/data postgres
 
 
 --------------
@@ -18,11 +12,5 @@ useful postgress cheat sheet:
 
 
 
------------------- running container with mounted volume for backup ----------------------------------
-(works, but files not visible on the host)
-26 March
-docker run -rm --name docker_vol_test_pg -e POSTGRES_PASSWORD=postgres -p 5434:5432 -v ~/react-socketio/server/postgres/data:/var/lib/postgresql/data postgres
 
-try next time:
-docker run -rm --name docker_vol_test_pg -e POSTGRES_PASSWORD=postgres -p 5434:5432 -v $(pwd)/data:/var/lib/postgresql/data postgres
 

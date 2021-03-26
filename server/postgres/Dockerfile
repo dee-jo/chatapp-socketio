@@ -1,5 +1,5 @@
 FROM postgres:latest
-RUN mkdir -p /tmp/psql_data/
+ENV POSTGRES_PASSWORD=postgres
+EXPOSE 5432
 
-COPY chat_app_new1.sql /tmp/psql_data/
-COPY ./init_docker_postgres.sh /docker-entrypoint-initdb.d/
+
