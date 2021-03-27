@@ -1,5 +1,5 @@
-FROM postgres:latest
-ENV POSTGRES_PASSWORD=postgres
-EXPOSE 5432
+# FROM postgres:latest
+# ENV POSTGRES_PASSWORD=postgres
+# EXPOSE 5432
 
 

@@ -1,12 +1,27 @@
-version: '1.1'
+version: '2'
 services:
-  server:
-    build: .
-    ports:
-      - '3001:3001'
-  postgres:
-    image: 'postgres:latest'
+  db:
+    container_name: 'postgresDB'
+    image: postgres:latest
     ports:
       - '5444:5432'
+    environment:
+      POSTGRES_DB: chat
+      POSTGRES_USER: postgres
+      POSTGRES_PASS: postgres
     volumes:
       - ~/react-socketio/server/postgres/pg-container-backup/data:/var/lib/postgresql/data
+    # networks:
+    #  - mynw
+  api:
+    container_name: 'server'
+    image: sapphirepencil/chat-server:latest
+    ports:
+      - '3001:3001'
+    environment:
+      DB_HOST: host.docker.internal
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: chat
+    # networks:
+    #  - mynw

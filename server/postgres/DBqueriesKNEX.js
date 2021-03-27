@@ -1,15 +1,14 @@
 const bcrypt = require('bcrypt');
 const {v4} = require('uuid');
-const database = 'chat';
 
 const knex = require('knex')({
   client: 'pg',
   connection: {
-    host : 'localhost',
+    host : process.env.DB_HOST,
     port: '5444',
-    user : 'postgres',
-    password : 'postgres',
-    database
+    user : process.env.DB_USER,
+    password : process.env.DB_PASS,
+    database : process.env.DB_NAME
   }
 });
 
