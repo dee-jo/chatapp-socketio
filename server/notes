@@ -1,0 +1,6 @@
+27 March
+- to connect to DO droplet via ssh
+  - cd ~/.ssh
+  - keygen-ssh
+  - copy public key and paste on DO
+  - ssh -i <private-key-file> root@<projectPublicIP> 
