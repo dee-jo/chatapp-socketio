@@ -1,0 +1,22 @@
+name: deploy-manifests
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'server/**'
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checout@v2 # checkout all of the code inside the repo
+      - run: docker push sapphirepencil/chat-server
+      - uses: digitalocean/action-doctl@v2 # install doctl inside github container
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - run: doctl kubernetes cluster kubeconfig save chat-app-cluster
+      - run: kubectl apply -f infra/k8s/prod
+      
+      
+      
