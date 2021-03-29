@@ -19,6 +19,7 @@ services:
     ports:
       - '3001:3001'
     environment:
+      DB_PORT: '5444'
       DB_HOST: host.docker.internal
       DB_USER: postgres
       DB_PASS: postgres

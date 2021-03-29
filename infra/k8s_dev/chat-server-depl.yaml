@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-server-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-server
+  template:
+    metadata:
+      labels:
+        app: chat-server
+    spec:
+      containers:
+        - name: chat-server
+          image: sapphirepencil/chat-server:latest
+          env:
+            - name: DB_HOST
+              value: host.docker.internal
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASS
+              value: postgres
+            - name: DB_NAME
+              value: chat
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-server-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: chat-server
+  ports:
+    - name: chat-server
+      protocol: TCP
+      port: 3001
+      targetPort: 3001

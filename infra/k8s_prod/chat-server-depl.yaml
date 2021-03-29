@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-server-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-server
+  template:
+    metadata:
+      labels:
+        app: chat-server
+    spec:
+      containers:
+        - name: chat-server
+          image: sapphirepencil/chat-server
+          env:
+            - name: DB_PORT
+              value: '5432'
+            - name: DB_HOST
+              value: 'postgres://postgres-cluster-service:5432/chat'
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASS
+              value: postgres
+            - name: DB_NAME
+              value: chat
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-server-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: chat-server
+  ports:
+    - name: chat-server
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

@@ -4,3 +4,18 @@
   - keygen-ssh
   - copy public key and paste on DO
   - ssh -i <private-key-file> root@<projectPublicIP> 
+
+- to create DO cluster:
+  Dashboard -> Create -> Kubernetes -> select most local CDN and basic node -> select your project -> create
+  API -> create a token -> copy
+  authenticate, cmd: doctl auth init
+  paste the token when prompted
+ 
+- change Kubernetes context with doctl:
+  get connection to new cluster: 
+  cmd: doctl kubernetes cluster kubeconfig save 
+
+- list all contexts, 
+  cmd: kubectl config view
+- swap context:
+  cmd: kubectl config use-context <context-name>

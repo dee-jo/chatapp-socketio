@@ -4,6 +4,10 @@ const db = require('./postgres/DBqueriesKNEX');
 // SERVER
 const app = require('express')();
 const http = require('http').createServer(app);
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
 
 // SOCKETIO
 
@@ -16,15 +20,22 @@ const userSocketMap = {};
 // SERVER CONFIGURATION
 const cors = require('cors');
 const bodyParser = require('body-parser');
-app.use(cors());  
+// app.use(cors());  
+app.options('*', cors());
 app.use(bodyParser.json());
 
+app.get('/chat-server', (req, res) => {
+  res.send('Hello from chat-server base route!');
+});
+
 // SERVER API ENDPOINTS
-app.post('/joinRooms', (req, res) => {
+app.post('/chat-server/joinRooms', (req, res) => {
   if (!req.body||req.body=={}) {
-    return res.status(400).send("Bad Request")
+    res.status(400).send("Bad Request")
   }
   const {rooms, username} = req.body;
+  return console.log('Received joinRooms request!');
+
   db.storeJoinRequests(rooms, username)
   .then(result => {
     return res.status(200).send("Room access requests successful.");
@@ -34,11 +45,12 @@ app.post('/joinRooms', (req, res) => {
   })
 });
 
-app.post('/signup', (req, res) => {
+app.post('/chat-server/signup', (req, res) => {
   if (!req.body||req.body=={}){
     return res.status(400).send("Bad Request")
   }
   const { username, password } = req.body;
+  console.log('Received signup request!');
 
   db.signupNewUser({username, password})
   .then(response => {
@@ -53,8 +65,8 @@ app.post('/signup', (req, res) => {
   })
 });
 
-http.listen(3001, () => {
-  console.log('listening on :3001');
+http.listen(3000, () => {
+  console.log('listening on :3000');
 });
 
 

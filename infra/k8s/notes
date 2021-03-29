@@ -1,0 +1,23 @@
+Create Postgres config maps resource:
+- cmd: 
+  kubectl create -f postgres-configmap.yaml 
+
+Create storage related deployments:
+- cmd:
+  kubectl create -f postgres-storage.yaml
+
+Create deployment:
+- cmd:
+  kubectl create -f postgres-deployment.yaml
+
+Create Postgres Service:
+- cmd:
+  kubectl create -f postgres-service.yaml 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Connect to PostgreSQL:
+- cmd:
+  kubectl get svc postgres
+
+Reference:
+https://severalnines.com/database-blog/using-kubernetes-deploy-postgresql

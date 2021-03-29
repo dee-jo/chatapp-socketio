@@ -2,8 +2,11 @@ import io from 'socket.io-client';
 import { useState, useEffect, useRef } from 'react';
 import { v4 } from 'uuid';
 import axios from 'axios';
+axios.defaults.baseURL = '/';
 
 const useSocket = () => {
+  const serverURL = 'http://www.chat-app-demo.xyz/chat-server';
+  const serverURL_local = 'http://localhost:3001';
   const socketRef = useRef();
 
   const [ username, setUsername ] = useState(null);
@@ -40,7 +43,7 @@ const useSocket = () => {
 
   useEffect(() => {
     if (username && password) {
-      socketRef.current = io("http://localhost:3001");
+      socketRef.current = io(`${serverURL}/signup`);
 
       socketRef.current.on('connect', () => {
         console.log('Socket connected: ', socketRef.current.socket);
@@ -259,7 +262,8 @@ const useSocket = () => {
       };
       return axios({
         method: 'post',
-        url: 'http://localhost:3001/signup',
+        baseURL: '/',
+        url: `${serverURL}/signup`,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -274,7 +278,7 @@ const useSocket = () => {
     };
     return axios({
       method: 'post',
-      url: 'http://localhost:3001/joinRooms',
+      url: `${serverURL}/joinRooms`,
       headers: {
         'Content-Type': 'application/json',
       },
