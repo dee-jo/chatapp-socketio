@@ -1,2 +1,3 @@
 server/node_modules
 server/postgres/pg-container-backup/data
+test-api/node_modules
